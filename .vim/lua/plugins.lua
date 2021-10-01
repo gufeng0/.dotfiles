@@ -43,13 +43,23 @@ return require('packer').startup(function()
   }
 
   use {
-      'akinsho/bufferline.nvim',
+      'lu5je0/bufferline.nvim',
       config = function() require("config/bufferline") end
   }
 
   use 'kyazdani42/nvim-web-devicons'
 
-  use {'jiangmiao/auto-pairs'}
+  use {
+      'jiangmiao/auto-pairs',
+      config = function()
+          vim.cmd([[let g:AutoPairs= {'(':')', '[':']', '{':'}',"'":"'",'"':'"', "`":"`", '```':'```', '"""':'"""', "'''":"'''"}]])
+          vim.g.AutoPairsShortcutToggle = ''
+          vim.g.AutoPairsShortcutJump = ''
+          vim.g.AutoPairsShortcutFastWrap = ''
+          vim.g.AutoPairsMoveCharacter = ''
+      end
+  }
+
   use {'schickling/vim-bufonly'}
 
   use {
@@ -78,25 +88,13 @@ return require('packer').startup(function()
 
   use {'kyazdani42/nvim-tree.lua'}
 
-  -- -- Post-install/update hook with neovim command
-  local treesitter_ft = {'json', 'python', 'java', 'lua', 'c', 'vim', 'bash', 'go', 'rust', 'toml', 'yaml'}
   use {
       'nvim-treesitter/nvim-treesitter',
       run = ':TSUpdate',
       opt = true,
-      ft = treesitter_ft,
+      ft = {'json', 'python', 'java', 'lua', 'c', 'vim', 'bash', 'go', 'rust', 'toml', 'yaml', 'markdown'},
       config = function()
-          require'nvim-treesitter.configs'.setup {
-              -- Modules and its options go here
-              ensure_installed = treesitter_ft,
-              highlight = { enable = true },
-              incremental_selection = { enable = true },
-              textobjects = { enable = true },
-          }
-          vim.cmd([[
-            set foldmethod=expr
-            set foldexpr=nvim_treesitter#foldexpr()
-          ]])
+          require('config/treesiter')
       end
   }
 
@@ -111,12 +109,12 @@ return require('packer').startup(function()
   use {'lu5je0/vim-java-bytecode'}
   use {'MTDL9/vim-log-highlighting'}
 
-  use {
-      'SirVer/ultisnips',
-      opt = true,
-      ft = 'markdown',
-      config = function() vim.cmd('let g:UltiSnipsExpandTrigger="<c-d>"') end
-  }
+--   use {
+--       'SirVer/ultisnips',
+--       opt = true,
+--       ft = 'markdown',
+--       config = function() vim.cmd('let g:UltiSnipsExpandTrigger="<c-d>"') end
+--   }
 
   use {
       'othree/eregex.vim',
@@ -127,12 +125,12 @@ return require('packer').startup(function()
 
   use 'yianwillis/vimcdoc'
 
-  use {
-    'chrisbra/vim-diff-enhanced',
-    config = function()
-        vim.cmd("set diffopt+=internal,algorithm:patience")
-    end
-  }
+  -- use {
+  --   'chrisbra/vim-diff-enhanced',
+  --   config = function()
+  --       vim.cmd("set diffopt+=internal,algorithm:patience")
+  --   end
+  -- }
 
   use {
     'tpope/vim-commentary',
@@ -284,9 +282,19 @@ return require('packer').startup(function()
 
   use {
       'iamcco/markdown-preview.nvim',
-      run = 'cd app && yarn install',
-      opt = true,
-      cmd = 'MarkdownPreview'
+      run = function() vim.fn['mkdp#util#install']() end,
+      config = function ()
+          vim.g.mkdp_auto_close = 0
+      end,
+      ft = {'markdown'}
+  }
+
+  use {
+      'masukomi/vim-markdown-folding',
+      ft = {'markdown'},
+      config = function()
+          vim.g.markdown_fold_style = 'nested'
+      end
   }
 
   use {
