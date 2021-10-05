@@ -102,6 +102,7 @@ let g:which_key_map.p = {
 let g:which_key_map.s = {
             \ 'name' : '+translate',
             \ 's' : 'translate popup',
+            \ 'a' : 'say it',
             \ 'r' : 'translate replace',
             \ 'c' : 'translate',
             \ }
@@ -109,6 +110,12 @@ let g:which_key_map.s = {
 " Echo translation in the cmdline
 nmap <silent> <Leader>sc <Plug>Translate
 vmap <silent> <Leader>sc <Plug>TranslateV
+
+" say it
+nmap <silent> <Leader>sa <Plug>TranslateW:call misc#say_it()<cr>
+vmap <silent> <Leader>sa <Plug>TranslateWV:call misc#visual_say_it()<cr>
+
+" vmap <silent> <Leader>sc <Plug>TranslateV
 " Display translation in a window
 nmap <silent> <Leader>ss <Plug>TranslateW
 vmap <silent> <Leader>ss <Plug>TranslateWV

@@ -1,5 +1,8 @@
 -- This file can be loaded by calling `lua require('plugins')` from your init.vim
 
+require('packer').init {
+    max_jobs = 10
+}
 -- Only required if you have packer configured as `opt`
 return require('packer').startup(function()
 
@@ -206,7 +209,12 @@ return require('packer').startup(function()
       end
   }
 
-  use {'voldikss/vim-translator'}
+  use {
+      'lu5je0/vim-translator',
+      config = function()
+        vim.g.translator_default_engines = {'disk'}
+      end
+  }
 
   use {
       'rbong/vim-flog',
