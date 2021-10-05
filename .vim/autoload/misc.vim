@@ -32,3 +32,21 @@ function! misc#fold_text()
 
   return l:text . repeat(' ', l:width - strlen(substitute(l:text, ".", "x", "g")) + 1) . l:info
 endfunction
+
+function misc#execute_command_for_word(cmd)
+   let l:word = expand("<cword>")
+   execute 'silent exec "!' . a:cmd . ' ' . l:word . '"'
+endfu 
+
+function misc#say(word)
+    echon a:word
+    call jobstart("say -v Alex " . a:word)
+endfunction
+
+function misc#say_it()
+    call misc#say(expand("<cword>"))
+endfunction
+
+function misc#visual_say_it()
+    call misc#say(visual#visual_selection())
+endfunction
