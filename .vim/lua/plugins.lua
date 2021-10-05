@@ -303,7 +303,7 @@ return require('packer').startup(function()
       config = function() vim.cmd('runtime plug-config/coc.vim') end
   }
 
-  use {'liuchengxu/vim-which-key', 
+  use {'liuchengxu/vim-which-key',
       config = function() vim.cmd('runtime whichkey.vim') end,
       opt = true,
       keys = {'<leader>'}
