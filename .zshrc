@@ -45,6 +45,10 @@ zinit ice depth=1 lucid wait='1'
 zinit light paulirish/git-open
 
 zinit ice depth=1 lucid wait='0'
+zinit light Aloxaf/fzf-tab
+zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+
+zinit ice depth=1 lucid wait='0'
 zinit light zsh-users/zsh-syntax-highlighting
 
 zinit ice depth=1 lucid wait='0'
@@ -108,11 +112,12 @@ if [[ -e ~/tools/script/souche/souche_zsh ]];then
 fi
 
 # ls
-alias l='ls -lah'
-alias la='ls -lAh'
-alias ll='ls -lh'
-alias ls='ls --color=tty'
-alias lsa='ls -lah'
+# alias l='ls -lah'
+# alias ll='ls -lh'
+
+alias l='exa -laF'
+alias ll='exa -lF'
+
 alias md='mkdir -p'
 
 # git

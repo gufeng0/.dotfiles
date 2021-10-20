@@ -95,7 +95,7 @@ return require('packer').startup(function()
       'nvim-treesitter/nvim-treesitter',
       run = ':TSUpdate',
       opt = true,
-      ft = {'json', 'python', 'java', 'lua', 'c', 'vim', 'bash', 'go', 'rust', 'toml', 'yaml', 'markdown'},
+      ft = {'json', 'python', 'java', 'lua', 'c', 'vim', 'bash', 'go', 'rust', 'toml', 'yaml', 'markdown', 'bash', 'sh'},
       config = function()
           require('config/treesiter')
       end
@@ -110,7 +110,24 @@ return require('packer').startup(function()
   }
 
   use {'lu5je0/vim-java-bytecode'}
+
   use {'MTDL9/vim-log-highlighting'}
+
+  use {
+      'tpope/vim-dadbod',
+      config = function ()
+          vim.g.db_ui_use_nerd_fonts = 1
+          vim.g.db_ui_winwidth = 30
+      end,
+      opt = true,
+      cmd = {'DB', 'DBUI'}
+  }
+
+  use {
+      'kristijanhusak/vim-dadbod-ui',
+      opt = true,
+      cmd = {'DB', 'DBUI'}
+  }
 
 --   use {
 --       'SirVer/ultisnips',
