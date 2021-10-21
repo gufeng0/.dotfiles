@@ -1,11 +1,38 @@
-git clone --depth 1 https://github.com/wbthomason/packer.nvim\
- ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+#!/bin/bash
+
+ask() {
+    echo -n $1
+    echo -n $' (y/n) \n# '
+    read choice
+    case $choice in
+        Y | y)
+        return 0
+    esac
+    return -1
+}
+
+ask "Enable http proxy(http://127.0.0.1:1080)?" && export http_proxy=http://${HTTP_PROXY:-127.0.0.1:1080} && export https_proxy=http://${HTTP_PROXY:-127.0.0.1:1080}
+
+ask "Clone parcker.nvim?" && git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+
+ask "Use ssh config?" && ln -s ~/.dotfiles/.ssh/config ~/.ssh/config
+
+ask "Download stardict?" && sh ~/.dotfiles/scripts/download-stardict.sh
+
+ask "Git config?" && ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
+
+if [ "$(uname)" = "Linux" ]; then
+    if [ -f /etc/lsb-release ]; then
+        ask "Add add-apt-repository?" && sh ~/.dotfiles/scripts/apt-ppa.sh
+        ask "Install requires(apt)?" && sh ~/.dotfiles/scripts/apt-requires.sh
+    fi
+    ask "Config pip3 ali index-url?" && sh ~/.dotfiles/scripts/pip3-ali.sh
+fi
 
 ln -s ~/.dotfiles/.vim ~/.vim
 ln -s ~/.dotfiles/.ideavimrc ~/.ideavimrc
-ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 ln -s ~/.dotfiles/.zshrc ~/.zshrc
-ln -s ~/.dotfiles/.p10k.zsh ~/.p10k.zsh
+# ln -s ~/.dotfiles/.p10k.zsh ~/.p10k.zsh
 ln -s ~/.dotfiles/zsh/lu5je0.zsh-theme ~/.oh-my-zsh/themes/lu5je0.zsh-theme
 
 if [ "$(uname)" = "Darwin" ]; then
@@ -31,12 +58,5 @@ mkdir -p ~/.config/nvim
 ln -s ~/.dotfiles/.vim/vimrc ~/.config/nvim/init.vim
 ln -s ~/.dotfiles/.vim/coc-settings.json ~/.config/nvim/coc-settings.json
 
-
-echo "use ssh config?(y/n)"
-read use_ssh_config
-case $use_ssh_config in
-    Y | y)
-        echo "use ssh config" && ln -s ~/.dotfiles/.ssh/config ~/.ssh/config
-esac
-
 rm ~/.dotfiles/.vim/.vim
+rm ~/.dotfiles/bin/bin
