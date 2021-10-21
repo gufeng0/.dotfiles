@@ -13,8 +13,6 @@ ask() {
 
 ask "Enable http proxy(http://127.0.0.1:1080)?" && export http_proxy=http://${HTTP_PROXY:-127.0.0.1:1080} && export https_proxy=http://${HTTP_PROXY:-127.0.0.1:1080}
 
-ask "Clone parcker.nvim?" && git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-
 ask "Use ssh config?" && ln -s ~/.dotfiles/.ssh/config ~/.ssh/config
 
 ask "Download stardict?" && sh ~/.dotfiles/scripts/download-stardict.sh
@@ -57,6 +55,11 @@ ln -s ~/.dotfiles/.vim ~/.local/share/nvim/site
 mkdir -p ~/.config/nvim
 ln -s ~/.dotfiles/.vim/vimrc ~/.config/nvim/init.vim
 ln -s ~/.dotfiles/.vim/coc-settings.json ~/.config/nvim/coc-settings.json
+
+pip3 install pynvim
+pip install pyobjc
+
+ask "Clone packer.nvim?" && git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
 
 rm ~/.dotfiles/.vim/.vim
 rm ~/.dotfiles/bin/bin
