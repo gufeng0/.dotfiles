@@ -1,6 +1,7 @@
 -- This file can be loaded by calling `lua require('plugins')` from your init.vim
 
 require('packer').init {
+    -- log = { level = 'debug' },
     max_jobs = 15
 }
 -- Only required if you have packer configured as `opt`
