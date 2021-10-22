@@ -13,25 +13,24 @@ ask() {
 
 ask "Enable http proxy(http://127.0.0.1:1080)?" && export http_proxy=http://${HTTP_PROXY:-127.0.0.1:1080} && export https_proxy=http://${HTTP_PROXY:-127.0.0.1:1080}
 
+if [ "$(uname)" = "Linux" ]; then
+    if [ -f /etc/lsb-release ]; then
+        ask "Add add-apt-repository?" && sh ~/.dotfiles/scripts/apt-ppa.sh
+        ask "Install requires(apt)?" && sh ~/.dotfiles/scripts/apt-requires.sh
+        ask "Update nodejs?" && curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && sudo apt install -y nodejs
+    fi
+    ask "Config pip3 ali index-url?" && sh ~/.dotfiles/scripts/pip3-ali.sh
+fi
+
 ask "Use ssh config?" && ln -s ~/.dotfiles/.ssh/config ~/.ssh/config
 
 ask "Download stardict?" && sh ~/.dotfiles/scripts/download-stardict.sh
 
 ask "Git config?" && ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 
-if [ "$(uname)" = "Linux" ]; then
-    if [ -f /etc/lsb-release ]; then
-        ask "Add add-apt-repository?" && sh ~/.dotfiles/scripts/apt-ppa.sh
-        ask "Install requires(apt)?" && sh ~/.dotfiles/scripts/apt-requires.sh
-    fi
-    ask "Config pip3 ali index-url?" && sh ~/.dotfiles/scripts/pip3-ali.sh
-fi
-
 ln -s ~/.dotfiles/.vim ~/.vim
 ln -s ~/.dotfiles/.ideavimrc ~/.ideavimrc
 ln -s ~/.dotfiles/.zshrc ~/.zshrc
-# ln -s ~/.dotfiles/.p10k.zsh ~/.p10k.zsh
-ln -s ~/.dotfiles/zsh/lu5je0.zsh-theme ~/.oh-my-zsh/themes/lu5je0.zsh-theme
 
 if [ "$(uname)" = "Darwin" ]; then
     if [[ -f ~/.mac ]]; then
@@ -57,9 +56,9 @@ ln -s ~/.dotfiles/.vim/vimrc ~/.config/nvim/init.vim
 ln -s ~/.dotfiles/.vim/coc-settings.json ~/.config/nvim/coc-settings.json
 
 pip3 install pynvim
-pip install pyobjc
+
+if [ "$(uname)" = "Darwin" ]; then
+    pip install pyobjc
+fi
 
 ask "Clone packer.nvim?" && git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-
-rm ~/.dotfiles/.vim/.vim
-rm ~/.dotfiles/bin/bin
