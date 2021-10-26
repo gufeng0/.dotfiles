@@ -123,6 +123,7 @@ alias gck='git checkout'
 alias gpl='git pull'
 
 # tmux
+alias tm='tmux'
 alias ta="tmux attach -t"
 alias td="tmux detach"
 alias tl="tmux ls"

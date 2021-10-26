@@ -6,3 +6,6 @@ bash ~/.dotfiles/scripts/setup.sh
 
 ### Uninstalling it
 todo
+
+### shortcut key
+fern.vim
