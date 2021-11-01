@@ -22,15 +22,16 @@ if [ "$(uname)" = "Linux" ]; then
     ask "Config pip3 ali index-url?" && sh ~/.dotfiles/scripts/pip3-ali.sh
 fi
 
-ask "Use ssh config?" && ln -s ~/.dotfiles/.ssh/config ~/.ssh/config
+ask "Use ssh config?" && cp ~/.dotfiles/.ssh/config ~/.ssh/config
 
 ask "Download stardict?" && sh ~/.dotfiles/scripts/download-stardict.sh
 
 ask "Git config?" && ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 
-ln -s ~/.dotfiles/.vim ~/.vim
-ln -s ~/.dotfiles/.ideavimrc ~/.ideavimrc
-ln -s ~/.dotfiles/.zshrc ~/.zshrc
+ln -s ~/.dotfiles/vim ~/.vim
+ln -s ~/.dotfiles/ideavimrc ~/.ideavimrc
+ln -s ~/.dotfiles/zshrc ~/.zshrc
+ln -s ~/.dotfiles/cheat ~/.cheat
 
 if [ "$(uname)" = "Darwin" ]; then
     if [[ -f ~/.mac ]]; then
@@ -42,23 +43,21 @@ mkdir -p ~/.bin
 ln -s ~/.dotfiles/bin ~/.bin/local
 
 mkdir -p ~/.pip
-ln -s ~/.dotfiles/.pip/pip.conf ~/.pip/pip.conf
-ln -s ~/.dotfiles/.tmux.conf ~/.tmux.conf
+ln -s ~/.dotfiles/pip/pip.conf ~/.pip/pip.conf
+ln -s ~/.dotfiles/tmux.conf ~/.tmux.conf
 
 mkdir -p ~/.aria2
-ln -s ~/.dotfiles/.aria2/aria2.conf ~/.aria2/aria2.conf
+ln -s ~/.dotfiles/aria2/aria2.conf ~/.aria2/aria2.conf
 
 # nvim
 mkdir -p ~/.local/share/nvim
-ln -s ~/.dotfiles/.vim ~/.local/share/nvim/site
+ln -s ~/.dotfiles/vim ~/.local/share/nvim/site
 mkdir -p ~/.config/nvim
-ln -s ~/.dotfiles/.vim/vimrc ~/.config/nvim/init.vim
-ln -s ~/.dotfiles/.vim/coc-settings.json ~/.config/nvim/coc-settings.json
+ln -s ~/.dotfiles/vim/vimrc ~/.config/nvim/init.vim
+ln -s ~/.dotfiles/vim/coc-settings.json ~/.config/nvim/coc-settings.json
 
-pip3 install pynvim
+pip3 install pynvim neovim-remote
 
 if [ "$(uname)" = "Darwin" ]; then
     pip install pyobjc
 fi
-
-ask "Clone packer.nvim?" && git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
