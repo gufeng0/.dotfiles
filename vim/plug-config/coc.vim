@@ -14,7 +14,7 @@ augroup user_plugin_coc
     " Highlight the symbol and its references when holding the cursor.
     " autocmd CursorHold * silent call CocActionAsync('highlight')
     autocmd ColorScheme * highlight CocHighlightText ctermbg=green guibg=#344134
-    autocmd FileType go,python,cpp,java,js,c nmap <buffer> <silent> gd <Plug>(coc-definition)
+    autocmd FileType go,python,cpp,java,js,c,lua nmap <buffer> <silent> gd <Plug>(coc-definition)
 augroup END
 
 " GoTo code navigation.
@@ -41,6 +41,7 @@ xmap <silent> <leader>cc <Plug>(coc-codeaction-selected)<cr>
 nmap <silent> <leader>cc <Plug>(coc-codeaction-selected)<cr>
 
 inoremap <silent><m-p> <C-\><C-O>:call CocActionAsync('showSignatureHelp')<cr>
+inoremap <silent><c-p> <C-\><C-O>:call CocActionAsync('showSignatureHelp')<cr>
 inoremap <silent><expr> <c-n> coc#refresh()
 
 " Use `[g` and `]g` to navigate diagnostics
