@@ -1,4 +1,8 @@
 if [ "$(uname)" = "Darwin" ]; then
+
+    export HTTP_PROXY_PORT='1081'
+    export SOCKS5_PROXY_PORT='1080'
+
     # maven
     export M2_HOME=~/opt/maven/bin
     export PATH=${PATH}:${M2_HOME}

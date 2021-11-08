@@ -8,4 +8,4 @@ bash ~/.dotfiles/scripts/setup.sh
 todo
 
 ### shortcut key
-fern.vim
+vim/plug-config/fern.vim
