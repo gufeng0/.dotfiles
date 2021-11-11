@@ -74,12 +74,15 @@ let g:which_key_map.w.u = 'swap buffer'
 " g is for git
 let g:which_key_map.g = {
       \ 'name' : '+git' ,
-      \ 'a' : [":silent! w | Git add % | echo 'git added'", 'add current'],
+      \ 'a' : 'stage buffer',
       \ 'A' : [':Git add -A', 'add all'],
       \ 'b' : [':Git blame', 'blame'],
+      \ 'B' : [':Git blame', 'blame line'],
+      \ 'g' : 'preview hunk',
+      \ 'h' : 'stage hunk',
+      \ 'H' : 'undo stage hunk',
+      \ 'u' : 'reset hunk',
       \ 'c' : [':Git commit', 'commit'],
-      \ 'g' : [':SignifyHunkDiff', 'show hunk diff'],
-      \ 'u' : [':SignifyHunkUndo', 'undo git hunk'],
       \ 'd' : [':Git diff', 'diff'],
       \ 'D' : [':Git diff --cached', 'diff --cached'],
       \ 'v' : [':Gvdiffsplit!', 'gvdiffsplit'],

@@ -218,7 +218,8 @@ return packer.startup(function()
       cmd = {'Leaderf', 'Git'},
       config = function() vim.cmd('runtime plug-config/leaderf.vim') end,
       requires = {
-        {'linjiX/LeaderF-git', opt = true}
+        {'linjiX/LeaderF-git'},
+        {'tpope/vim-fugitive'}
       }
   }
 
@@ -233,11 +234,22 @@ return packer.startup(function()
     opt = true
   }
 
+  -- use {
+  --   'mhinz/vim-signify',
+  --   config = function()
+  --     vim.cmd("let g:signify_skip = {'vcs': { 'allow': ['git'] }}")
+  --     vim.cmd("let g:signify_vcs_cmds_diffmode = {'git': 'git cat-file -p :./%f'}")
+  --   end
+  -- }
+  --
+
   use {
-    'mhinz/vim-signify',
-    config = function()
-      vim.cmd("let g:signify_skip = {'vcs': { 'allow': ['git'] }}")
-      vim.cmd("let g:signify_vcs_cmds_diffmode = {'git': 'git cat-file -p :./%f'}")
+    'lewis6991/gitsigns.nvim',
+    requires = {
+      'nvim-lua/plenary.nvim'
+    },
+    config = function ()
+      require("config/gitsigns")
     end
   }
 
@@ -348,6 +360,14 @@ return packer.startup(function()
   use {
     'liuchengxu/vim-which-key',
     config = function() vim.cmd('runtime whichkey.vim') end
+  }
+
+  use {
+    'gelguy/wilder.nvim',
+    run = ':UpdateRemotePlugins',
+    config = function()
+      vim.cmd('runtime plug-config/wilder.vim')
+    end
   }
 
   -- use {
