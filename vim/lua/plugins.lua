@@ -36,7 +36,7 @@ return packer.startup(function()
   use {
     'glepnir/galaxyline.nvim',
     branch = 'main',
-    config = function() require("config/galaxyline") end,
+    config = function() require("core/galaxyline") end,
   }
 
   use {
@@ -65,7 +65,7 @@ return packer.startup(function()
 
   use {
     'lu5je0/bufferline.nvim',
-    config = function() require("config/bufferline") end
+    config = function() require("core/bufferline") end
   }
 
   use 'kyazdani42/nvim-web-devicons'
@@ -115,7 +115,7 @@ return packer.startup(function()
     opt = true,
     ft = {'json', 'python', 'java', 'lua', 'c', 'vim', 'bash', 'go', 'rust', 'toml', 'yaml', 'markdown', 'bash', 'sh'},
     config = function()
-      require('config/treesiter')
+      require('core/treesiter')
     end
   }
 
@@ -222,7 +222,7 @@ return packer.startup(function()
       run = './install.sh',
       opt = true,
       cmd = {'Leaderf', 'Git'},
-      config = function() require("config/leaderf").setup() end,
+      config = function() require("core/leaderf").setup() end,
       requires = {
         {'linjiX/LeaderF-git'},
         {'tpope/vim-fugitive'}
@@ -264,7 +264,7 @@ return packer.startup(function()
       'nvim-lua/plenary.nvim'
     },
     config = function ()
-      require("config/gitsigns").setup()
+      require("core/gitsigns").setup()
     end,
     event = "BufRead"
   }
@@ -381,7 +381,7 @@ return packer.startup(function()
   use {
     "folke/which-key.nvim",
     config = function()
-      require("config/whichkey")
+      require("core/whichkey")
     end
   }
 
