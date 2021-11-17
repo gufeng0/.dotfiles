@@ -216,6 +216,9 @@ local v_mappings = {
   d = {
     n = {":lua require('misc/delete').deleteNullLines()<cr>","delete null lines"},
     l = {":lua require('misc/delete').deleteLines()<cr>","delete lines"},
+  },
+  r = {
+    a = {":lua require('misc/replace').replaceAll()<cr>", "replace all word"},
   }
 }
 
