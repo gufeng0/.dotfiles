@@ -201,7 +201,8 @@ local v_mappings = {
     b = {"base64"},
     B = {"unbase64"},
     s = {"text escape"},
-    r = {":lua require('misc/replace').replace()<cr>", "replace word"}
+    r = {":lua require('misc/replace').replace()<cr>", "replace word"},
+    d = {":lua require('misc/delete').deleteLines()<cr>","delete lines"},
   },
   f = {
     f = {":lua require('core/leaderf').visual_leaderf('file')<cr>", "file"},
