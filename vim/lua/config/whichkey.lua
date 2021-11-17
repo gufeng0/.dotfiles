@@ -200,7 +200,12 @@ local v_mappings = {
     c = {":call edit#CountSelectionRegion()<cr>", "count in the selection region"},
     b = {"base64"},
     B = {"unbase64"},
-    s = {"text escape"}
+    s = {"text escape"},
+    r = {":lua require('misc/replace').replace()<cr>", "replace word"}
+  },
+  f = {
+    f = {":lua require('config/leaderf').visual_leaderf('file')<cr>", "file"},
+    r = {":lua require('config/leaderf').visual_leaderf('rg')<cr>", "rg"},
   },
   c = {
     f = { "<Plug>(coc-format-selected)", 'coc-format' }
