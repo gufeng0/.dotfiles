@@ -56,6 +56,9 @@ local n_mappings = {
   ["a"] = { ":call Calc()<cr>", "calcultor" },
   ["/"] = { ":call eregex#toggle()<cr>", "eregex toggle" },
   -- ["/"] = { "<cmd>lua require('Comment').toggle()<CR>", "Comment" },
+  d = {
+    n = {":lua require('misc/delete').deleteNullLines()<cr>","delete null lines"},
+  },
   w = {
       name = '+windows',
       ['n'] = { ':vnew<cr>', 'vnew' },
@@ -202,7 +205,6 @@ local v_mappings = {
     B = {"unbase64"},
     s = {"text escape"},
     r = {":lua require('misc/replace').replace()<cr>", "replace word"},
-    d = {":lua require('misc/delete').deleteLines()<cr>","delete lines"},
   },
   f = {
     f = {":lua require('core/leaderf').visual_leaderf('file')<cr>", "file"},
@@ -210,6 +212,10 @@ local v_mappings = {
   },
   c = {
     f = { "<Plug>(coc-format-selected)", 'coc-format' }
+  },
+  d = {
+    n = {":lua require('misc/delete').deleteNullLines()<cr>","delete null lines"},
+    l = {":lua require('misc/delete').deleteLines()<cr>","delete lines"},
   }
 }
 
