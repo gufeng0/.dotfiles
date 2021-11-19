@@ -72,6 +72,8 @@ local n_mappings = {
   },
   p = {
     name = "Packer",
+    q = { "<cmd>PackerCompile profile=true<cr>", "compile profile" },
+    w = { "<cmd>PackerProfile<cr>", "profile" },
     c = { "<cmd>PackerCompile<cr>", "compile" },
     i = { "<cmd>PackerInstall<cr>", "install" },
     u = { "<cmd>PackerUpdate<cr>", "update" },
@@ -105,6 +107,7 @@ local n_mappings = {
     e = {':call FernLocateFile()<cr>', 'locate-file'},
     W = {':SudaWrite<cr>', 'sudo-write'},
     d = {":Fern ~/.dotfiles -drawer -keep<cr>", 'fern .dotfiles/'},
+    p = {":Fern ~/.local/share/nvim/site/pack/packer/ -drawer -keep<cr>", 'fern packer'},
     D = {":Fern ~/.dotfiles -drawer -keep | cd ~/.dotfiles<cr>", 'fern .dotfiles'},
     w = {':w<cr>', 'write'},
     J = {':JunkFile<cr>', 'new-junk-file'},
@@ -120,8 +123,9 @@ local n_mappings = {
   },
   x = {
     name = "+text",
-    u = "Escape Unicode",
-    U = "Unescape Unicode",
+    r = {":lua require('misc/replace').n_replace()<cr>", "replace word"},
+    u = "escape unicode",
+    U = "unescape unicode",
     h = "url encode",
     H = "url decode",
     c = { ":call edit#CountSelectionRegion()<cr>", "count in the selection region" },
@@ -204,7 +208,7 @@ local v_mappings = {
     b = {"base64"},
     B = {"unbase64"},
     s = {"text escape"},
-    r = {":lua require('misc/replace').replace()<cr>", "replace word"},
+    r = {":lua require('misc/replace').v_replace()<cr>", "replace"}
   },
   f = {
     f = {":lua require('core/leaderf').visual_leaderf('file')<cr>", "file"},
@@ -217,9 +221,6 @@ local v_mappings = {
     n = {":lua require('misc/delete').deleteNullLines()<cr>","delete null lines"},
     l = {":lua require('misc/delete').deleteLines()<cr>","delete lines"},
   },
-  r = {
-    a = {":lua require('misc/replace').replaceAll()<cr>", "replace all word"},
-  }
 }
 
 local v_opts = {
