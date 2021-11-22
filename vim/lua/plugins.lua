@@ -32,7 +32,7 @@ return packer.startup(function()
     config = function()
       vim.cmd("autocmd TextYankPost * execute 'OSCYankReg \"'")
     end,
-    disable = (vim.fn.has("wsl") == 1 or vim.fn.has("mac") or vim.fn.has("clipboard") == 1)
+    disable = (vim.fn.has("wsl") == 1 or vim.fn.has("mac") == 1)
   }
 
   vim.g.did_load_filetypes = 1
@@ -115,7 +115,11 @@ return packer.startup(function()
 
   use {'mattn/webapi-vim'}
 
-  -- use {'kyazdani42/nvim-tree.lua'}
+  -- use {
+  --   'kyazdani42/nvim-tree.lua',
+  --   requires = 'kyazdani42/nvim-web-devicons',
+  --   config = function() require("core/nvim-tree").setup() end
+  -- }
 
   use {
     'nvim-treesitter/nvim-treesitter',
@@ -173,8 +177,6 @@ return packer.startup(function()
     cmd = 'S'
   }
 
-  use 'yianwillis/vimcdoc'
-
   use {
     'tpope/vim-commentary'
   }
@@ -224,7 +226,7 @@ return packer.startup(function()
     config = function() vim.cmd('runtime plug-config/fern.vim') end
   }
 
-  use {'Yggdroot/LeaderF',
+  use {'lu5je0/LeaderF',
       run = './install.sh',
       opt = true,
       cmd = {'Leaderf', 'Git'},
@@ -283,19 +285,19 @@ return packer.startup(function()
   }
 
   use {
+    'tpope/vim-fugitive',
+    opt = true,
+    cmd = {'Git', 'Gvdiffsplit', 'Gstatus', 'Gclog', 'Gread'},
+    requires = {
+      {'skywind3000/asynctasks.vim', opt = true},
+    }
+  }
+
+  use {
     'rbong/vim-flog',
     cmd = 'Flogsplit',
     opt = true,
-    requires = {
-      {
-        'tpope/vim-fugitive',
-        opt = true,
-        cmd = {'Git', 'Gvdiffsplit', 'Gstatus'},
-        requires = {
-          {'skywind3000/asynctasks.vim', opt = true},
-        }
-      }
-    }
+    requires = {{'tpope/vim-fugitive'}}
   }
 
   use {

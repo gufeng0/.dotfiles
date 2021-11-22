@@ -5,7 +5,7 @@ local gl = require('galaxyline')
 local colors = require('galaxyline.theme').default
 local condition = require('galaxyline.condition')
 local gls = gl.section
-gl.short_line_list = {'NvimTree','vista','dbui','packer','fern'}
+gl.short_line_list = {'NvimTree', 'vista', 'dbui', 'packer', 'fern', 'diff', 'undotree'}
 
 gls.left[1] = {
   RainbowRed = {
@@ -191,7 +191,14 @@ gls.short_line_left[2] = {
 
 gls.short_line_right[1] = {
   BufferIcon = {
-    provider= 'BufferIcon',
+    provider= function ()
+      if vim.api.nvim_eval('&ft') == 'fern' then
+        return " "
+      elseif vim.api.nvim_eval('&ft') == 'diff' then
+        return "署 "
+      end
+      return ""
+    end,
     highlight = {colors.fg,colors.bg}
   }
 }

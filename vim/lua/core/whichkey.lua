@@ -185,11 +185,11 @@ local n_mappings = {
     d = {':Git diff<cr>', 'diff'},
     D = {':Git diff --cached<cr>', 'diff --cached'},
     v = {':Gvdiffsplit!<cr>', 'gvdiffsplit'},
-    l = {':Flogsplit<cr>', 'git log'},
+    L = {':Flogsplit<cr>', 'git log in repository'},
+    l = {":lua require('core/fugitive').current_file_logs()<cr>", 'show changs on current file'},
     i = {':Gist -l<cr>', 'gist'},
-    P = {':AsyncRun -focus=0 -mode=term -rows=10 git push<cr>', 'git push'},
-    s = {':Gstatus<cr>', 'status'},
-    S = {':Git status<cr>', 'status'},
+    p = {':AsyncRun -focus=0 -mode=term -rows=10 git push<cr>', 'git push'},
+    s = {':Git status<cr>', 'status'},
   }
 }
 
@@ -221,6 +221,9 @@ local v_mappings = {
     n = {":lua require('misc/delete').deleteNullLines()<cr>","delete null lines"},
     l = {":lua require('misc/delete').deleteLines()<cr>","delete lines"},
   },
+  g = {
+    l = {":lua require('core/fugitive').lines_changes()<cr>", 'show changs on select lines'}
+  }
 }
 
 local v_opts = {
