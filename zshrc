@@ -123,7 +123,7 @@ alias md='mkdir -p'
 # git
 alias gmc='sh ~/tools/script/gmc.sh'
 alias gck='git checkout'
-alias gj='git checkout -b lu5je0-master master & git pull https://github.com/lu5je0/.dotfiles.git master' 
+alias gj='git checkout lu5je0-master & git merge master & git pull https://github.com/lu5je0/.dotfiles.git master' 
 
 # tmux
 alias tm='tmux'
