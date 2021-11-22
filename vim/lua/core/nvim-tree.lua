@@ -34,17 +34,16 @@ function M.setup()
 
     highlight NvimTreeFolderName guifg=#e5c07b
     highlight NvimTreeOpenedFolderName guifg=#e5c07b
+    highlight default link NvimTreeFolderIcon Directory
     highlight NvimTreeEmptyFolderName guifg=#e5c07b
     highlight NvimTreeRootFolder guifg=#e06c75
 
-    nnoremap <leader>e :NvimTreeToggle<CR><c-w>p
-    nnoremap <leader>r :NvimTreeRefresh<CR>
-    nnoremap <leader>fe :NvimTreeFindFile<CR>
+    map <silent> <leader>e :NvimTreeToggle<cr>
+    map <silent> <leader>fe :lua require("core/nvim-tree").locate_file()<cr>
   ]]
   vim.g.nvim_tree_special_files = {}
   vim.g.nvim_tree_add_trailing = 1
   vim.g.nvim_tree_indent_markers = 1
-
 
   require('nvim-tree.view').View.winopts.signcolumn = 'yes:1'
 
@@ -53,6 +52,7 @@ function M.setup()
   local list = {
     { key = {"<CR>", "l", "o", "<2-LeftMouse>"}, cb = tree_cb("edit") },
     { key = {"cd", "C"}, cb = ":lua require('core/nvim-tree').cd()<cr>"},
+    { key = "H", cb = ":cd ~<cr>"},
     { key = "S",                        cb = tree_cb("vsplit") },
     { key = "s",                        cb = tree_cb("split") },
     -- { key = "<C-t>",                        cb = tree_cb("tabnew") },
@@ -77,7 +77,7 @@ function M.setup()
     { key = "yp",                           cb = tree_cb("copy_absolute_path") },
     { key = "[g",                           cb = tree_cb("prev_git_item") },
     { key = "]g",                           cb = tree_cb("next_git_item") },
-    { key = "U",                            cb = tree_cb("dir_up") },
+    { key = "u",                            cb = tree_cb("dir_up") },
     { key = "s",                            cb = tree_cb("system_open") },
     { key = "q",                            cb = tree_cb("close") },
     { key = "g?",                           cb = tree_cb("toggle_help") },
@@ -90,7 +90,7 @@ function M.setup()
     ignore_ft_on_setup  = {},
     auto_close          = false,
     open_on_tab         = false,
-    hijack_cursor       = true,
+    hijack_cursor       = false,
     update_cwd          = true,
     update_to_buf_dir   = {
       enable = false,
@@ -105,11 +105,11 @@ function M.setup()
         error = "",
       }
     },
-    -- update_focused_file = {
-    --   enable      = false,
-    --   update_cwd  = false,
-    --   ignore_list = {}
-    -- },
+    update_focused_file = {
+      enable      = false,
+      update_cwd  = false,
+      ignore_list = {}
+    },
     system_open = {
       cmd  = nil,
       args = {}
@@ -132,10 +132,31 @@ function M.setup()
   }
 end
 
+function M.locate_file()
+  local pwd = vim.fn.getcwd()
+  local file_path = vim.fn.expand("%:p")
+
+  if file_path == nil or file_path == "" then
+     return
+  end
+
+  -- what if pwd has .
+  file_path = string.sub(file_path, 0, file_path:match('^.*()/') - 1)
+
+  if string.match(file_path, [[%.]]) ~= nil then
+    require('nvim-tree.populate').config.filter_dotfiles = false
+    require('nvim-tree.lib').refresh_tree()
+  end
+
+  if not string.startswith(file_path, pwd) then
+    vim.cmd(":cd " .. file_path)
+  end
+  vim.cmd("NvimTreeFindFile")
+end
+
 function M.cd()
-  print("begin" .. vim.api.nvim_eval("getcwd()"))
   require'nvim-tree'.on_keypress('cd')
-  print("end" .. vim.api.nvim_eval("getcwd()"))
+  vim.cmd("norm gg")
 end
 
 return M
