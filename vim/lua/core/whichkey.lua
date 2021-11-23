@@ -220,6 +220,7 @@ local v_mappings = {
   d = {
     n = {":lua require('misc/delete').deleteNullLines()<cr>","delete null lines"},
     l = {":lua require('misc/delete').deleteLines()<cr>","delete lines"},
+    a = {":lua require('misc/delete').deleteAll()<cr>","delete all"},
   },
   g = {
     l = {":lua require('core/fugitive').lines_changes()<cr>", 'show changs on select lines'}
