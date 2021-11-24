@@ -202,20 +202,24 @@ return packer.startup(function()
     disable = vim.fn.has("wsl") == 0
   }
 
-  -- " fern
-  use {'lambdalisue/fern-hijack.vim'}
+  use {
+    'lambdalisue/fern-git-status.vim',
+    setup = function ()
+      vim.g.loaded_fern_git_status = 1
+    end
+  }
 
   use {
     'lambdalisue/fern.vim',
     opt = true,
+    cmd = {"Fern"},
     fn = {'FernLocateFile'},
-    cmd = {'Fern'},
     requires = {
-      {'yuki-yano/fern-preview.vim', opt = true},
-      {'lambdalisue/nerdfont.vim', opt = true},
-      {'lu5je0/fern-renderer-nerdfont.vim', opt = true},
-      {'lambdalisue/glyph-palette.vim', opt = true},
-      {'lambdalisue/fern-git-status.vim', opt = true}
+      {'lambdalisue/fern-hijack.vim'},
+      {'lambdalisue/nerdfont.vim'},
+      {'lu5je0/fern-renderer-nerdfont.vim'},
+      {'lambdalisue/glyph-palette.vim'},
+      {'yuki-yano/fern-preview.vim', opt=true}
     },
     config = function() vim.cmd('runtime plug-config/fern.vim') end
   }
@@ -391,7 +395,7 @@ return packer.startup(function()
     "lukas-reineke/indent-blankline.nvim",
     setup = function ()
       vim.g.indent_blankline_char = '▏'
-      vim.g.indentLine_fileTypeExclude = {'undotree', 'vista', 'git', 'diff', 'translator', 'help'}
+      vim.g.indentLine_fileTypeExclude = {'undotree', 'vista', 'git', 'diff', 'translator', 'help', 'packer'}
       vim.g.indent_blankline_show_first_indent_level = false
       vim.g.indent_blankline_show_trailing_blankline_indent = false
     end
@@ -408,6 +412,8 @@ return packer.startup(function()
       require("core/whichkey")
     end
   }
+
+  -- use 'MunifTanjim/nui.nvim'
 
   -- use {
   --   'lu5je0/nvim-tree.lua',

@@ -8,8 +8,14 @@ let g:fern#renderer#nerdfont#root_symbol = "≡ "
 let g:fern#disable_drawer_smart_quit = 0
 let g:fern#disable_viewer_spinner=1
 let g:fern#default_exclude = '\.\(swp\|git\)'
-let g:fern#drawer_width=22
+let g:fern#drawer_width=26
 let g:fern#mark_symbol="•"
+
+if g:loaded_fern_git_status == 1 
+  call fern_git_status#init()
+  let g:loaded_fern_git_status = 2
+endif
+
 " let g:fern#disable_drawer_auto_resize=1
 
 function! TerminalSendInner() abort
@@ -71,7 +77,7 @@ function! s:init_fern() abort
 
   nmap <silent> <buffer> <expr> <Plug>(fern-quit-or-close-preview) fern_preview#smart_preview("\<Plug>(fern-action-preview:close)", ":q\<CR>")
   nmap <silent> <buffer> <expr> <Plug>(fern-esc-or-close-preview) fern_preview#smart_preview("\<Plug>(fern-action-preview:close)", "<c-w>l")
-  nmap <silent> <buffer> p <Plug>(fern-action-preview:toggle)
+  nmap <silent> <buffer> p :lua require("core/fern").preview_toggle()<cr>
   nmap <buffer> q <Plug>(fern-quit-or-close-preview)
   nmap <buffer> <ESC> <Plug>(fern-esc-or-close-preview)
   nmap <buffer> P gg
