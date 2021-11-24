@@ -27,6 +27,16 @@ return packer.startup(function()
   -- Packer can manage itself
   use 'wbthomason/packer.nvim'
 
+  use{
+    'ferrine/md-img-paste.vim',
+    config = function ()
+      vim.cmd([[
+      autocmd FileType markdown nmap <buffer><silent> <leader>p :call mdip#MarkdownClipboardImage()<CR>
+      let g:mdip_imgname = 'image' 
+      ]])
+    end
+  }
+
   use {
     'ojroques/vim-oscyank',
     config = function()
