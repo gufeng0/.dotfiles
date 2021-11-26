@@ -37,6 +37,8 @@ return packer.startup(function()
     end
   }
 
+  use 'nvim-lua/plenary.nvim'
+
   use {
     'ojroques/vim-oscyank',
     config = function()
@@ -236,13 +238,9 @@ return packer.startup(function()
 
   use {'lu5je0/LeaderF',
       run = './install.sh',
-      opt = true,
-      cmd = {'Leaderf', 'Git'},
+      -- opt = true,
+      -- cmd = {'Leaderf', 'Git'},
       config = function() require("core/leaderf").setup() end,
-      requires = {
-        {'linjiX/LeaderF-git'},
-        {'tpope/vim-fugitive'}
-      }
   }
 
   use {
@@ -328,7 +326,15 @@ return packer.startup(function()
     cmd = 'AsyncRun',
     requires = {
       {'skywind3000/asynctasks.vim', opt = true},
-      {'skywind3000/asyncrun.extra', opt = true}
+      {'skywind3000/asyncrun.extra', opt = true},
+      {
+        'preservim/vimux',
+        config = function ()
+          vim.g.VimuxHeight = "50"
+          vim.g.VimuxOrientation = "h"
+        end,
+        opt = true
+      }
     },
   }
 
@@ -441,24 +447,11 @@ return packer.startup(function()
 
   -- use {
   --   'nvim-telescope/telescope.nvim',
-  --   config = function()
-  --     local actions = require('telescope.actions')
-  --     local telescope = require('telescope')
-  --     telescope.setup {
-  --       defaults = {
-  --         path_display = { truncate = 2 },
-  --         mappings = {
-  --           i = {
-  --             ["<esc>"] = actions.close
-  --           },
-  --         },
-  --       }
-  --     }
-  --     telescope.load_extension('fzf')
-  --   end,
+  --   config = function() require("core/telescope").setup() end,
   --   requires = {
   --     {'nvim-lua/plenary.nvim'},
-  --     {'nvim-telescope/telescope-fzf-native.nvim', run='make'}
+  --     {'nvim-telescope/telescope-fzf-native.nvim', run='make'},
+  --     {'nvim-telescope/telescope-project.nvim'}
   --   }
   -- }
 
