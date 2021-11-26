@@ -38,20 +38,24 @@ function M.setup()
     highlight NvimTreeEmptyFolderName guifg=#e5c07b
     highlight NvimTreeRootFolder guifg=#e06c75
 
-    map <silent> <leader>e :NvimTreeToggle<cr>
-    map <silent> <leader>fe :lua require("core/nvim-tree").locate_file()<cr>
+    nmap <silent> <leader>e :NvimTreeToggle<cr><c-w>p
+    nmap <silent> <leader>fe :lua require("core/nvim-tree-config").locate_file()<cr>
+
+    autocmd BufWinEnter NvimTree setlocal cursorline
   ]]
   vim.g.nvim_tree_special_files = {}
   vim.g.nvim_tree_add_trailing = 1
   vim.g.nvim_tree_indent_markers = 1
 
-  require('nvim-tree.view').View.winopts.signcolumn = 'yes:1'
+  local view = require('nvim-tree.view')
+  view.View.winopts.signcolumn = 'yes:1'
 
   local tree_cb = require'nvim-tree.config'.nvim_tree_callback
   -- default mappings
   local list = {
     { key = {"<CR>", "l", "o", "<2-LeftMouse>"}, cb = tree_cb("edit") },
-    { key = {"cd", "C"}, cb = ":lua require('core/nvim-tree').cd()<cr>"},
+    { key = {"cd", "C"}, cb = ":lua require('core/nvim-tree-config').cd()<cr>"},
+    { key = {"t"}, cb = ":lua require('core/nvim-tree-config').terminal_cd()<cr><C-w>ji"},
     { key = "H", cb = ":cd ~<cr>"},
     { key = "S",                        cb = tree_cb("vsplit") },
     { key = "s",                        cb = tree_cb("split") },
@@ -119,7 +123,7 @@ function M.setup()
       custom = {'.git'}
     },
     view = {
-      width = 25,
+      width = 26,
       height = 30,
       hide_root_folder = false,
       side = 'left',
@@ -132,30 +136,42 @@ function M.setup()
   }
 end
 
+function M.terminal_cd()
+  local lib = require('nvim-tree.lib')
+  local cmd = [[
+    call TerminalSend('cd ' . fnamemodify('%s', ':p:h'))
+  ]]
+  cmd = cmd:format(lib.get_node_at_cursor().absolute_path)
+  vim.cmd(cmd)
+  vim.fn.TerminalSend('\r')
+end
+
 function M.locate_file()
   local pwd = vim.fn.getcwd()
-  local file_path = vim.fn.expand("%:p")
 
-  if file_path == nil or file_path == "" then
+  -- current file path
+  local cur_file_path = vim.fn.expand("%:p")
+
+  if cur_file_path == nil or cur_file_path == "" then
      return
   end
 
   -- what if pwd has .
-  file_path = string.sub(file_path, 0, file_path:match('^.*()/') - 1)
+  cur_file_path = string.sub(cur_file_path, 0, cur_file_path:match('^.*()/') - 1)
 
-  if string.match(file_path, [[%.]]) ~= nil then
+  if string.match(string.sub(cur_file_path, string.len(pwd) + 2, -1), [[%.]]) ~= nil then
     require('nvim-tree.populate').config.filter_dotfiles = false
     require('nvim-tree.lib').refresh_tree()
   end
 
-  if not string.startswith(file_path, pwd) then
-    vim.cmd(":cd " .. file_path)
+  if not string.startswith(cur_file_path, pwd) then
+    vim.cmd(":cd " .. cur_file_path)
   end
   vim.cmd("NvimTreeFindFile")
 end
 
 function M.cd()
-  require'nvim-tree'.on_keypress('cd')
+  require('nvim-tree').on_keypress('cd')
   vim.cmd("norm gg")
 end
 
