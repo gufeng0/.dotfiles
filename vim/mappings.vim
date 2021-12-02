@@ -117,4 +117,4 @@ vmap <silent> # :call visual#runSelectInTerminal()<cr>
 "----------------------------------------------------------------------
 nnoremap * m`:keepjumps normal! *``<cr>
 xnoremap * m`:keepjumps <C-u>call VisualStarSearchSet('/')<CR>/<C-R>=@/<CR><CR>``
-nnoremap m<leader> i&#8195;&#8195;<esc>l
+nnoremap m<space> i&#8195;&#8195;<esc>l
