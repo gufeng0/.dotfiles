@@ -88,7 +88,20 @@ return packer.startup(function()
     config = function() require("core/bufferline") end
   }
 
-  use 'kyazdani42/nvim-web-devicons'
+  use {
+    'kyazdani42/nvim-web-devicons',
+    config = function ()
+      require'nvim-web-devicons'.setup {
+        override = {
+          xml = {
+            icon = "",
+            color = "#e37933",
+            name = "Xml",
+          }
+        }
+      }
+    end
+  }
 
   use {
     'jiangmiao/auto-pairs',
@@ -214,6 +227,14 @@ return packer.startup(function()
     disable = vim.fn.has("wsl") == 0
   }
 
+  use {
+    'lu5je0/vim-terminal-help',
+    config = function() vim.cmd('runtime plug-config/terminal.vim') end,
+    opt = true,
+    keys = {'<m-i>', '<d-i>'},
+    fn = {'TerminalSendInner', 'TerminalOpen', 'TerminalSend'}
+  }
+
   -- use {
   --   "akinsho/toggleterm.nvim",
   --   config = function ()
@@ -231,14 +252,14 @@ return packer.startup(function()
   --       shell = vim.o.shell, -- change the default shell
   --     }
   --     vim.cmd[[
-  --     nmap <silent> <m-i> :ToggleTerm<CR>
-  --     nmap <silent> <d-i> :ToggleTerm<CR>
-
   --     imap <silent> <m-i> <ESC>:ToggleTerm<CR>
   --     imap <silent> <d-i> <ESC>:ToggleTerm<CR>
 
   --     tmap <silent> <m-i> <c-\><c-n>:ToggleTerm<CR>
   --     tmap <silent> <d-i> <c-\><c-n>:ToggleTerm<CR>
+
+  --     nmap <silent> <m-i> :ToggleTerm<CR>
+  --     nmap <silent> <d-i> :ToggleTerm<CR>
   --     ]]
   --   end
   -- }
@@ -323,6 +344,7 @@ return packer.startup(function()
     'tpope/vim-fugitive',
     opt = true,
     cmd = {'Git', 'Gvdiffsplit', 'Gstatus', 'Gclog', 'Gread', 'help', 'translator'},
+    fn = {'fugitive#repo'},
     requires = {
       {'skywind3000/asynctasks.vim', opt = true},
     }
@@ -339,14 +361,6 @@ return packer.startup(function()
     'dstein64/vim-startuptime',
     opt = true,
     cmd = {'StartupTime'}
-  }
-
-  use {
-    'lu5je0/vim-terminal-help',
-    config = function() vim.cmd('runtime plug-config/terminal.vim') end,
-    opt = true,
-    keys = {'<m-i>', '<d-i>'},
-    fn = {'TerminalSendInner', 'TerminalOpen', 'TerminalSend'}
   }
 
   use {
@@ -459,6 +473,15 @@ return packer.startup(function()
   }
 
   -- use 'MunifTanjim/nui.nvim'
+
+  use {
+    'puremourning/vimspector',
+    config = function ()
+      require("core/vimspector").setup()
+    end,
+    keys = {"<F10>", "<S-F10>"},
+    fn = {'vimspector#Launch', 'vimspector#Reset', 'vimspector#LaunchWithConfigurations'}
+  }
 
   use {
     'lu5je0/nvim-tree.lua',

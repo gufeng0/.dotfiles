@@ -130,6 +130,11 @@ function M.setup()
       update_cwd  = false,
       ignore_list = {}
     },
+    git = {
+      enable = true,
+      ignore = false,
+      timeout = 500,
+    },
     system_open = {
       cmd  = nil,
       args = {}

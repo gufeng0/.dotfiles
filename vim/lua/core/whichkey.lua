@@ -74,6 +74,7 @@ local n_mappings = {
     name = "Packer",
     q = { "<cmd>PackerCompile profile=true<cr>", "compile profile" },
     w = { "<cmd>PackerProfile<cr>", "profile" },
+    s = { "<cmd>PackerSync<cr>", "sync" },
     c = { "<cmd>PackerCompile<cr>", "compile" },
     i = { "<cmd>PackerInstall<cr>", "install" },
     u = { "<cmd>PackerUpdate<cr>", "update" },
@@ -186,7 +187,8 @@ local n_mappings = {
   },
   r = {
     name = '+run',
-    r = "run"
+    r = "run",
+    d = "debug"
   },
   g = {
     name = '+git',
