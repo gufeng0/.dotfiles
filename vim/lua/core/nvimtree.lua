@@ -1,7 +1,5 @@
 local M = {}
 
-M.win_width = 26
-
 function M.setup()
 
   vim.g.nvim_tree_icons = {
@@ -46,18 +44,18 @@ function M.setup()
 
     autocmd BufWinEnter NvimTree setlocal cursorline
 
-    autocmd DirChanged * lua require('core/nvim-tree-config').pwd_stack_push()
+    autocmd DirChanged * lua require('core/nvimtree').pwd_stack_push()
 
     function NvimLocateFile()
       PackerLoad nvim-tree.lua
-      lua require("core/nvim-tree-config").locate_file()
+      lua require("core/nvimtree").locate_file()
       endfunction
 
       lua vim.api.nvim_set_keymap('n', '<leader>fe', ':call NvimLocateFile()<cr>', { noremap = true, silent = true })
   ]]
 
   vim.api.nvim_set_keymap('n', '<leader>e', ':NvimTreeToggle<cr><c-w>p', { noremap = true, silent = true })
-  vim.api.nvim_set_keymap('n', '<leader>fe', ':lua require("core/nvim-tree-config").locate_file()<cr>', { noremap = true, silent = true })
+  vim.api.nvim_set_keymap('n', '<leader>fe', ':lua require("core/nvimtree").locate_file()<cr>', { noremap = true, silent = true })
 
   local view = require('nvim-tree.view')
   view.View.winopts.signcolumn = 'yes:1'
@@ -66,13 +64,16 @@ function M.setup()
   -- default mappings
   local list = {
     { key = {"<CR>", "l", "o", "<2-LeftMouse>"}, cb = tree_cb("edit") },
-    { key = {"cd", "C"}, cb = ":lua require('core/nvim-tree-config').cd()<cr>"},
-    { key = {"t"}, cb = ":lua require('core/nvim-tree-config').terminal_cd()<cr><C-w>ji"},
-    { key = "<c-o>", cb = ":lua require('core/nvim-tree-config').back()<cr>"},
-    { key = "<c-i>", cb = ":lua require('core/nvim-tree-config').forward()<cr>"},
-    { key = "=", cb = ":lua require('core/nvim-tree-config').increase_width()<cr>"},
-    { key = "-", cb = ":lua require('core/nvim-tree-config').reduce_width()<cr>"},
+    { key = {"cd", "C"}, cb = ":lua require('core/nvimtree').cd()<cr>"},
+    { key = {"t"}, cb = ":lua require('core/nvimtree').terminal_cd()<cr><C-w>ji"},
+    { key = "<c-o>", cb = ":lua require('core/nvimtree').back()<cr>"},
+    { key = "<c-i>", cb = ":lua require('core/nvimtree').forward()<cr>"},
+    { key = "=", cb = ":lua require('core/nvimtree').increase_width()<cr>"},
+    { key = "-", cb = ":lua require('core/nvimtree').reduce_width()<cr>"},
+    { key = "f", cb = ":lua require('core/nvimtree').file_info()<cr>"},
+    { key = "x", cb = ":lua require('core/nvimtree').toggle_width()<cr>"},
     { key = "H", cb = ":cd ~<cr>"},
+    { key = "d", cb = "<nop>"},
     { key = "S", cb = tree_cb("vsplit") },
     { key = "s", cb = tree_cb("split") },
     -- { key = "<C-t>", cb = tree_cb("tabnew") },
@@ -89,7 +90,7 @@ function M.setup()
     { key = "ma", cb = tree_cb("create") },
     { key = "D", cb = tree_cb("remove") },
     { key = "mv", cb = tree_cb("rename") },
-    -- { key = "x", cb = tree_cb("cut") },
+    { key = "mv", cb = tree_cb("cut") },
     { key = "yy", cb = tree_cb("copy") },
     { key = "p", cb = tree_cb("paste") },
     { key = "yn", cb = tree_cb("copy_name") },
@@ -144,7 +145,7 @@ function M.setup()
       custom = {'.git'}
     },
     view = {
-      width = M.win_width,
+      width = 26,
       height = 30,
       hide_root_folder = false,
       side = 'left',
@@ -223,20 +224,38 @@ function M.cd()
   vim.cmd("norm gg")
 end
 
+function M.file_info()
+  local lib = require('nvim-tree.lib')
+  local info = vim.fn.system("ls -alhd \"" .. lib.get_node_at_cursor().absolute_path .. "\" -l --time-style=\"+%Y-%m-%d %H:%M:%S\"")
+  print(info:sub(1, -2))
+end
+
+function M.toggle_width()
+  local cur_width = vim.api.nvim_win_get_width(0)
+  local after_width = math.floor(vim.api.nvim_eval("&co") * 2 / 5)
+
+  if M.last_width == nil or cur_width ~= after_width then
+    vim.cmd("NvimTreeResize " .. after_width)
+    M.last_width = cur_width
+    vim.cmd("vertical resize " .. after_width)
+  else
+    vim.cmd("NvimTreeResize " .. M.last_width)
+    vim.cmd("vertical resize " .. M.last_width)
+  end
+end
+
 function M.increase_width()
   vim.cmd("vertical resize +1")
-  M.win_width = M.win_width +  1
-  vim.cmd("NvimTreeResize " .. M.win_width)
 
+  local width = vim.api.nvim_win_get_width(vim.api.nvim_get_current_win())
+  vim.cmd("NvimTreeResize " .. (width + 1))
 end
 
 function M.reduce_width()
   vim.cmd("vertical resize -1")
-  M.win_width = M.win_width -  1
-  if M.win_width < 19 then
-    M.win_width = 19
-  end
-  vim.cmd("NvimTreeResize " .. M.win_width)
+
+  local width = vim.api.nvim_win_get_width(vim.api.nvim_get_current_win())
+  vim.cmd("NvimTreeResize " .. (width - 1))
 end
 
 return M

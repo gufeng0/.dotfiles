@@ -489,7 +489,7 @@ return packer.startup(function()
     keys = {"<leader>e", "<leader>fe"},
     opt = true,
     config = function()
-      require("core/nvim-tree-config").setup()
+      require("core/nvimtree").setup()
     end
   }
 
