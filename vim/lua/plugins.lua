@@ -84,11 +84,6 @@ return packer.startup(function()
   }
 
   use {
-    'lu5je0/bufferline.nvim',
-    config = function() require("core/bufferline") end
-  }
-
-  use {
     'kyazdani42/nvim-web-devicons',
     config = function ()
       require'nvim-web-devicons'.setup {
@@ -104,14 +99,9 @@ return packer.startup(function()
   }
 
   use {
-    'jiangmiao/auto-pairs',
-    config = function()
-      vim.cmd([[let g:AutoPairs= {'(':')', '[':']', '{':'}',"'":"'",'"':'"', "`":"`", '```':'```', '"""':'"""', "'''":"'''"}]])
-      vim.g.AutoPairsShortcutToggle = ''
-      vim.g.AutoPairsShortcutJump = ''
-      vim.g.AutoPairsShortcutFastWrap = ''
-      vim.g.AutoPairsMoveCharacter = ''
-    end
+    'lu5je0/bufferline.nvim',
+    config = function() require("core/bufferline") end,
+    requires = {'nvim-web-devicons'}
   }
 
   use {'schickling/vim-bufonly'}
@@ -210,15 +200,11 @@ return packer.startup(function()
   use 'lu5je0/vim-base64'
 
   -- themes
-  use 'tomasiser/vim-code-dark'
   use 'lu5je0/vim-one'
-  use 'gruvbox-community/gruvbox'
-  use 'hzchirs/vim-material'
-  use 'ayu-theme/ayu-vim'
-  use 'w0ng/vim-hybrid'
-  use 'glepnir/zephyr-nvim'
   use 'olimorris/onedarkpro.nvim'
   use 'lu5je0/one-nvim'
+  use 'lu5je0/edge'
+  use 'gruvbox-community/gruvbox'
 
   -- use {
   --   'wfxr/minimap.vim',
@@ -279,20 +265,20 @@ return packer.startup(function()
   --   end
   -- }
 
-  -- use {
-  --   'lambdalisue/fern.vim',
-  --   opt = true,
-  --   cmd = {"Fern"},
-  --   fn = {'FernLocateFile'},
-  --   requires = {
-  --     {'lambdalisue/fern-hijack.vim'},
-  --     {'lambdalisue/nerdfont.vim'},
-  --     {'lu5je0/fern-renderer-nerdfont.vim'},
-  --     {'lambdalisue/glyph-palette.vim'},
-  --     {'yuki-yano/fern-preview.vim', opt=true}
-  --   },
-  --   config = function() vim.cmd('runtime plug-config/fern.vim') end
-  -- }
+  use {
+    'lambdalisue/fern.vim',
+    opt = true,
+    cmd = {"Fern", "FernLocateFile"},
+    fn = {'FernLocateFile'},
+    requires = {
+      {'lambdalisue/fern-hijack.vim'},
+      {'lambdalisue/nerdfont.vim'},
+      {'lu5je0/fern-renderer-nerdfont.vim'},
+      {'lambdalisue/glyph-palette.vim'},
+      {'yuki-yano/fern-preview.vim', opt=true}
+    },
+    config = function() vim.cmd('runtime plug-config/fern.vim') end
+  }
 
   use {'lu5je0/LeaderF',
       run = './install.sh',
@@ -451,30 +437,53 @@ return packer.startup(function()
     end
   }
 
+  use {'williamboman/nvim-lsp-installer'}
+
+  use {'ray-x/lsp_signature.nvim'}
+
   use {
-    'neoclide/coc.nvim',
-    branch = 'release',
-    opt = true,
-    config = function() vim.cmd('runtime plug-config/coc.vim') end
+    'neovim/nvim-lspconfig',
+    config = function()
+      require("core/lsp").setup()
+    end,
+    opt = true
+  }
+
+  use {
+      'hrsh7th/nvim-cmp',
+      config = function() require("core/cmp") end,
+      requires = {
+        'hrsh7th/cmp-nvim-lsp',
+        'hrsh7th/cmp-buffer',
+        'hrsh7th/cmp-path',
+        'hrsh7th/cmp-vsnip',
+        'hrsh7th/vim-vsnip'
+      },
+      opt = true
+  }
+
+  use {
+    'windwp/nvim-autopairs',
+    config = function()
+      require('nvim-autopairs').setup{}
+      -- If you want insert `(` after select function or method item
+      local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+      local cmp = require('cmp')
+      cmp.event:on( 'confirm_done', cmp_autopairs.on_confirm_done({  map_char = { tex = '' } }))
+    end,
+    opt = true
   }
 
   use {
     "lukas-reineke/indent-blankline.nvim",
     setup = function ()
       vim.g.indent_blankline_char = '▏'
-      vim.g.indentLine_fileTypeExclude = {'undotree', 'vista', 'git', 'diff', 'translator', 'help', 'packer'}
+      vim.g.indentLine_fileTypeExclude = {'undotree', 'vista', 'git', 'diff', 'translator', 'help', 'packer', 'lsp-installer'}
       vim.g.indent_blankline_show_first_indent_level = false
       vim.g.indent_blankline_show_trailing_blankline_indent = false
     end,
     opt = true
   }
-
-  -- use {
-  --   'liuchengxu/vim-which-key',
-  --   config = function() vim.cmd('runtime whichkey.vim') end
-  -- }
-
-  -- use 'MunifTanjim/nui.nvim'
 
   use {
     'puremourning/vimspector',
@@ -501,14 +510,6 @@ return packer.startup(function()
       require("core/whichkey").setup()
     end
   }
-
-  -- use {
-  --   'gelguy/wilder.nvim',
-  --   run = ':UpdateRemotePlugins',
-  --   config = function()
-  --     vim.cmd('runtime plug-config/wilder.vim')
-  --   end
-  -- }
 
   -- use {
   --   'nvim-telescope/telescope.nvim',

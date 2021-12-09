@@ -51,9 +51,9 @@ function M.setup()
     function NvimLocateFile()
       PackerLoad nvim-tree.lua
       lua require("core/nvimtree").locate_file()
-      endfunction
+    endfunction
 
-      lua vim.api.nvim_set_keymap('n', '<leader>fe', ':call NvimLocateFile()<cr>', { noremap = true, silent = true })
+    lua vim.api.nvim_set_keymap('n', '<leader>fe', ':call NvimLocateFile()<cr>', { noremap = true, silent = true })
   ]]
 
   vim.api.nvim_set_keymap('n', '<leader>e', ':NvimTreeToggle<cr><c-w>p', { noremap = true, silent = true })
@@ -62,7 +62,8 @@ function M.setup()
   vim.api.nvim_set_keymap('n', '<leader>fd', ':cd ~/.dotfiles<cr>', { noremap = true, silent = true })
 
   local view = require('nvim-tree.view')
-  view.View.winopts.signcolumn = 'yes:1'
+  view.View.winopts.signcolumn = 'no'
+  view.View.winopts.foldcolumn = 1
 
   local tree_cb = require'nvim-tree.config'.nvim_tree_callback
   -- default mappings
@@ -80,6 +81,7 @@ function M.setup()
     { key = "d", cb = "<nop>"},
     { key = "S", cb = tree_cb("vsplit") },
     { key = "s", cb = tree_cb("split") },
+    { key = "<Tab>", cb = tree_cb("preview")},
     -- { key = "<C-t>", cb = tree_cb("tabnew") },
     { key = "<", cb = tree_cb("prev_sibling") },
     { key = ">", cb = tree_cb("next_sibling") },
@@ -94,7 +96,7 @@ function M.setup()
     { key = "ma", cb = tree_cb("create") },
     { key = "D", cb = tree_cb("remove") },
     { key = "mv", cb = tree_cb("rename") },
-    { key = "mv", cb = tree_cb("cut") },
+    -- { key = "mv", cb = tree_cb("cut") },
     { key = "yy", cb = tree_cb("copy") },
     { key = "p", cb = tree_cb("paste") },
     { key = "yn", cb = tree_cb("copy_name") },

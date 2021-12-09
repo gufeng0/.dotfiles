@@ -163,7 +163,8 @@ local n_mappings = {
     v = {
         name = '+vim',
         v = { ':edit ' .. vim.api.nvim_eval("$HOME") .. '/.dotfiles/vim/init.vim | :cd ' .. vim.api.nvim_eval("$HOME") .. '/.dotfiles/vim <cr>', 'open init.vim' },
-        s = { ':source ' .. vim.api.nvim_eval("$MYVIMRC") .. "<cr>", 'apply vimrc' },
+        s = { ':call ToggleSignColumn()<cr>', 'toggle signcolumn'},
+        S = { ':set signcolumn=yes | echo "set signcolumn=yes"<cr>', 'set signcolumn=yes'},
         j = { ':call ToggleGj()<cr>', 'toggle gj' },
         c = { ':set ic!<cr>', 'toggle case insensitive' },
         a = { ':call AutoPairsToggle()<cr>', 'toggle auto pairs' },
@@ -176,7 +177,8 @@ local n_mappings = {
         i = { ":ToggleSaveLastIme<cr>", 'toggle-save-last-ime' },
         h = { ":call hexedit#ToggleHexEdit()<cr>", 'toggle hexedit' },
         l = { ":set cursorline!<cr>", 'toggle cursorline' },
-        f = {
+        f = { "<Plug>FoldToggleColumn", 'toggle column' },
+        F = {
           name = '+foldmethod',
           m = { ":set fdm=manual | echo \"set fdm = manual\"<cr>", 'manual' },
           s = { ":set fdm=sytanx | echo \"set fdm = sytanx\"<cr>", 'sytanx' },
@@ -236,7 +238,7 @@ local n_mappings = {
       r = {":lua require('core/leaderf').visual_leaderf('rg')<cr>", "rg"},
     },
     c = {
-      f = { "<Plug>(coc-format-selected)", 'coc-format' }
+      f = {'coc-format'}
     },
     d = {
       n = {":lua require('misc/delete').deleteNullLines()<cr>","delete null lines"},

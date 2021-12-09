@@ -24,9 +24,12 @@ function! LoadPlug(timer) abort
     if has("mac")
         let g:python3_host_prog = '/usr/local/bin/python3'
     endif
-    silent! PackerLoad coc.nvim
+    " silent! PackerLoad coc.nvim
     silent! PackerLoad vim-textobj-parameter
     silent! PackerLoad indent-blankline.nvim
+    silent! PackerLoad nvim-lspconfig
+    silent! PackerLoad nvim-cmp
+    silent! PackerLoad nvim-autopairs
 
     if has("wsl")
         silent! PackerLoad im-switcher.nvim
@@ -34,6 +37,5 @@ function! LoadPlug(timer) abort
     set clipboard=unnamed
 
     " hi StatusLine guibg=#5C6370
-    hi StatusLineNC guibg=#5C6370
     hi CocHighlightText guibg=#344134
 endfunction
