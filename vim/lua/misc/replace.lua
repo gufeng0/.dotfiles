@@ -17,6 +17,7 @@ local function replace(mode)
 
   source = string.gsub(source, "\\", "\\\\")
   source = string.gsub(source, "/", "\\/")
+  target = require('misc/vim_escape').escape(target)
 
   local r = ":%s/" .. source .. "/" .. target .. "/g"
   vim.cmd(r)
