@@ -6,10 +6,6 @@ function M.deleteLines()
   vim.cmd(":g/" .. source  .. "/d")
 end
 
-function M.deleteNullLines()
-  vim.cmd(":g/^$/d")
-end
-
 function M.deleteAll()
   local source = vim.call('visual#visual_selection')
   source = require("misc/vim_escape").escape(source)
