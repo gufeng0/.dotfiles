@@ -165,13 +165,6 @@ return packer.startup(function()
   --   cmd = {'DB', 'DBUI'}
   -- }
 
-  --   use {
-  --       'SirVer/ultisnips',
-  --       opt = true,
-  --       ft = 'markdown',
-  --       config = function() vim.cmd('let g:UltiSnipsExpandTrigger="<c-d>"') end
-  --   }
-
   use {
     'othree/eregex.vim',
     opt = true,
@@ -187,7 +180,6 @@ return packer.startup(function()
     'tpope/vim-commentary'
   }
 
-  use 'lu5je0/vim-snippets'
   use 'kana/vim-textobj-user'
   use 'tpope/vim-repeat'
 
@@ -458,10 +450,19 @@ return packer.startup(function()
         'hrsh7th/cmp-nvim-lsp',
         'hrsh7th/cmp-buffer',
         'hrsh7th/cmp-path',
-        'hrsh7th/cmp-vsnip',
-        'hrsh7th/vim-vsnip'
+        'lu5je0/cmp-nvim-ultisnips'
+        -- 'hrsh7th/cmp-vsnip',
+        -- 'hrsh7th/vim-vsnip'
       },
       opt = true
+  }
+
+  use {
+      'SirVer/ultisnips',
+      setup = function()
+        vim.g.UltiSnipsSnippetDirectories = {vim.fn.stdpath('config') .. '/snippets/ultisnips'}
+        vim.g.UltiSnipsExpandTrigger = "<NUL>"
+      end
   }
 
   use {
