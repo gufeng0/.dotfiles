@@ -52,9 +52,9 @@ return packer.startup(function()
     "nathom/filetype.nvim"
   }
 
-  -- Use specific branch, dependency and run lua file after load
   use {
-    'glepnir/galaxyline.nvim',
+    -- 'glepnir/galaxyline.nvim',
+    'Avimitin/galaxyline.nvim',
     branch = 'main',
     config = function() require("core/galaxyline") end,
   }
@@ -197,6 +197,11 @@ return packer.startup(function()
   use 'lu5je0/one-nvim'
   use 'lu5je0/edge'
   use 'gruvbox-community/gruvbox'
+  -- use {'rktjmp/lush.nvim'}
+  -- use {
+  --   "rktjmp/shipwright.nvim"
+  -- }
+
 
   -- use {
   --   'wfxr/minimap.vim',
@@ -436,6 +441,14 @@ return packer.startup(function()
   use {'folke/lua-dev.nvim'}
 
   use {
+    'jose-elias-alvarez/null-ls.nvim',
+    config = function()
+      require('core.null_ls')
+    end,
+    opt = true
+  }
+
+  use {
     'neovim/nvim-lspconfig',
     config = function()
       require("core/lsp").setup()
@@ -462,6 +475,7 @@ return packer.startup(function()
       setup = function()
         vim.g.UltiSnipsSnippetDirectories = {vim.fn.stdpath('config') .. '/snippets/ultisnips'}
         vim.g.UltiSnipsExpandTrigger = "<NUL>"
+        vim.g.UltiSnipsJumpForwardTrigger="<cr>"
       end
   }
 

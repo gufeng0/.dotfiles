@@ -3,6 +3,46 @@ local cmp = require('cmp')
 
 vim.g.vsnip_snippet_dir = "~/.dotfiles/vim/vsnip"
 
+local comfirm = function(fallback)
+  if cmp.visible() then
+    if vim.fn['UltiSnips#CanExpandSnippet']() == 1 and cmp.get_selected_entry() == cmp.core.view:get_first_entry() then
+      vim.fn['UltiSnips#ExpandSnippet']()
+    else
+      local entry = cmp.get_selected_entry()
+      local label = entry.completion_item.label
+      local indent_change_items = {
+        'endif', 'end', 'else', 'elif', 'elseif .. then', 'elseif', 'else .. then~',
+        'endfor', 'endfunction', 'endwhile', 'endtry', 'except', 'catch'
+      }
+      if table.find(indent_change_items, label) then
+        cmp.confirm({ select = false, behavior = cmp.ConfirmBehavior.Insert})
+        local indent = vim.fn.indent('.')
+        local cmd = [[
+        function! CmpLineFormat(timer) abort
+          let c = getpos(".")
+          let indent_num = indent('.')
+          norm ==
+          if indent('.') != indent_num
+            call cursor(c[1], c[2] - 2)
+          else
+            call cursor(c[1], c[2])
+          endif
+        endfunction
+        call timer_start(0, 'CmpLineFormat')
+        ]]
+        cmd = cmd:format(indent, label)
+        vim.cmd(cmd)
+      else
+        cmp.confirm({ select = true })
+      end
+    end
+  elseif vim.fn['UltiSnips#CanExpandSnippet']() == 1 then
+    vim.fn['UltiSnips#ExpandSnippet']()
+  else
+    fallback()
+  end
+end
+
 cmp.setup({
   snippet = {
     -- REQUIRED - you must specify a snippet engine
@@ -23,29 +63,15 @@ cmp.setup({
   mapping = {
     ['<c-u>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
     ['<c-d>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
-    -- ['<c-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
-    ['<Down>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
-    ['<Up>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }),
-    ['<C-y>'] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
-    ['<C-e>'] = cmp.mapping({
+    ['<c-n>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
+    ['<down>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
+    ['<up>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }),
+    ['<c-e>'] = cmp.mapping({
       i = cmp.mapping.abort(),
       c = cmp.mapping.close(),
     }),
-    ['<CR>'] = cmp.mapping.confirm({ select = true }),
-    -- ['<Tab>'] = cmp.mapping.confirm({ select = true }),
-    ["<Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        if vim.fn['UltiSnips#CanExpandSnippet']() == 1 and cmp.get_selected_entry() == cmp.core.view:get_first_entry() then
-          vim.fn['UltiSnips#ExpandSnippet']()
-        else
-          cmp.confirm({ select = true })
-        end
-      elseif vim.fn['UltiSnips#CanExpandSnippet']() == 1 then
-        vim.fn['UltiSnips#ExpandSnippet']()
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
+    ['<cr>'] = cmp.mapping(comfirm, { "i" }),
+    ["<tab>"] = cmp.mapping(comfirm, { "i" }),
   },
   sources = cmp.config.sources({
     { name = 'ultisnips' }, -- For ultisnips users.
@@ -135,11 +161,4 @@ highlight! CmpItemKindMethod guibg=NONE guifg=#C586C0
 highlight! CmpItemKindKeyword guibg=NONE guifg=#D4D4D4
 highlight! CmpItemKindProperty guibg=NONE guifg=#D4D4D4
 highlight! CmpItemKindUnit guibg=NONE guifg=#D4D4D4
-
-" Jump forward or backward
-imap <expr> <c-k> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<c-k>'
-smap <expr> <c-k> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<c-k>'
-imap <expr> <c-j>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<c-j>'
-smap <expr> <c-j>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<c-j>'
-" imap <c-p> <cmd>lua vim.lsp.buf.signature_help()<CR>
 ]]
