@@ -53,10 +53,11 @@ return packer.startup(function()
   }
 
   use {
-    -- 'glepnir/galaxyline.nvim',
-    'Avimitin/galaxyline.nvim',
-    branch = 'main',
-    config = function() require("core/galaxyline") end,
+    'nvim-lualine/lualine.nvim',
+    requires = {'kyazdani42/nvim-web-devicons', opt = true},
+    config = function()
+      require("core.lualine")
+    end
   }
 
   use {
@@ -195,7 +196,7 @@ return packer.startup(function()
   use 'lu5je0/vim-one'
   use 'olimorris/onedarkpro.nvim'
   use 'lu5je0/one-nvim'
-  use 'lu5je0/edge'
+  use 'sainnhe/edge'
   use 'gruvbox-community/gruvbox'
   -- use {'rktjmp/lush.nvim'}
   -- use {
@@ -448,6 +449,18 @@ return packer.startup(function()
     opt = true
   }
 
+  -- highlight cursor word
+  use {
+    'RRethy/vim-illuminate',
+    config = function()
+      vim.g.Illuminate_delay = 0
+      vim.g.Illuminate_ftwhitelist = {'vim', 'sh', 'python', 'lua', 'java'}
+      vim.cmd[[
+      highlight illuminatedWord ctermbg=green guibg=#344134
+      ]]
+    end
+  }
+
   use {
     'neovim/nvim-lspconfig',
     config = function()
@@ -463,20 +476,15 @@ return packer.startup(function()
         'hrsh7th/cmp-nvim-lsp',
         'hrsh7th/cmp-buffer',
         'hrsh7th/cmp-path',
-        'lu5je0/cmp-nvim-ultisnips'
-        -- 'hrsh7th/cmp-vsnip',
-        -- 'hrsh7th/vim-vsnip'
+        {
+          'hrsh7th/vim-vsnip',
+          config = function()
+            require('core.vsnip').setup()
+          end
+        },
+        'hrsh7th/cmp-vsnip',
       },
       opt = true
-  }
-
-  use {
-      'SirVer/ultisnips',
-      setup = function()
-        vim.g.UltiSnipsSnippetDirectories = {vim.fn.stdpath('config') .. '/snippets/ultisnips'}
-        vim.g.UltiSnipsExpandTrigger = "<NUL>"
-        vim.g.UltiSnipsJumpForwardTrigger="<cr>"
-      end
   }
 
   use {
