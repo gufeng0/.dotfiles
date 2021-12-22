@@ -49,7 +49,10 @@ return packer.startup(function()
 
   vim.g.did_load_filetypes = 1
   use {
-    "nathom/filetype.nvim"
+    "nathom/filetype.nvim",
+    config = function()
+      require("core.filetype")
+    end
   }
 
   use {
@@ -219,42 +222,18 @@ return packer.startup(function()
     disable = vim.fn.has("wsl") == 0
   }
 
-  use {
-    'lu5je0/vim-terminal-help',
-    config = function() vim.cmd('runtime plug-config/terminal.vim') end,
-    opt = true,
-    keys = {'<m-i>', '<d-i>'},
-    fn = {'TerminalSendInner', 'TerminalOpen', 'TerminalSend'}
-  }
-
   -- use {
-  --   "akinsho/toggleterm.nvim",
-  --   config = function ()
-  --     require("toggleterm").setup{
-  --       size = 18,
-  --       open_mapping = [[<c-}>]],
-  --       hide_numbers = true, -- hide the number column in toggleterm buffers
-  --       shade_filetypes = {},
-  --       shade_terminals = false,
-  --       start_in_insert = true,
-  --       insert_mappings = true, -- whether or not the open mapping applies in insert mode
-  --       persist_size = true,
-  --       direction = 'float',
-  --       close_on_exit = true, -- close the terminal window when the process exits
-  --       shell = vim.o.shell, -- change the default shell
-  --     }
-  --     vim.cmd[[
-  --     imap <silent> <m-i> <ESC>:ToggleTerm<CR>
-  --     imap <silent> <d-i> <ESC>:ToggleTerm<CR>
-
-  --     tmap <silent> <m-i> <c-\><c-n>:ToggleTerm<CR>
-  --     tmap <silent> <d-i> <c-\><c-n>:ToggleTerm<CR>
-
-  --     nmap <silent> <m-i> :ToggleTerm<CR>
-  --     nmap <silent> <d-i> :ToggleTerm<CR>
-  --     ]]
-  --   end
+  --   'lu5je0/vim-terminal-help',
+  --   config = function() vim.cmd('runtime plug-config/terminal.vim') end,
+  --   opt = true,
+  --   keys = {'<m-i>', '<d-i>'},
+  --   fn = {'TerminalSendInner', 'TerminalOpen', 'TerminalSend'}
   -- }
+
+  use {
+    "akinsho/toggleterm.nvim",
+    config = function () require('core.terminal').setup() end
+  }
 
   -- use {
   --   'lambdalisue/fern-git-status.vim',
@@ -355,23 +334,23 @@ return packer.startup(function()
     cmd = {'StartupTime'}
   }
 
-  use {
-    'skywind3000/asyncrun.vim',
-    opt = true,
-    cmd = 'AsyncRun',
-    requires = {
-      {'skywind3000/asynctasks.vim', opt = true},
-      {'skywind3000/asyncrun.extra', opt = true},
-      {
-        'preservim/vimux',
-        config = function ()
-          vim.g.VimuxHeight = "50"
-          vim.g.VimuxOrientation = "h"
-        end,
-        opt = true
-      }
-    },
-  }
+  -- use {
+  --   'skywind3000/asyncrun.vim',
+  --   opt = true,
+  --   cmd = 'AsyncRun',
+  --   requires = {
+  --     {'skywind3000/asynctasks.vim', opt = true},
+  --     {'skywind3000/asyncrun.extra', opt = true},
+      -- {
+      --   'preservim/vimux',
+      --   config = function ()
+      --     vim.g.VimuxHeight = "50"
+      --     vim.g.VimuxOrientation = "h"
+      --   end,
+      --   opt = true
+      -- }
+    -- },
+  -- }
 
   use {
     'mbbill/undotree',
@@ -461,6 +440,10 @@ return packer.startup(function()
     end
   }
 
+  -- use {
+  --   'ThePrimeagen/refactoring.nvim'
+  -- }
+
   use {
     'neovim/nvim-lspconfig',
     config = function()
@@ -503,7 +486,7 @@ return packer.startup(function()
     "lukas-reineke/indent-blankline.nvim",
     setup = function ()
       vim.g.indent_blankline_char = '▏'
-      vim.g.indentLine_fileTypeExclude = {'undotree', 'vista', 'git', 'diff', 'translator', 'help', 'packer', 'lsp-installer'}
+      vim.g.indentLine_fileTypeExclude = {'undotree', 'vista', 'git', 'diff', 'translator', 'help', 'packer', 'lsp-installer', 'toggleterm'}
       vim.g.indent_blankline_show_first_indent_level = false
       vim.g.indent_blankline_show_trailing_blankline_indent = false
     end,

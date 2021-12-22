@@ -50,7 +50,11 @@ local extensions_type_icon = {
 
 local extensions_name = {
   function()
-    return vim.bo.filetype:upper()
+    local res = vim.bo.filetype:upper()
+    if vim.bo.filetype == 'toggleterm' then
+      res = res .. " %{b:toggle_number}"
+    end
+    return res
   end,
   color = { fg = colors.blue, bg = colors.bg, gui = 'bold' }
 }
@@ -64,7 +68,7 @@ local extensions = {
       extensions_type_icon
     }
   },
-  filetypes = {'NvimTree', 'vista', 'dbui', 'packer', 'fern', 'diff', 'undotree', 'minimap'}
+  filetypes = {'NvimTree', 'vista', 'dbui', 'packer', 'fern', 'diff', 'undotree', 'minimap', 'toggleterm'}
 }
 
 -- Config
@@ -181,13 +185,13 @@ ins_left {
 
 ins_left {
   function()
-    return [[ %l:%c %2p%%]];
+    return [[ %2p%% %l:%c ]];
   end,
   padding = { left = 1, right = 0 },
   color = { fg = colors.violet },
 }
 
-ins_left {
+ins_right {
   'diagnostics',
   sources = { 'nvim_diagnostic' },
   symbols = { error = ' ', warn = ' ', info = ' ' },
@@ -196,12 +200,14 @@ ins_left {
     color_warn = { fg = colors.yellow },
     color_info = { fg = colors.cyan },
   },
+  padding = { left = 0, right = 1 },
 }
+
 
 ins_right {
   -- Lsp server name .
   function()
-    local msg = 'No Active Lsp'
+    local msg = nil
     local buf_ft = vim.api.nvim_buf_get_option(0, 'filetype')
     local clients = vim.lsp.get_active_clients()
     if next(clients) == nil then
@@ -217,10 +223,15 @@ ins_right {
       end
       ::continue::
     end
-    return ' LSP:' .. msg
+    if msg == nil then
+      return ""
+    else
+      return ' LSP:' .. msg
+    end
   end,
   color = { fg = colors.cyan, gui = 'bold' },
-  cond = conditions.lsp_cond
+  cond = conditions.lsp_cond,
+  padding = { left = 0, right = 1 },
 }
 
 -- Add components to right sections
@@ -245,12 +256,6 @@ ins_right {
     mac = 'CR',
   },
 }
-
--- ins_right {
---   'progress',
---   color = { fg = colors.fg, gui = 'bold' },
---   padding = { left = 0, right = 0 },
--- }
 
 ins_right {
   'b:gitsigns_head',
