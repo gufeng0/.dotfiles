@@ -3,41 +3,57 @@ local M = {}
 function M.setup()
   vim.g.Lf_StlSeparator = {
     left = '',
-    right = ''
+    right = '',
   }
 
   vim.g.Lf_WindowPosition = 'popup'
 
   vim.g.Lf_CommandMap = {
-    ['<C-J>'] = {'<DOWN>'},
-    ['<C-K>'] = {'<UP>'}
+    ['<C-J>'] = { '<DOWN>' },
+    ['<C-K>'] = { '<UP>' },
   }
 
-  vim.g.Lf_ShortcutF = "<leader>ff"
-  vim.g.Lf_ShortcutB = ""
+  vim.g.Lf_ShortcutF = '<leader>ff'
+  vim.g.Lf_ShortcutB = ''
   vim.g.Lf_PreviewInPopup = 1
   vim.g.Lf_PopupHeight = 0.7
   vim.g.Lf_PopupShowFoldcolumn = 0
   vim.g.Lf_WildIgnore = {
-    dir = {'.svn','.git','.hg'},
-    file = {'*.sw?','~$*','*.bak','*.exe','*.o','*.so','*.py[co]'}
+    dir = { '.svn', '.git', '.hg' },
+    file = { '*.sw?', '~$*', '*.bak', '*.exe', '*.o', '*.so', '*.py[co]' },
   }
 
   vim.cmd('silent! unmap <leader>f')
 
   M.on_colorscheme()
+  M.key_mappings()
+end
+
+function M.key_mappings()
+  local opts = {}
+  vim.api.nvim_set_keymap('n', '<leader>fC', ':Leaderf colorscheme<cr>', opts)
+  vim.api.nvim_set_keymap('n', '<leader>ff', ':Leaderf file<cr>', opts)
+  vim.api.nvim_set_keymap('n', '<leader>fs', ':Leaderf --recall<cr>', opts)
+  vim.api.nvim_set_keymap('n', '<leader>fg', ':Leaderf bcommit<cr>', opts)
+  vim.api.nvim_set_keymap('n', '<leader>fr', ':Leaderf rg<cr>', opts)
+  vim.api.nvim_set_keymap('n', '<leader>fl', ':Leaderf line<cr>', opts)
+  vim.api.nvim_set_keymap('n', '<leader>fn', ':Leaderf filetype<cr>', opts)
+  vim.api.nvim_set_keymap('n', '<leader>fb', ':Leaderf buffer<cr>', opts)
+  vim.api.nvim_set_keymap('n', '<leader>fm', ':Leaderf --nowrap mru<cr>', opts)
+  vim.api.nvim_set_keymap('n', '<leader>fh', ':Leaderf help<cr>', opts)
+  vim.api.nvim_set_keymap('n', '<leader>fj', ':JunkList<cr>', opts)
 end
 
 function M.visual_leaderf(lf_cmd)
   local search = vim.call('visual#visual_selection')
-  search = string.gsub(search, "'", "")
-  search = string.gsub(search, "\n", "")
+  search = string.gsub(search, "'", '')
+  search = string.gsub(search, '\n', '')
 
-  vim.cmd(":Leaderf " .. lf_cmd .. " --input '" .. search .. "'")
+  vim.cmd(':Leaderf ' .. lf_cmd .. " --input '" .. search .. "'")
 end
 
 function M.on_colorscheme()
-  vim.cmd[[
+  vim.cmd([[
   highlight Lf_hl_match cterm=bold ctermfg=107 gui=bold guifg=#a0c980
   highlight Lf_hl_match0 cterm=bold ctermfg=107 gui=bold guifg=#a0c980
   highlight Lf_hl_match1 cterm=bold ctermfg=110 gui=bold guifg=#6cb6eb
@@ -66,7 +82,7 @@ function M.on_colorscheme()
   highlight! link Lf_hl_popup_cwd Pmenu
   highlight! link Lf_hl_popup_blank Lf_hl_popup_window
   highlight! link Lf_hl_popup_spin Yellow
-  ]]
+  ]])
 end
 
 return M

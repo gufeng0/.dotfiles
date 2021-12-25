@@ -1,6 +1,6 @@
 local M = {}
 
-M.sendToTerminal = function(cmd, opts)
+M.send_to_terminal = function(cmd, opts)
   if opts == nil then
     opts = {}
     opts.go_back = 0
@@ -22,16 +22,16 @@ M.change_terminal_direction = function(direction)
   M.toggle()
 end
 
-M.runSelectInTerminal = function()
-  M.sendToTerminal(vim.fn['visual#visual_selection']())
+M.run_select_in_terminal = function()
+  M.send_to_terminal(vim.fn['visual#visual_selection']())
 end
 
 M.setup = function()
-  require("toggleterm").setup{
+  require('toggleterm').setup({
     size = function(term)
-      if term.direction == "horizontal" then
+      if term.direction == 'horizontal' then
         return 18
-      elseif term.direction == "vertical" then
+      elseif term.direction == 'vertical' then
         return vim.o.columns * 0.5
       end
     end,
@@ -45,8 +45,8 @@ M.setup = function()
     direction = 'float',
     close_on_exit = true, -- close the terminal window when the process exits
     shell = vim.o.shell, -- change the default shell
-  }
-  vim.cmd[[
+  })
+  vim.cmd([[
   imap <silent> <m-i> <ESC>:lua require('core.terminal').toggle()<CR>
   imap <silent> <d-i> <ESC>:lua require('core.terminal').toggle()<CR>
 
@@ -70,7 +70,7 @@ M.setup = function()
     autocmd!
     autocmd TermOpen * setlocal signcolumn=no
   augroup END
-  ]]
+  ]])
 end
 
 return M

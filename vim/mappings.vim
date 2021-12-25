@@ -114,7 +114,7 @@ endif
 "----------------------------------------------------------------------
 " visual mode
 "----------------------------------------------------------------------
-vmap <silent> # :lua require("core.terminal").runSelectInTerminal()<cr>
+vmap <silent> # :lua require("core.terminal").run_select_in_terminal()<cr>
 
 "----------------------------------------------------------------------
 " other
@@ -127,4 +127,7 @@ nnoremap m<space> i&#8195;&#8195;<esc>l
 nnoremap o o<space><BS>
 nnoremap O O<space><BS>
 
-" nmap <silent> <expr> p v:lua.require('util.utils').is_register_contains_newline('"') ? 'p`[V`]=' : 'p'
+" augroup AutoReIndentAfterPaste
+"     autocmd!
+"     autocmd FileType vim,lua,python nmap <buffer> <silent> <expr> p v:lua.require('util.utils').is_register_contains_newline('"') ? 'p`[V`]=^' : 'p'
+" augroup END
