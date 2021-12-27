@@ -38,6 +38,8 @@ return packer.startup(function()
 
   use 'nvim-lua/plenary.nvim'
 
+  use('MunifTanjim/nui.nvim')
+
   use({
     'ojroques/vim-oscyank',
     config = function()
@@ -191,7 +193,7 @@ return packer.startup(function()
           -- Line-comment keymap
           line = 'gc',
           -- Block-comment keymap
-          block = nil,
+          block = 'gB',
         },
         toggler = {
           -- Line-comment toggle keymap
@@ -420,6 +422,8 @@ return packer.startup(function()
 
   use({ 'ray-x/lsp_signature.nvim' })
 
+  use({ 'kevinhwang91/nvim-bqf' })
+
   use({ 'folke/lua-dev.nvim' })
 
   use({
@@ -490,9 +494,16 @@ return packer.startup(function()
     'lukas-reineke/indent-blankline.nvim',
     setup = function()
       vim.g.indent_blankline_char = '▏'
-      vim.g.indentLine_fileTypeExclude = { 'undotree', 'vista', 'git', 'diff', 'translator', 'help', 'packer', 'lsp-installer', 'toggleterm' }
+      vim.g.indentLine_fileTypeExclude = { 'undotree', 'vista', 'git', 'diff', 'translator', 'help', 'packer', 'lsp-installer', 'toggleterm', 'confirm' }
       vim.g.indent_blankline_show_first_indent_level = false
       vim.g.indent_blankline_show_trailing_blankline_indent = false
+      vim.cmd([[highlight IndentBlanklineIndent guifg=#373C44 gui=nocombine]])
+      require('indent_blankline').setup({
+        space_char_blankline = ' ',
+        char_highlight_list = {
+          'IndentBlanklineIndent',
+        },
+      })
     end,
     opt = true,
   })
