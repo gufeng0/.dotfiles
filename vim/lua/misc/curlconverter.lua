@@ -13,7 +13,7 @@ function M.convert()
   end
 
   if M.node_global_modules_path == '' then
-    M.node_global_modules_path = vim.fn.system('npm root --quiet -g'):sub(1, -2)
+    M.node_global_modules_path = vim.fn.system('npm root --quiet'):sub(1, -2)
   end
 
   local cmd = string.format(
