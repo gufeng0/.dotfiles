@@ -92,19 +92,17 @@ return packer.startup(function()
     'kyazdani42/nvim-web-devicons',
     config = function()
       local plugin = require('nvim-web-devicons')
-      if plugin.has_loaded() then
-        plugin.setup({
-          override = {
-            xml = {
-              icon = '',
-              color = '#e37933',
-              name = 'Xml',
-            },
+      plugin.setup({
+        override = {
+          xml = {
+            icon = '',
+            color = '#e37933',
+            name = 'Xml',
           },
-          default = true,
-        })
-      end
-    end,
+        },
+        default = true,
+      })
+    end
   })
 
   use({
@@ -209,7 +207,6 @@ return packer.startup(function()
     end,
   })
 
-  use('kana/vim-textobj-user')
   use('tpope/vim-repeat')
 
   use({
@@ -295,13 +292,15 @@ return packer.startup(function()
     keys = { '<c-n>', '<m-n>' },
   })
 
-  use({
-    'sgur/vim-textobj-parameter',
-    setup = function()
-      vim.g.vim_textobj_parameter_mapping = 'a'
-    end,
-    opt = true,
-  })
+  -- textobj
+  use('kana/vim-textobj-user')
+  -- use('michaeljsmith/vim-indent-object')
+  -- use({
+  --   'sgur/vim-textobj-parameter',
+  --   setup = function()
+  --     vim.g.vim_textobj_parameter_mapping = 'a'
+  --   end
+  -- })
 
   use({
     'lewis6991/gitsigns.nvim',
@@ -544,7 +543,16 @@ return packer.startup(function()
   --   requires = {
   --     {'nvim-lua/plenary.nvim'},
   --     {'nvim-telescope/telescope-fzf-native.nvim', run='make'},
-  --     {'nvim-telescope/telescope-project.nvim'}
+  --     {'nvim-telescope/telescope-project.nvim'},
+  --     {
+  --       'AckslD/nvim-neoclip.lua',
+  --       config = function()
+  --         require('neoclip').setup({
+  --           default_register = '*'
+  --         })
+  --       end,
+  --     }
   --   }
   -- }
+
 end)

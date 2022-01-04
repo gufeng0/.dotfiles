@@ -8,7 +8,6 @@ runtime settings.vim
 runtime functions.vim
 runtime mappings.vim
 runtime misc.vim
-runtime runner.vim
 runtime autocmd.vim
 if has("mac")
   runtime im.vim
@@ -22,7 +21,6 @@ local function load_plug()
 
   local plugins = {
     'indent-blankline.nvim',
-    'vim-textobj-parameter',
     'nvim-lspconfig',
     'nvim-cmp',
     'nvim-autopairs',

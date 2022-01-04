@@ -38,6 +38,7 @@ function M.setup()
 
   vim.cmd([[
     hi NvimTreeFolderName guifg=#e5c07b
+    hi Directory ctermfg=107 guifg=#61afef
     hi NvimTreeOpenedFolderName guifg=#e5c07b
     hi default link NvimTreeFolderIcon Directory
     hi NvimTreeEmptyFolderName guifg=#e5c07b
@@ -80,8 +81,8 @@ function M.setup()
     { key = 'x', cb = ":lua require('core.nvimtree').toggle_width()<cr>" },
     { key = 'H', cb = ':cd ~<cr>' },
     { key = 'd', cb = '<nop>' },
-    { key = 'S', cb = tree_cb('vsplit') },
-    { key = 's', cb = tree_cb('split') },
+    { key = 's', cb = tree_cb('vsplit') },
+    -- { key = 's', cb = tree_cb('split') },
     -- { key = "<C-t>", cb = tree_cb("tabnew") },
     { key = '<', cb = tree_cb('prev_sibling') },
     { key = '>', cb = tree_cb('next_sibling') },
@@ -104,7 +105,7 @@ function M.setup()
     { key = '[g', cb = tree_cb('prev_git_item') },
     { key = ']g', cb = tree_cb('next_git_item') },
     { key = 'u', cb = tree_cb('dir_up') },
-    { key = 's', cb = tree_cb('system_open') },
+    { key = 'o', cb = tree_cb('system_open') },
     { key = 'q', cb = tree_cb('close') },
     { key = 'g?', cb = tree_cb('toggle_help') },
     { key = '<c-o>', cb = ":lua require('core.nvimtree').back()<cr>" },

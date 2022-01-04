@@ -124,8 +124,8 @@ xnoremap * m`:keepjumps <C-u>call VisualStarSearchSet('/')<CR>/<C-R>=@/<CR><CR>`
 nnoremap m<space> i&#8195;&#8195;<esc>l
 
 " ugly hack to start newline and keep indent
-nnoremap o o<space><BS>
-nnoremap O O<space><BS>
+" nnoremap o o<space><BS>
+" nnoremap O O<space><BS>
 
 " augroup AutoReIndentAfterPaste
 "     autocmd!

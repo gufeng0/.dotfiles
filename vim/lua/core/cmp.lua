@@ -24,7 +24,7 @@ local comfirm = function(fallback)
         'except',
         'catch',
       }
-      if table.find(indent_change_items, label) then
+      if table.contain(indent_change_items, label) then
         cmp.confirm({ select = false, behavior = cmp.ConfirmBehavior.Insert })
         local indent = vim.fn.indent('.')
         local cmd = [[
@@ -36,10 +36,13 @@ local comfirm = function(fallback)
           if nvim_get_mode()['mode'] == 's'
             return
           endif
-          
+
           norm ==
-          if indent('.') != indent_num
-            call cursor(c[1], c[2] - 2)
+          let sw = shiftwidth()
+          if indent('.') < indent_num
+            call cursor(c[1], c[2] - sw)
+          elseif indent('.') > indent_num
+            call cursor(c[1], c[2] + sw)
           else
             call cursor(c[1], c[2])
           endif
