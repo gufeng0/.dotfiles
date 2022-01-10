@@ -51,12 +51,20 @@ M.preview = function(file_path)
 end
 
 M.popup_info_window = function(content)
+  -- 关闭上一个弹窗
   if _G.preview_popup ~= nil then
     _G.preview_popup:unmount()
   end
 
   local Popup = require('nui.popup')
   local event = require('nui.utils.autocmd').event
+
+  local content_array = content:split('\n')
+
+  local width = 0
+  for _, line in ipairs(content_array) do
+    width = math.max(width, #line)
+  end
 
   local popup_options = {
     enter = false,
@@ -74,8 +82,8 @@ M.popup_info_window = function(content)
     },
     relative = 'cursor',
     size = {
-      width = #content,
-      height = 1,
+      width = width,
+      height = #content_array,
     },
     opacity = 1,
     zindex = 100,
@@ -89,7 +97,7 @@ M.popup_info_window = function(content)
   popup:mount()
 
   vim.fn.win_execute(popup.winid, 'set ft=popup')
-  vim.api.nvim_buf_set_lines(popup.bufnr, 0, 1, false, { content })
+  vim.api.nvim_buf_set_lines(popup.bufnr, 0, 0, false, content_array)
   vim.bo[vim.fn.winbufnr(popup.winid)].modifiable = false
   vim.bo[vim.fn.winbufnr(popup.winid)].readonly = true
 

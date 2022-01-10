@@ -1,6 +1,6 @@
 require('impatient')
-require('enhance')
 require('plugins')
+require('enhance')
 require('commands')
 
 vim.cmd([[
@@ -15,14 +15,10 @@ endif
 ]])
 
 local function load_plug()
-  if vim.fn.has('mac') == 1 then
-    vim.g.python3_host_prog = '/usr/local/bin/python3'
-  end
-
   local plugins = {
     'indent-blankline.nvim',
-    'nvim-lspconfig',
     'nvim-cmp',
+    'nvim-lspconfig',
     'nvim-autopairs',
     'null-ls.nvim',
   }
@@ -32,7 +28,7 @@ local function load_plug()
   end
 
   require('packer').loader(unpack(plugins))
-  vim.o.clipboard = 'unnamed'
+  vim.o.clipboard = 'unnamedplus'
 end
 
-vim.defer_fn(load_plug, 0)
+vim.defer_fn(load_plug, 10)

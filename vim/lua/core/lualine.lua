@@ -59,7 +59,7 @@ local extensions_name = {
   color = { fg = colors.blue, bg = colors.bg, gui = 'bold' },
 }
 
-local extensions = {
+local special_ft_extension = {
   sections = {
     lualine_c = {
       extensions_name,
@@ -72,8 +72,9 @@ local extensions = {
 }
 
 -- Config
+local section_colors = { fg = colors.fg, bg = colors.bg }
 local config = {
-  extensions = { extensions },
+  extensions = { special_ft_extension, 'quickfix' },
   options = {
     -- Disable sections and component separators
     component_separators = '',
@@ -83,8 +84,8 @@ local config = {
       -- We are going to use lualine_c an lualine_x as left and
       -- right section. Both are highlighted by c theme .  So we
       -- are just setting default looks o statusline
-      normal = { c = { fg = colors.fg, bg = colors.bg } },
-      inactive = { c = { fg = colors.fg, bg = colors.bg } },
+      normal = { c = section_colors, a = section_colors, b = section_colors },
+      inactive = { c = section_colors, a = section_colors, b = section_colors },
     },
   },
   sections = {
@@ -186,6 +187,7 @@ ins_left({
 ins_left({
   function()
     return [[ %2p%% %l:%c ]]
+    -- return [[ %l:%c ]]
   end,
   padding = { left = 1, right = 0 },
   color = { fg = colors.violet },
@@ -212,6 +214,15 @@ ins_right({
   update_in_insert = false, -- Update diagnostics in insert mode
   padding = { left = 0, right = 1 },
 })
+
+-- lsp status
+-- ins_right({
+--   function()
+--     return require('lsp-status').status()
+--   end,
+--   color = 'LualineMode',
+--   padding = { left = 1, right = 1 },
+-- })
 
 ins_right({
   -- Lsp server name .

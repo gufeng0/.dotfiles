@@ -16,10 +16,7 @@ autocmd BufWritePost plugins.lua source <afile> | PackerCompile
 augroup end
 ]])
 
--- Only required if you have packer configured as `opt`
-return packer.startup(function()
-  local use = packer.use
-
+return packer.startup(function(use)
   -- Speed up loading Lua modules in Neovim to improve startup time.
   use('lewis6991/impatient.nvim')
 
@@ -58,7 +55,16 @@ return packer.startup(function()
 
   use({
     'nvim-lualine/lualine.nvim',
-    requires = { 'kyazdani42/nvim-web-devicons', opt = true },
+    requires = {
+      { 'kyazdani42/nvim-web-devicons', opt = true },
+      -- {
+      --   'nvim-lua/lsp-status.nvim',
+      --   config = function()
+      --     local lsp_status = require('lsp-status')
+      --     lsp_status.register_progress()
+      --   end
+      -- }
+    },
     config = function()
       require('core.lualine')
     end,
@@ -102,7 +108,7 @@ return packer.startup(function()
         },
         default = true,
       })
-    end
+    end,
   })
 
   use({
@@ -138,19 +144,21 @@ return packer.startup(function()
     requires = { 'mattn/webapi-vim' },
   })
 
+  -- stylua: ignore
+  _G.ts_filtypes = { 'json', 'python', 'java', 'lua', 'c', 'vim', 'bash', 'go', 'rust', 'toml', 'yaml', 'markdown', 'bash', }
   use({
     'nvim-treesitter/nvim-treesitter',
     run = ':TSUpdate',
     opt = true,
-    ft = { 'json', 'python', 'java', 'lua', 'c', 'vim', 'bash', 'go', 'rust', 'toml', 'yaml', 'markdown', 'bash', 'sh' },
+    commit = '8ada8faf2fd5a74cc73090ec856fa88f34cd364b',
     config = function()
-      require('core.treesiter')
+    require('core.treesiter')
     end,
+    ft = _G.ts_filtypes
   })
 
   -- highlighting
   use({ 'chr4/nginx.vim' })
-  use({ 'cespare/vim-toml' })
   use({ 'lu5je0/vim-java-bytecode' })
   use({
     'elzr/vim-json',
@@ -237,6 +245,7 @@ return packer.startup(function()
     'lu5je0/im-switcher.nvim',
     opt = true,
     disable = vim.fn.has('wsl') == 0,
+    event = { 'InsertEnter' },
   })
 
   use({
@@ -325,9 +334,9 @@ return packer.startup(function()
     opt = true,
     cmd = { 'Git', 'Gvdiffsplit', 'Gstatus', 'Gclog', 'Gread', 'help', 'translator' },
     fn = { 'fugitive#repo' },
-    requires = {
-      { 'skywind3000/asynctasks.vim', opt = true },
-    },
+    -- requires = {
+    --   { 'skywind3000/asynctasks.vim', opt = true },
+    -- },
   })
 
   use({
@@ -343,23 +352,23 @@ return packer.startup(function()
     cmd = { 'StartupTime' },
   })
 
-  -- use {
+  -- use({
   --   'skywind3000/asyncrun.vim',
   --   opt = true,
   --   cmd = 'AsyncRun',
   --   requires = {
-  --     {'skywind3000/asynctasks.vim', opt = true},
-  --     {'skywind3000/asyncrun.extra', opt = true},
-  -- {
-  --   'preservim/vimux',
-  --   config = function ()
-  --     vim.g.VimuxHeight = "50"
-  --     vim.g.VimuxOrientation = "h"
-  --   end,
-  --   opt = true
-  -- }
-  -- },
-  -- }
+  --     { 'skywind3000/asynctasks.vim', opt = true },
+  --     { 'skywind3000/asyncrun.extra', opt = true },
+  --     {
+  --       'preservim/vimux',
+  --       config = function()
+  --         vim.g.VimuxHeight = '50'
+  --         vim.g.VimuxOrientation = 'h'
+  --       end,
+  --       opt = true,
+  --     },
+  --   },
+  -- })
 
   use({
     'mbbill/undotree',
@@ -378,7 +387,7 @@ return packer.startup(function()
     'tpope/vim-surround',
   })
 
-  local nvim_colorizer_ft = { 'vim', 'lua' }
+  local nvim_colorizer_ft = { 'vim', 'lua', 'css' }
   use({
     'norcalli/nvim-colorizer.lua',
     config = function()
@@ -413,22 +422,12 @@ return packer.startup(function()
     ft = { 'markdown' },
   })
 
-  use({
-    'masukomi/vim-markdown-folding',
-    ft = { 'markdown' },
-    config = function()
-      vim.g.markdown_fold_style = 'nested'
-    end,
-  })
-
-  use({ 'williamboman/nvim-lsp-installer' })
-
-  use({ 'ray-x/lsp_signature.nvim' })
-
   use({ 'kevinhwang91/nvim-bqf' })
 
+  -- lsp
+  use({ 'williamboman/nvim-lsp-installer' })
+  use({ 'ray-x/lsp_signature.nvim' })
   use({ 'folke/lua-dev.nvim' })
-
   use({
     'jose-elias-alvarez/null-ls.nvim',
     config = function()
@@ -448,10 +447,6 @@ return packer.startup(function()
       ]])
     end,
   })
-
-  -- use {
-  --   'ThePrimeagen/refactoring.nvim'
-  -- }
 
   use({
     'neovim/nvim-lspconfig',
@@ -495,7 +490,7 @@ return packer.startup(function()
 
   use({
     'lukas-reineke/indent-blankline.nvim',
-    setup = function()
+    config = function()
       vim.g.indent_blankline_char = '▏'
       vim.g.indentLine_fileTypeExclude = { 'undotree', 'vista', 'git', 'diff', 'translator', 'help', 'packer', 'lsp-installer', 'toggleterm', 'confirm' }
       vim.g.indent_blankline_show_first_indent_level = false
@@ -535,6 +530,20 @@ return packer.startup(function()
     config = function()
       require('core.whichkey').setup()
     end,
+    keys = { ',' },
+    opt = true,
+  })
+
+  use({
+    'petertriho/nvim-scrollbar',
+    config = function()
+      require('scrollbar').setup({
+        handle = {
+          color = '#5C6370',
+        },
+        excluded_filetypes = { 'NvimTree', 'confirm', 'toggleterm', 'vista' },
+      })
+    end,
   })
 
   -- use {
@@ -554,5 +563,4 @@ return packer.startup(function()
   --     }
   --   }
   -- }
-
 end)
