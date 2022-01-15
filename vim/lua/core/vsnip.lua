@@ -8,6 +8,23 @@ M.setup = function()
   ]])
 end
 
+M.buffer_snippets_map = {}
+
+function M.is_snippet_contain(snippet)
+  local cached_snippets = M.buffer_snippets_map[vim.bo.filetype]
+  if cached_snippets == nil then
+    cached_snippets = vim.fn['vsnip#get_complete_items'](".")
+    M.buffer_snippets_map[vim.bo.filetype] = cached_snippets
+  end
+
+  for _, item in ipairs(cached_snippets) do
+    if item.abbr == snippet then
+      return true
+    end
+  end
+  return false
+end
+
 M.jump_next_able = function()
   return math.abs(vim.fn.line("'^") - vim.fn.line('.')) <= 1 and vim.fn['vsnip#jumpable'](1) == 1
 end
