@@ -1,60 +1,65 @@
--- Setup nvim-cmp.
 local cmp = require('cmp')
 local utils = require('utils.utils')
 
+local indent_change_items = {
+  'endif',
+  'end',
+  'else',
+  'elif',
+  'elseif .. then',
+  'elseif',
+  'else .. then~',
+  'endfor',
+  'endfunction',
+  'endwhile',
+  'endtry',
+  'except',
+  'catch',
+}
+
+vim.cmd([[
+function! CmpLineFormat(timer) abort
+  let c = getpos(".")
+  let indent_num = indent('.')
+  
+  " todo
+  if nvim_get_mode()['mode'] == 's'
+    return
+  endif
+
+  norm ==
+  let sw = shiftwidth()
+  if indent('.') < indent_num
+    call cursor(c[1], c[2] - sw)
+  elseif indent('.') > indent_num
+    call cursor(c[1], c[2] + sw)
+  else
+    call cursor(c[1], c[2])
+  endif
+endfunction
+]])
+
 local comfirm = function(fallback)
   if cmp.visible() then
-    if vim.fn['vsnip#expandable']() == 1
+    if
+      vim.fn['vsnip#expandable']() == 1
       and cmp.get_selected_entry() == cmp.core.view:get_first_entry()
-      and require('core.vsnip').is_snippet_contain(cmp.get_selected_entry().completion_item.label) then
+      and require('core.vsnip').is_snippet_contain(cmp.get_selected_entry().completion_item.label)
+    then
       vim.fn['vsnip#expand']()
     else
       local entry = cmp.get_selected_entry()
+      if entry == nil then
+        cmp.close()
+        return
+      end
+
       local label = entry.completion_item.label
-      local indent_change_items = {
-        'endif',
-        'end',
-        'else',
-        'elif',
-        'elseif .. then',
-        'elseif',
-        'else .. then~',
-        'endfor',
-        'endfunction',
-        'endwhile',
-        'endtry',
-        'except',
-        'catch',
-      }
       if table.contain(indent_change_items, label) then
         cmp.confirm({ select = false, behavior = cmp.ConfirmBehavior.Insert })
-        local indent = vim.fn.indent('.')
-        local cmd = [[
-        function! CmpLineFormat(timer) abort
-          let c = getpos(".")
-          let indent_num = indent('.')
-          
-          " todo
-          if nvim_get_mode()['mode'] == 's'
-            return
-          endif
-
-          norm ==
-          let sw = shiftwidth()
-          if indent('.') < indent_num
-            call cursor(c[1], c[2] - sw)
-          elseif indent('.') > indent_num
-            call cursor(c[1], c[2] + sw)
-          else
-            call cursor(c[1], c[2])
-          endif
-        endfunction
-        call timer_start(0, 'CmpLineFormat')
-        ]]
-        cmd = cmd:format(indent, label)
-        vim.cmd(cmd)
+        vim.cmd([[call timer_start(0, 'CmpLineFormat')]])
       else
-        cmp.confirm({ select = true })
+        cmp.confirm({ select = false, behavior = cmp.ConfirmBehavior.Insert })
       end
     end
   elseif vim.fn['vsnip#jumpable'](1) == 1 then
@@ -92,7 +97,7 @@ cmp.setup({
     ['<tab>'] = cmp.mapping(comfirm, { 'i' }),
   },
   sources = cmp.config.sources({
-    { name = 'vsnip' }, -- For ultisnips users.
+    { name = 'vsnip' },
     { name = 'nvim_lsp' },
     { name = 'path' },
     { name = 'buffer' },
