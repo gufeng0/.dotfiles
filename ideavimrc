@@ -107,6 +107,7 @@ nmap <leader>jn :action JumpToNextChange<CR>
 
 " 调试
 nmap <leader>bb :action ToggleLineBreakpoint<CR>
+nmap <leader><space> <Action>(ShowErrorDescription)
 
 " windows multiple0-cursors key maps
 nmap <c-n> <A-n>
