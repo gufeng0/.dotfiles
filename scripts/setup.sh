@@ -56,7 +56,12 @@ fi
 
 mkdir -p ~/.pip
 ln -s ~/.dotfiles/pip/pip.conf ~/.pip/pip.conf
-ln -s ~/.dotfiles/tmux.conf ~/.tmux.conf
+
+# tmux
+if [[ ! -d ~/.tmux/plugins/tpm ]]; then
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+fi
+ln -s ~/.dotfiles/tmux/tmux.conf ~/.tmux.conf
 
 mkdir -p ~/.aria2
 ln -s ~/.dotfiles/aria2/aria2.conf ~/.aria2/aria2.conf
