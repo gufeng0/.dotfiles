@@ -164,16 +164,21 @@ ins_left {
 }
 
 ins_left {
-  'filename',
+  function ()
+    local max_len = 22
+    local filename = vim.fn.expand('%:t')
+    if #filename > max_len then
+      local suffix = filename:match(".+%.(%w+)$")
+      filename = string.sub(filename, 0, max_len - 6) .. "…"
+      if suffix ~= nil then
+        filename = filename .. '.' .. suffix
+      end
+    end
+    return filename
+  end,
   inactive = true,
   color = { fg = colors.magenta, gui = 'bold' },
   padding = { left = 1, right = 0 },
-  icons_enabled = true,
-  symbols = {
-    modified = '[+]', -- when the file was modified
-    readonly = '[-]', -- if the file is not modifiable or readonly
-    unnamed = '[No Name]', -- default display name for unnamed buffers
-  },
 }
 
 ins_left {
@@ -231,7 +236,7 @@ ins_right {
     local buf_ft = vim.api.nvim_buf_get_option(0, 'filetype')
     local clients = vim.lsp.get_active_clients()
     if next(clients) == nil then
-      return ' LSP:' .. msg
+      return ' ' .. msg
     end
     for _, client in ipairs(clients) do
       local filetypes = client.config.filetypes
@@ -239,14 +244,14 @@ ins_right {
         if client.name == 'null-ls' then
           goto continue
         end
-        return ' LSP:' .. client.name
+        return ' ' .. client.name
       end
       ::continue::
     end
     if msg == nil then
       return ''
     else
-      return ' LSP:' .. msg
+      return ' ' .. msg
     end
   end,
   color = { fg = colors.cyan, gui = 'bold' },

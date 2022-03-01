@@ -69,29 +69,29 @@ return packer.startup(function(use)
     end,
   }
 
-  use {
-    'hrsh7th/vim-eft',
-    config = function()
-      vim.cmd([[
-      nmap ; <Plug>(eft-repeat)
-      xmap ; <Plug>(eft-repeat)
-
-      nmap f <Plug>(eft-f)
-      xmap f <Plug>(eft-f)
-      omap f <Plug>(eft-f)
-      nmap F <Plug>(eft-F)
-      xmap F <Plug>(eft-F)
-      omap F <Plug>(eft-F)
-
-      nmap t <Plug>(eft-t)
-      xmap t <Plug>(eft-t)
-      omap t <Plug>(eft-t)
-      nmap T <Plug>(eft-T)
-      xmap T <Plug>(eft-T)
-      omap T <Plug>(eft-T)
-      ]])
-    end,
-  }
+  -- use {
+  --   'hrsh7th/vim-eft',
+  --   config = function()
+  --     vim.cmd([[
+  --     nmap ; <Plug>(eft-repeat)
+  --     xmap ; <Plug>(eft-repeat)
+  --
+  --     nmap f <Plug>(eft-f)
+  --     xmap f <Plug>(eft-f)
+  --     omap f <Plug>(eft-f)
+  --     nmap F <Plug>(eft-F)
+  --     xmap F <Plug>(eft-F)
+  --     omap F <Plug>(eft-F)
+  --
+  --     nmap t <Plug>(eft-t)
+  --     xmap t <Plug>(eft-t)
+  --     omap t <Plug>(eft-t)
+  --     nmap T <Plug>(eft-T)
+  --     xmap T <Plug>(eft-T)
+  --     omap T <Plug>(eft-T)
+  --     ]])
+  --   end,
+  -- }
 
   use {
     'kyazdani42/nvim-web-devicons',
@@ -606,6 +606,14 @@ return packer.startup(function(use)
   --   opt = true,
   --   keys = { '<leader>fc' },
   -- }
+
+  use {
+    'glacambre/firenvim',
+    run = function() vim.fn['firenvim#install'](0) end,
+    config = function ()
+      vim.cmd("set guifont=JetBrainsMono\\ Nerd\\ Font\\ Mono:h22")
+    end
+  }
 
   use {
     'lu5je0/LeaderF',
