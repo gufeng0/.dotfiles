@@ -6,7 +6,6 @@ elseif has("win32")
     set guifontwide=Microsoft_Yahei_Mono:h12
 endif
 
-set wrap " 自动折行
 set guioptions-=m " 隐藏菜单栏
 set guioptions-=e " 隐藏tab
 set guioptions-=T " 隐藏工具栏

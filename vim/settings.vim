@@ -5,7 +5,7 @@ set incsearch " 每输入一个字符就跳转到对应的结果
 set noerrorbells " 关闭错误响声
 set splitbelow " 默认在下侧分屏
 set splitright " 默认在右侧分屏
-set nowrap " 默认不启用拆行
+set wrap " 默认不启用拆行
 set autoindent
 " set indentkeys=""
 set number
