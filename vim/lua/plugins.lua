@@ -9,12 +9,11 @@ packer.init {
   max_jobs = 15,
 }
 
-vim.cmd([[
-augroup packer_user_config
-autocmd!
-autocmd BufWritePost plugins.lua source <afile> | PackerCompile
-augroup end
-]])
+vim.api.nvim_create_autocmd('BufWritePost', {
+  group = vim.api.nvim_create_augroup("packer_reload_augroup", {clear = true}),
+  pattern = { 'plugins.lua' },
+  command = 'source <afile> | PackerCompile'
+})
 
 return packer.startup(function(use)
   -- Speed up loading Lua modules in Neovim to improve startup time.
@@ -153,6 +152,9 @@ return packer.startup(function(use)
       require('core.treesiter')
     end,
     ft = _G.ts_filtypes,
+    requires = {
+      { 'SmiteshP/nvim-gps', config = function() require("nvim-gps").setup() end }
+    }
   }
 
   -- highlighting
@@ -231,6 +233,13 @@ return packer.startup(function(use)
   use('gruvbox-community/gruvbox')
 
   -- use {
+  --   'Mofiqul/vscode.nvim',
+  --   config = function()
+  --     -- vim.g.vscode_style = "dark"
+  --   end
+  -- }
+
+  -- use {
   --   'wfxr/minimap.vim',
   --   config = function()
   --     vim.g.minimap_width = 10
@@ -248,6 +257,7 @@ return packer.startup(function(use)
 
   use {
     'akinsho/toggleterm.nvim',
+    opt = true,
     config = function()
       require('core.terminal').setup()
     end,
@@ -474,6 +484,7 @@ return packer.startup(function(use)
 
   use {
     'windwp/nvim-autopairs',
+    commit = '94d42cd1afd22f5dcf5aa4d9dbd9f516b04c892e',
     config = function()
       require('nvim-autopairs').setup {}
       -- If you want insert `(` after select function or method item
@@ -518,7 +529,6 @@ return packer.startup(function(use)
     requires = 'kyazdani42/nvim-web-devicons',
     keys = { '<leader>e', '<leader>fe' },
     opt = true,
-    branch = 'dev',
     config = function()
       require('core.nvimtree').setup()
     end,
@@ -533,17 +543,17 @@ return packer.startup(function(use)
     opt = true,
   }
 
-  use {
-    'petertriho/nvim-scrollbar',
-    config = function()
-      require('scrollbar').setup {
-        handle = {
-          color = '#5C6370',
-        },
-        excluded_filetypes = { 'NvimTree', 'confirm', 'toggleterm', 'vista' },
-      }
-    end,
-  }
+  -- use {
+  --   'petertriho/nvim-scrollbar',
+  --   config = function()
+  --     require('scrollbar').setup {
+  --       handle = {
+  --         color = '#5C6370',
+  --       },
+  --       excluded_filetypes = { 'NvimTree', 'confirm', 'toggleterm', 'vista' },
+  --     }
+  --   end,
+  -- }
 
   -- use({
   --   'diepm/vim-rest-console',
@@ -607,18 +617,20 @@ return packer.startup(function(use)
   --   keys = { '<leader>fc' },
   -- }
 
-  use {
-    'glacambre/firenvim',
-    run = function() vim.fn['firenvim#install'](0) end,
-    config = function ()
-      vim.cmd("set guifont=JetBrainsMono\\ Nerd\\ Font\\ Mono:h22")
-    end
-  }
+  -- use {
+  --   'glacambre/firenvim',
+  --   run = function()
+  --     vim.fn['firenvim#install'](0)
+  --   end,
+  --   config = function()
+  --     vim.cmd('set guifont=JetBrainsMono\\ Nerd\\ Font\\ Mono:h22')
+  --   end,
+  -- }
 
   use {
     'lu5je0/LeaderF',
     run = './install.sh',
-    -- opt = true,
+    opt = true,
     -- cmd = {'Leaderf', 'Git'},
     config = function()
       require('core.leaderf').setup()

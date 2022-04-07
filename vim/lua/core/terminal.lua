@@ -1,24 +1,36 @@
 local M = {}
 
+local direction_init = function()
+  if M.direction == nil then
+    M.direction = require('misc.env-keeper').read('terminal_direction')
+    if M.direction == nil then
+      M.direction = 'float'
+    end
+  end
+end
+
 M.send_to_terminal = function(cmd, opts)
   if opts == nil then
     opts = {}
     opts.go_back = 0
   end
 
-  local v_cmd = "TermExec cmd='%s' go_back=" .. opts.go_back
+  direction_init()
+  local v_cmd = "TermExec cmd='%s' go_back=" .. opts.go_back .. " direction=" .. M.direction
   v_cmd = v_cmd:format(cmd)
   vim.cmd(v_cmd)
 end
 
-M.direction = 'horizontal'
+M.direction = nil
 
 M.toggle = function()
+  direction_init()
   vim.cmd('ToggleTerm direction=' .. M.direction)
 end
 
 M.change_terminal_direction = function(direction)
   M.direction = direction
+  require('misc.env-keeper').write('terminal_direction', direction)
   M.toggle()
 end
 

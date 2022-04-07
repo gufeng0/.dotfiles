@@ -8,17 +8,6 @@ vnoremap <C-c> y
 vmap < <gv
 vmap > >gv
 
-nmap <silent><expr> j &wrap ? "gj" : "j"
-nmap <silent><expr> k &wrap ? "gk" : "k"
-
-nmap <silent><expr> H &wrap ? "g^" : "^"
-nmap <silent><expr> L &wrap ? "g$" : "$"
-vmap <silent><expr> H &wrap ? "g^" : "^"
-vmap <silent><expr> L &wrap ? "g$" : "$"
-omap <silent><expr> H &wrap ? "g^" : "^"
-omap <silent><expr> L &wrap ? "g$" : "$"
-nmap <silent><expr> Y &wrap ? "g^yg$" : "^y$"
-
 nnoremap go o0<C-D>
 nnoremap gO O0<C-D>
 
@@ -56,16 +45,21 @@ map <c-m-p> <Plug>(VM-Add-Cursor-Up)
 
 nmap <F2> :bp<cr>
 nmap <F3> :bn<cr>
-nnoremap <PageUp>   :bprevious<CR>
-nnoremap <PageDown> :bnext<CR>
+nmap <PageUp>   :bprevious<CR>
+nmap <PageDown> :bnext<CR>
+
+"----------------------------------------------------------------------
+" <leader>
+"----------------------------------------------------------------------
+nmap <silent> <leader>tN :tabnew<cr>
 
 "----------------------------------------------------------------------
 " window control
 "----------------------------------------------------------------------
-noremap <silent><space>= :resize +3<cr>
-noremap <silent><space>- :resize -3<cr>
-noremap <silent><space>, :vertical resize -3<cr>
-noremap <silent><space>. :vertical resize +3<cr>
+nmap <silent><space>= :resize +3<cr>
+nmap <silent><space>- :resize -3<cr>
+nmap <silent><space>, :vertical resize -3<cr>
+nmap <silent><space>. :vertical resize +3<cr>
 
 " 快速切换窗口
 nmap <silent> <C-J> <C-w>j
@@ -77,7 +71,7 @@ nmap <silent> <left> :bp<cr>
 nmap <silent> <right> :bn<cr>
 nmap <silent> <c-b>o <c-w>p
 nmap <silent> <c-b><c-o> <c-w>p
-nmap Q <Nop>
+nmap Q <cmd>execute 'normal @' .. reg_recorded()<CR>
 
 command! -nargs=1 SplitWithBuffer call SplitWithBuffer(<f-args>)
 
@@ -110,6 +104,63 @@ sunmap il
 "----------------------------------------------------------------------
 vmap <silent> # :lua require("core.terminal").run_select_in_terminal()<cr>
 
+vmap <leader>cnc <plug>(ConvertToCamelword)
+nmap <leader>cnc <plug>(ConvertToCamelword)
+nmap <leader>cnC <plug>(ConvertToCamelWORD)
+
+vmap <leader>cns <plug>(ConvertToSnakeword)
+nmap <leader>cns <plug>(ConvertToSnakeword)
+nmap <leader>cnS <plug>(ConvertToSnakeWORD)
+
+vmap <leader>cnk <plug>(ConvertToKebabword)
+nmap <leader>cnk <plug>(ConvertToKebabword)
+nmap <leader>cnK <plug>(ConvertToKebabWORD)
+
+vmap <leader>cnp <plug>(ConvertToPascalword)
+nmap <leader>cnp <plug>(ConvertToPascalword)
+nmap <leader>cnP <plug>(ConvertToPascalWORD)
+
+"----------------------------------------------------------------------
+" wrap
+"----------------------------------------------------------------------
+function! ToggleGj(echo)
+    if !exists("g:ToggleGj")
+        let g:ToggleGj = 0
+    endif
+    if g:ToggleGj == 1
+        vmap j gj
+        vmap k gk
+        nmap j gj
+        nmap k gk
+        nmap H g^
+        nmap L g$
+        vmap H g^
+        vmap L g$
+        omap H g^
+        omap L g$
+        nmap Y g^yg$
+        if a:echo
+            echo "gj on"
+        endif
+        let g:ToggleGj = 0
+    else
+        silent! unmap j
+        silent! unmap k
+        nmap H ^
+        nmap L $
+        vmap H ^
+        vmap L $
+        omap H ^
+        omap L $
+        nmap Y ^y$
+        if a:echo
+            echo "gj off"
+        endif
+        let g:ToggleGj = 1
+    endif
+endfunction
+call ToggleGj(0)
+
 "----------------------------------------------------------------------
 " other
 "----------------------------------------------------------------------
@@ -122,6 +173,9 @@ nnoremap m<space> i&#8195;&#8195;<esc>l
 "----------------------------------------------------------------------
 nmap <leader>q <cmd>CloseBuffer<cr>
 nmap <leader>Q <cmd>lua require("base.quit-comfirm").exit()<cr>
+
+nmap <leader>cf <cmd>lua vim.lsp.buf.formatting()<CR>
+vmap <leader>cf <cmd>lua vim.lsp.buf.range_formatting()<CR>
 
 " ugly hack to start newline and keep indent
 " nnoremap o o<space><BS>

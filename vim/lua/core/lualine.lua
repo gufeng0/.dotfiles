@@ -159,7 +159,7 @@ ins_left {
   'filetype',
   icon_only = true,
   inactive = true,
-  color = { fg = colors.magenta, gui = 'bold' },
+  color = { fg = colors.magenta, bg = colors.bg, gui = 'bold' },
   padding = { left = 1, right = 0 },
 }
 
@@ -198,6 +198,17 @@ ins_left {
   color = { fg = colors.violet },
 }
 
+-- lsp status
+local nvim_gps = require('nvim-gps')
+ins_left({
+  function()
+    return nvim_gps.get_location()
+  end,
+  cond = nvim_gps.is_available,
+  color = { fg = colors.grey },
+  padding = { left = 1, right = 1 },
+})
+
 ins_right {
   'diagnostics',
   -- table of diagnostic sources, available sources:
@@ -220,12 +231,22 @@ ins_right {
   padding = { left = 0, right = 1 },
 }
 
+local function percentage_icon(per)
+  local icons = { '', '', '', ''}
+  -- local icons = {'⠏', '⠙', '⠸', '⠴', '⠧', '⠇', '⠋'}
+  -- local icons = {'⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷'}
+  return icons[((math.ceil(per / 7)) % #icons) + 1]
+end
+
 -- lsp status
 -- ins_right({
 --   function()
---     return require('lsp-status').status()
+--     local message = require('lsp-status').messages()[1]
+--     local s = '%s %s %s(%s%%%%)'
+--     return s:format(percentage_icon(message.percentage), message.title, message.message, message.percentage)
+--     -- return require('lsp-status').status()
 --   end,
---   color = 'LualineMode',
+--   color = { fg = colors.green },
 --   padding = { left = 1, right = 1 },
 -- })
 

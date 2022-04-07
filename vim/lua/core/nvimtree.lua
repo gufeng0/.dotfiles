@@ -1,179 +1,6 @@
 local M = {}
 
-M.loaded = false
-
-function M.setup()
-  vim.g.nvim_tree_icons = {
-    default = '',
-    symlink = '',
-    git = {
-      unstaged = '✗',
-      staged = '✓',
-      unmerged = '',
-      renamed = '➜',
-      untracked = '★',
-      deleted = '',
-      ignored = '◌',
-    },
-    folder = {
-      arrow_open = ' ',
-      arrow_closed = ' ',
-      default = '',
-      open = '',
-      empty = '',
-      empty_open = '',
-      symlink = '',
-      symlink_open = '',
-    },
-  }
-  vim.g.nvim_tree_show_icons = {
-    git = 1,
-    folders = 1,
-    files = 1,
-    folder_arrows = 1,
-  }
-  vim.g.nvim_tree_special_files = {}
-  vim.g.nvim_tree_add_trailing = 1
-  vim.g.nvim_tree_indent_markers = 1
-  vim.g.nvim_tree_create_in_closed_folder = 1
-  vim.g.nvim_tree_change_dir_global = 1
-
-  vim.cmd([[
-    hi NvimTreeFolderName guifg=#e5c07b
-    hi Directory ctermfg=107 guifg=#61afef
-    hi NvimTreeOpenedFolderName guifg=#e5c07b
-    hi default link NvimTreeFolderIcon Directory
-    hi NvimTreeEmptyFolderName guifg=#e5c07b
-    hi NvimTreeRootFolder guifg=#e06c75
-    hi NvimTreeGitDirty guifg=#e06c75
-
-    autocmd BufWinEnter NvimTree setlocal cursorline
-
-    autocmd DirChanged * lua require('core.nvimtree').pwd_stack_push()
-
-    function NvimLocateFile()
-      PackerLoad nvim-tree.lua
-      lua require("core.nvimtree").locate_file()
-    endfunction
-
-    lua vim.api.nvim_set_keymap('n', '<leader>fe', ':call NvimLocateFile()<cr>', { noremap = true, silent = true })
-  ]])
-
-  vim.api.nvim_set_keymap('n', '<leader>e', ':NvimTreeToggle<cr><c-w>p', { noremap = true, silent = true })
-  vim.api.nvim_set_keymap('n', '<leader>fe', ':lua require("core.nvimtree").locate_file()<cr>', { noremap = true, silent = true })
-  vim.api.nvim_set_keymap('n', '<leader>fp', ':cd ~/.local/share/nvim/site/pack/packer<cr>', { noremap = true, silent = true })
-  vim.api.nvim_set_keymap('n', '<leader>fd', ':cd ~/.dotfiles<cr>', { noremap = true, silent = true })
-
-  local view = require('nvim-tree.view')
-  view.View.winopts.signcolumn = 'no'
-  view.View.winopts.foldcolumn = 1
-
-  -- default mappings
-  local list = {
-    { key = { '<CR>', 'l', 'o', '<2-LeftMouse>' }, cb = ":lua require('core.nvimtree').edit()<cr>" },
-    { key = { 'cd', 'C' }, cb = ":lua require('core.nvimtree').cd()<cr>" },
-    { key = { 't' }, cb = ":lua require('core.nvimtree').terminal_cd()<cr>" },
-    { key = '=', cb = ":lua require('core.nvimtree').increase_width(2)<cr>" },
-    { key = '-', cb = ":lua require('core.nvimtree').reduce_width(2)<cr>" },
-    { key = '+', cb = ":lua require('core.nvimtree').increase_width(1)<cr>" },
-    { key = '_', cb = ":lua require('core.nvimtree').reduce_width(1)<cr>" },
-    { key = 'f', cb = ":lua require('core.nvimtree').file_info()<cr>" },
-    { key = 'p', cb = ":lua require('core.nvimtree').preview()<cr>" },
-    { key = 'x', cb = ":lua require('core.nvimtree').toggle_width()<cr>" },
-    { key = 'H', cb = ':cd ~<cr>' },
-    { key = 'd', cb = '<nop>' },
-    { key = 's', action = 'vsplit' },
-    -- { key = 's', action = 'split' },
-    -- { key = "<C-t>", cb = tree_cb("tabnew") },
-    { key = '<', action = 'prev_sibling' },
-    { key = '>', action = 'next_sibling' },
-    -- { key = 'P', action = 'parent_node' },
-    { key = { '<BS>', 'h' }, action = 'close_node' },
-    { key = 'K', action = 'first_sibling' },
-    { key = 'J', action = 'last_sibling' },
-    -- { key = "I", cb = tree_cb("toggle_ignored") },
-    { key = 'I', action = 'toggle_dotfiles' },
-    { key = 'r', action = 'refresh' },
-    { key = 'ma', action = 'create' },
-    { key = 'D', action = 'remove' },
-    { key = 'mv', action = 'rename' },
-    -- { key = "mv", cb = tree_cb("cut") },
-    { key = 'yy', action = 'copy' },
-    { key = 'P', action = 'paste' },
-    { key = 'yn', action = 'copy_name' },
-    { key = 'yP', action = 'copy_path' },
-    { key = 'yp', action = 'copy_absolute_path' },
-    { key = '[g', action = 'prev_git_item' },
-    { key = ']g', action = 'next_git_item' },
-    { key = 'u', action = 'dir_up' },
-    { key = 'o', action = 'system_open' },
-    { key = 'q', action = 'close' },
-    { key = 'g?', action = 'toggle_help' },
-    { key = '<c-o>', cb = ":lua require('core.nvimtree').back()<cr>" },
-    { key = '<c-i>', cb = ":lua require('core.nvimtree').forward()<cr>" },
-  }
-
-  require('nvim-tree').setup {
-    disable_netrw = true,
-    hijack_netrw = true,
-    open_on_setup = false,
-    ignore_ft_on_setup = {},
-    auto_close = false,
-    open_on_tab = false,
-    hijack_cursor = false,
-    update_cwd = true,
-    update_to_buf_dir = {
-      enable = false,
-      auto_open = true,
-    },
-    diagnostics = {
-      enable = false,
-      icons = {
-        hint = '',
-        info = '',
-        warning = '',
-        error = '',
-      },
-    },
-    update_focused_file = {
-      enable = false,
-      update_cwd = false,
-      ignore_list = {},
-    },
-    git = {
-      enable = true,
-      ignore = false,
-      timeout = 500,
-    },
-    system_open = {
-      cmd = nil,
-      args = {},
-    },
-    filters = {
-      dotfiles = true,
-      custom = { '.git' },
-    },
-    view = {
-      width = 25,
-      height = 30,
-      hide_root_folder = false,
-      side = 'left',
-      auto_resize = false,
-      mappings = {
-        custom_only = true,
-        list = list,
-      },
-      signcolumn = 'auto',
-    },
-  }
-
-  vim.g.nvim_tree_window_picker_exclude = {
-    filetype = { 'notify', 'packer', 'qf', 'confirm', 'popup' },
-    buftype = { 'terminal', 'nowrite' },
-  }
-
-  M.pwd_stack:push(vim.fn.getcwd())
-end
+M.loaded = true
 
 function M.locate_file()
   if not M.loaded then
@@ -190,12 +17,11 @@ function M.locate_file()
     return
   end
 
-  -- what if pwd has .
+  -- if pwd has .
   cur_file_path = string.sub(cur_file_path, 0, cur_file_path:match('^.*()/') - 1)
 
   if string.match(string.sub(cur_file_path, string.len(pwd) + 2, -1), [[%.]]) ~= nil then
-    require('nvim-tree.populate').config.filter_dotfiles = false
-    require('nvim-tree.lib').refresh_tree()
+    require('nvim-tree.actions.toggles').dotfiles()
   end
 
   if not string.startswith(cur_file_path, pwd) then
@@ -241,6 +67,10 @@ end
 
 function M.cd()
   require('nvim-tree.actions').on_keypress('cd')
+  -- local lib = require('nvim-tree.lib')
+  -- if lib ~= nil then
+  --   vim.cmd(':cd ' .. vim.fn.fnamemodify(lib.get_node_at_cursor().absolute_path, ':p:h'))
+  -- end
   vim.cmd('norm gg')
 end
 
@@ -286,6 +116,201 @@ function M.reduce_width(w)
 
   local width = vim.api.nvim_win_get_width(vim.api.nvim_get_current_win())
   vim.cmd('NvimTreeResize ' .. (width - w))
+end
+
+function M.setup()
+  vim.g.nvim_tree_icons = {
+    default = '',
+    symlink = '',
+    git = {
+      unstaged = '✗',
+      staged = '✓',
+      unmerged = '',
+      renamed = '➜',
+      untracked = '★',
+      deleted = '',
+      ignored = '◌',
+    },
+    actions = {
+      change_dir = {
+        enable_dir = {
+          enable = false,
+          global = true
+        }
+      }
+    },
+    folder = {
+      arrow_open = ' ',
+      arrow_closed = ' ',
+      default = '',
+      open = '',
+      empty = '',
+      empty_open = '',
+      symlink = '',
+      symlink_open = '',
+    },
+  }
+  vim.g.nvim_tree_show_icons = {
+    git = 1,
+    folders = 1,
+    files = 1,
+    folder_arrows = 1,
+  }
+  vim.g.nvim_tree_special_files = {}
+  vim.g.nvim_tree_add_trailing = 1
+  vim.g.nvim_tree_indent_markers = 1
+  vim.g.nvim_tree_create_in_closed_folder = 1
+
+  vim.cmd([[
+    hi NvimTreeFolderName guifg=#e5c07b
+    hi Directory ctermfg=107 guifg=#61afef
+    hi NvimTreeOpenedFolderName guifg=#e5c07b
+    hi default link NvimTreeFolderIcon Directory
+    hi NvimTreeEmptyFolderName guifg=#e5c07b
+    hi NvimTreeRootFolder guifg=#e06c75
+    hi NvimTreeGitDirty guifg=#e06c75
+
+    autocmd DirChanged * lua require('core.nvimtree').pwd_stack_push()
+
+    function NvimLocateFile()
+      PackerLoad nvim-tree.lua
+      lua require("core.nvimtree").locate_file()
+    endfunction
+
+    lua vim.api.nvim_set_keymap('n', '<leader>fe', ':call NvimLocateFile()<cr>', { noremap = true, silent = true })
+  ]])
+
+  vim.cmd([[
+  augroup nvim_tree_group
+      autocmd!
+      autocmd BufWinEnter NvimTree_* setlocal cursorline
+  augroup END
+  ]])
+
+  vim.keymap.set('n', '<leader>e', function() require'nvim-tree'.toggle(false, true) end)
+  vim.keymap.set('n', '<leader>fe', require("core.nvimtree").locate_file)
+  vim.api.nvim_set_keymap('n', '<leader>fp', ':cd ~/.local/share/nvim/site/pack/packer<cr>', { noremap = true, silent = true })
+  vim.api.nvim_set_keymap('n', '<leader>fd', ':cd ~/.dotfiles<cr>', { noremap = true, silent = true })
+
+  local view = require('nvim-tree.view')
+  view.View.winopts.signcolumn = 'no'
+  view.View.winopts.foldcolumn = 1
+
+  -- default mappings
+  local list = {
+    { key = { '<CR>', 'l', 'o', '<2-LeftMouse>' }, cb = ":lua require('core.nvimtree').edit()<cr>" },
+    { key = { 'cd', 'C' }, cb = ":lua require('core.nvimtree').cd()<cr>" },
+    { key = { 't' }, cb = ":lua require('core.nvimtree').terminal_cd()<cr>" },
+    { key = '=', cb = ":lua require('core.nvimtree').increase_width(2)<cr>" },
+    { key = '-', cb = ":lua require('core.nvimtree').reduce_width(2)<cr>" },
+    { key = '+', cb = ":lua require('core.nvimtree').increase_width(1)<cr>" },
+    { key = '_', cb = ":lua require('core.nvimtree').reduce_width(1)<cr>" },
+    { key = 'p', cb = ":lua require('core.nvimtree').preview()<cr>" },
+    { key = 'x', cb = ":lua require('core.nvimtree').toggle_width()<cr>" },
+    { key = 'H', cb = ':cd ~<cr>' },
+    { key = 'd', cb = '<nop>' },
+    { key = 's', action = 'vsplit' },
+    { key = 'S', action = 'search_node' },
+    -- { key = 's', action = 'split' },
+    -- { key = "<C-t>", cb = tree_cb("tabnew") },
+    { key = '<', action = 'prev_sibling' },
+    { key = '>', action = 'next_sibling' },
+    -- { key = 'f', cb = ":lua require('core.nvimtree').file_info()<cr>" },
+    { key = "f", action = "toggle_file_info" },
+    { key = ".", action = "run_file_command" },
+    -- { key = 'P', action = 'parent_node' },
+    { key = { '<BS>', 'h' }, action = 'close_node' },
+    { key = 'K', action = 'first_sibling' },
+    { key = 'J', action = 'last_sibling' },
+    -- { key = "I", cb = tree_cb("toggle_ignored") },
+    { key = 'I', action = 'toggle_dotfiles' },
+    { key = 'r', action = 'refresh' },
+    { key = 'ma', action = 'create' },
+    { key = 'D', action = 'remove' },
+    { key = 'mv', action = 'rename' },
+    -- { key = "mv", cb = tree_cb("cut") },
+    { key = 'yy', action = 'copy' },
+    { key = 'P', action = 'paste' },
+    { key = 'yn', action = 'copy_name' },
+    { key = 'yP', action = 'copy_path' },
+    { key = 'yp', action = 'copy_absolute_path' },
+    { key = '[g', action = 'prev_git_item' },
+    { key = ']g', action = 'next_git_item' },
+    { key = 'u', action = 'dir_up' },
+    { key = 'o', action = 'system_open' },
+    { key = 'q', action = 'close' },
+    { key = 'g?', action = 'toggle_help' },
+    { key = '<c-o>', action = 'backward', action_cb = M.back },
+    { key = { '<tab>', '<c-i>' }, action = 'forward', action_cb = M.forward },
+  }
+
+  require('nvim-tree').setup {
+    disable_netrw = true,
+    hijack_netrw = true,
+    open_on_setup = false,
+    ignore_ft_on_setup = {},
+    auto_close = false,
+    open_on_tab = false,
+    hijack_cursor = false,
+    update_cwd = true,
+    update_to_buf_dir = {
+      enable = false,
+      auto_open = true,
+    },
+    diagnostics = {
+      enable = false,
+      icons = {
+        hint = '',
+        info = '',
+        warning = '',
+        error = '',
+      },
+    },
+    update_focused_file = {
+      enable = false,
+      update_cwd = false,
+      ignore_list = {},
+    },
+    actions = {
+      change_dir = {
+        enable = true,
+        global = true
+      }
+    },
+    git = {
+      enable = true,
+      ignore = false,
+      timeout = 500,
+    },
+    system_open = {
+      cmd = nil,
+      args = {},
+    },
+    filters = {
+      dotfiles = true,
+      custom = {},
+    },
+    view = {
+      width = 25,
+      height = 30,
+      hide_root_folder = false,
+      side = 'left',
+      auto_resize = false,
+      mappings = {
+        custom_only = true,
+        list = list,
+      },
+      signcolumn = 'auto',
+    },
+  }
+
+  vim.g.nvim_tree_window_picker_exclude = {
+    filetype = { 'notify', 'packer', 'qf', 'confirm', 'popup' },
+    buftype = { 'terminal', 'nowrite' },
+  }
+
+  M.pwd_stack:push(vim.fn.getcwd())
+  M.loaded = true
 end
 
 return M
