@@ -182,9 +182,3 @@ bindkey -M visual S add-surround
 #   'm:{a-z\-}={A-Z\_}' \
 #   'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
 #   'r:|?=** m:{a-z\-}={A-Z\_}'
-
-if [[ ! -f ~/.ohmyenv ]]; then
-    touch ~/.ohmyenv
-    echo "HTTP_PROXY_PORT=1080\nSOCKS5_PROXY_PORT=1080" > ~/.ohmyenv
-fi
-source ~/.ohmyenv
