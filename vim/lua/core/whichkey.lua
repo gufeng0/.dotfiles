@@ -12,9 +12,9 @@ M.setup = function()
         motions = false, -- adds help for motions
         text_objects = false, -- help for text objects triggered after entering an operator
         windows = true, -- default bindings on <c-w>
-        nav = true, -- misc bindings to work with windows
+        nav = false, -- misc bindings to work with windows
         z = true, -- bindings for folds, spelling and others prefixed with z
-        g = true, -- bindings for prefixed with g
+        g = false, -- bindings for prefixed with g
       },
       spelling = { enabled = true, suggestions = 20 }, -- use which-key for spelling hints
     },
@@ -34,6 +34,7 @@ M.setup = function()
       width = { min = 20, max = 80 }, -- min and max width of the columns
       spacing = 2, -- spacing between columns
     },
+    triggers = { '<leader>', '<c-w>', 'z' },
     -- hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "call", "lua", "^:", "^ " }, -- hide mapping boilerplate
     show_help = true, -- show help message on the command line when the popup is visible
   }
@@ -90,6 +91,7 @@ M.setup = function()
       name = '+code',
       r = 'rename-variable',
       c = 'code-action',
+      e = 'setloclist',
       f = 'code-formatting',
       n = {
         name = '+naming case',
@@ -101,7 +103,7 @@ M.setup = function()
         P = { 'PascalCase(WORD)' },
         c = { 'camelCase' },
         C = { 'camelCase(WORD)' },
-      }
+      },
     },
     t = {
       name = '+tab',
@@ -148,8 +150,8 @@ M.setup = function()
       H = 'url decode',
       c = { 'g<c-g>', 'count in the selection region' },
       m = { ':%s/\r$//<cr>', 'remove ^M' },
-      q = '繁体转简体',
-      Q = '简体转繁体',
+      z = '繁体转简体',
+      Z = '简体转繁体',
     },
     s = {
       name = '+translate',
@@ -228,11 +230,13 @@ M.setup = function()
       c = { 'g<c-g>', 'count in the selection region' },
       b = { 'base64' },
       B = { 'unbase64' },
+      h = { 'http encode' },
+      H = { 'http encode' },
       s = { 'text escape' },
       r = { ":lua require('misc/replace').v_replace()<cr>", 'replace' },
     },
     s = {
-      name = '+translate'
+      name = '+translate',
     },
     f = {
       name = '+search/files',
@@ -248,7 +252,7 @@ M.setup = function()
         k = { 'kebab-case' },
         p = { 'PascalCase' },
         c = { 'camelCase' },
-      }
+      },
     },
     d = {
       n = {":lua require('misc/delete').deleteNullLines()<cr>","delete null lines"},
@@ -271,69 +275,11 @@ M.setup = function()
     nowait = true, -- use `nowait` when creating keymaps
   }
 
-  vim.cmd([[
-    " Echo translation in the cmdline
-    nmap <silent> <Leader>sc <Plug>Translate
-    vmap <silent> <Leader>sc <Plug>TranslateV
-
-    " say it
-    nmap <silent> <Leader>sa :call misc#say_it()<cr><Plug>TranslateW
-    vmap <silent> <Leader>sa :call misc#visual_say_it()<cr><Plug>TranslateWV
-
-    " vmap <silent> <Leader>sc <Plug>TranslateV
-    " Display translation in a window
-    nmap <silent> <Leader>ss <Plug>TranslateW
-    vmap <silent> <Leader>ss <Plug>TranslateWV
-    " Replace the text with translation
-    nmap <silent> <Leader>sr <Plug>TranslateR
-    vmap <silent> <Leader>sr <Plug>TranslateRV
-
-    "----------------------------------------------------------------------
-    " 繁体简体
-    "----------------------------------------------------------------------
-    vmap <leader>xq :!opencc -c t2s<cr>
-    nmap <leader>xq :%!opencc -c t2s<cr>
-
-    vmap <leader>xQ :!opencc -c s2t<cr>
-    nmap <leader>xQ :%!opencc -c s2t<cr>
-
-
-    "----------------------------------------------------------------------
-    " base64
-    "----------------------------------------------------------------------
-    vmap <silent> <leader>xB :<c-u>call base64#v_atob()<cr>
-    vmap <silent> <leader>xb :<c-u>call base64#v_btoa()<cr>
-
-
-    "----------------------------------------------------------------------
-    " unicode escape
-    "----------------------------------------------------------------------
-    vmap <silent> <leader>xu :<c-u>call ReplaceSelect("UnicodeEscapeString")<cr>
-    vmap <silent> <leader>xU :<c-u>call ReplaceSelect("UnicodeUnescapeString")<cr>
-
-    "----------------------------------------------------------------------
-    " text escape
-    "----------------------------------------------------------------------
-    vmap <silent> <leader>xs :<c-u>call ReplaceSelect("EscapeText")<cr>
-    " vmap <silent> <leader>xU :<c-u>call ReplaceSelect("UnicodeUnescapeString")<cr>
-
-    "----------------------------------------------------------------------
-    " url encode
-    "----------------------------------------------------------------------
-    nmap <leader>xh :%!python -c 'import sys,urllib;print urllib.quote(sys.stdin.read().strip())'<cr>
-    nmap <leader>xH :%!python -c 'import sys,urllib;print urllib.unquote(sys.stdin.read().strip())'<cr>
-
-    xmap <silent> <leader>cc <Plug>(coc-codeaction-selected)<cr>
-    nmap <silent> <leader>cc <Plug>(coc-codeaction-selected)<cr>
-
-    vnoremap <leader>xh :!python -c 'import sys,urllib;print urllib.quote(sys.stdin.read().strip())'<cr>
-    vnoremap <leader>xH :!python -c 'import sys,urllib;print urllib.unquote(sys.stdin.read().strip())'<cr>
-  ]])
-
   local wk = require('which-key')
+  wk.setup(setup)
+
   wk.register(n_mappings, n_opts)
   wk.register(v_mappings, v_opts)
-  wk.setup(setup)
 end
 
 return M
