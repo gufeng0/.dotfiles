@@ -11,6 +11,8 @@ vmap > >gv
 nnoremap go o0<C-D>
 nnoremap gO O0<C-D>
 
+xnoremap gp p<Cmd>let @+ = @0<CR><Cmd>let @" = @0<CR>
+
 imap <M-j> <down>
 imap <M-k> <up>
 imap <M-h> <left>
@@ -173,9 +175,6 @@ nnoremap m<space> i&#8195;&#8195;<esc>l
 "----------------------------------------------------------------------
 nmap <leader>q <cmd>CloseBuffer<cr>
 nmap <leader>Q <cmd>lua require("base.quit-comfirm").exit()<cr>
-
-nmap <leader>cf <cmd>lua vim.lsp.buf.formatting()<CR>
-vmap <leader>cf <cmd>lua vim.lsp.buf.range_formatting()<CR>
 
 " Echo translation in the cmdline
 nmap <silent> <Leader>sc <Plug>Translate

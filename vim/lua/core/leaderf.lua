@@ -8,6 +8,10 @@ function M.setup()
 
   vim.g.Lf_WindowPosition = 'popup'
 
+  -- vim.g.Lf_PopupShowBorder = 1
+  -- vim.g.Lf_PopupBorders = { "━","┃","━","┃","┏","┓","┛","┗" }
+  -- vim.g.Lf_PopupBorders = {"─","│","─","│","┌","┐","┘","└"}
+
   vim.g.Lf_CommandMap = {
     ['<C-J>'] = { '<DOWN>' },
     ['<C-K>'] = { '<UP>' },
@@ -22,7 +26,6 @@ function M.setup()
     dir = { '.svn', '.git', '.hg' },
     file = { '*.sw?', '~$*', '*.bak', '*.exe', '*.o', '*.so', '*.py[co]' },
   }
-
 
   M.on_colorscheme()
   M.key_mappings()

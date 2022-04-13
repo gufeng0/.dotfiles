@@ -7,6 +7,7 @@ require('commands')
 require('patch')
 require('mappings')
 require('autocmds')
+require('filetype')
 
 vim.cmd([[
 runtime settings.vim
@@ -42,4 +43,5 @@ end
 
 vim.defer_fn(function()
   vim.o.clipboard = 'unnamedplus'
+  vim.cmd('packadd matchit')
 end, 10)
