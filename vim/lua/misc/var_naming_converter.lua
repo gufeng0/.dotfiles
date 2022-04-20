@@ -16,7 +16,7 @@ end
 
 local function get_var_name(word_mode)
   local var_name = nil
-  if vim.api.nvim_get_mode()['mode'] == 'v' then
+  if vim.api.nvim_get_mode().mode == 'v' then
     var_name = visual_utils.selected_text()
   else
     if word_mode == 'WORD' then
@@ -37,7 +37,7 @@ local function base_convert(convert_strategy_fn, word_mode)
   if not is_contain_space(var_name) then
     local tokens = split(var_name)
     var_name = convert_strategy_fn(tokens)
-    if vim.api.nvim_get_mode()['mode'] == 'n' then
+    if vim.api.nvim_get_mode().mode == 'n' then
       if word_mode == 'WORD' then
         vim.cmd('norm viW')
       else
@@ -116,17 +116,18 @@ end
 
 M.mappings = function()
   -- stylua: ignore start
-  vim.keymap.set('n', '<plug>(ConvertToCamelWORD)', function() M.convert_to_camel('WORD') end)
-  vim.keymap.set('n', '<plug>(ConvertToCamelword)', function() M.convert_to_camel('word') end)
+  local opts = { desc = 'var_naming_converter.lua' }
+  vim.keymap.set({ 'n', 'v' }, '<plug>(ConvertToCamelWORD)', function() M.convert_to_camel('WORD') end, opts)
+  vim.keymap.set({ 'n', 'v' }, '<plug>(ConvertToCamelword)', function() M.convert_to_camel('word') end, opts)
 
-  vim.keymap.set('n', '<plug>(ConvertToSnakeWORD)', function() M.convert_to_snake('WORD') end)
-  vim.keymap.set('n', '<plug>(ConvertToSnakeword)', function() M.convert_to_snake('word') end)
+  vim.keymap.set({ 'n', 'v' }, '<plug>(ConvertToSnakeWORD)', function() M.convert_to_snake('WORD') end, opts)
+  vim.keymap.set({ 'n', 'v' }, '<plug>(ConvertToSnakeword)', function() M.convert_to_snake('word') end, opts)
 
-  vim.keymap.set('n', '<plug>(ConvertToPascalWORD)', function() M.convert_to_pascal('WORD') end)
-  vim.keymap.set('n', '<plug>(ConvertToPascalword)', function() M.convert_to_pascal('word') end)
+  vim.keymap.set({ 'n', 'v' }, '<plug>(ConvertToPascalWORD)', function() M.convert_to_pascal('WORD') end, opts)
+  vim.keymap.set({ 'n', 'v' }, '<plug>(ConvertToPascalword)', function() M.convert_to_pascal('word') end, opts)
 
-  vim.keymap.set('n', '<plug>(ConvertToKebabWORD)', function() M.convert_to_kebab('WORD') end)
-  vim.keymap.set('n', '<plug>(ConvertToKebabword)', function() M.convert_to_kebab('word') end)
+  vim.keymap.set({ 'n', 'v' }, '<plug>(ConvertToKebabWORD)', function() M.convert_to_kebab('WORD') end, opts)
+  vim.keymap.set({ 'n', 'v' }, '<plug>(ConvertToKebabword)', function() M.convert_to_kebab('word') end, opts)
   -- stylua: ignore end
 end
 return M

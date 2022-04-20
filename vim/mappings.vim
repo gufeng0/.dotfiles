@@ -169,12 +169,16 @@ call ToggleGj(0)
 nnoremap * m`:keepjumps normal! *``<cr>
 xnoremap * m`:keepjumps <C-u>call VisualStarSearchSet('/')<CR>/<C-R>=@/<CR><CR>``
 nnoremap m<space> i&#8195;&#8195;<esc>l
+nnoremap v m'v
+nnoremap V m'V
 
 "----------------------------------------------------------------------
 " leader
 "----------------------------------------------------------------------
 nmap <leader>q <cmd>CloseBuffer<cr>
 nmap <leader>Q <cmd>lua require("base.quit-comfirm").exit()<cr>
+
+nmap <leader>wo <c-w>o
 
 " Echo translation in the cmdline
 nmap <silent> <Leader>sc <Plug>Translate

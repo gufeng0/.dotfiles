@@ -4,23 +4,28 @@ M.servers = { 'sumneko_lua', 'pyright', 'jsonls', 'bashls', 'vimls' }
 
 local function on_attach(client, bufnr)
   -- Mappings.
-  local opts = { noremap = true, silent = true, buffer = bufnr }
+  local opts = { noremap = true, silent = true, buffer = bufnr, desc = 'lsp.lua' }
+
+  if packer_plugins and packer_plugins['telescope.nvim'] and packer_plugins['telescope.nvim'].loaded then
+    require('core.telescope').lsp_keymaping(bufnr)
+  else
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+    vim.keymap.set('n', 'gy', vim.lsp.buf.type_definition, opts)
+    vim.keymap.set('n', 'gn', vim.lsp.buf.implementation, opts)
+    vim.keymap.set('n', 'gb', vim.lsp.buf.references, opts)
+  end
 
   vim.keymap.set('n', 'gu', vim.lsp.buf.declaration, opts)
-  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-  vim.keymap.set('n', 'gn', vim.lsp.buf.implementation, opts)
   -- vim.keymap.set('i', '<c-p>', vim.lsp.buf.signature_help, opts)
   vim.keymap.set('n', '<leader>Wa', vim.lsp.buf.add_workspace_folder, opts)
   vim.keymap.set('n', '<leader>Wr', vim.lsp.buf.remove_workspace_folder, opts)
   vim.keymap.set('n', '<leader>Wl', function()
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, opts)
-  vim.keymap.set('n', 'gy', vim.lsp.buf.type_definition, opts)
   vim.keymap.set('n', '<leader>cr', vim.lsp.buf.rename, opts)
   vim.keymap.set('n', '<leader>cc', vim.lsp.buf.code_action, opts)
   vim.keymap.set('v', '<leader>cc', vim.lsp.buf.code_action, opts)
-  vim.keymap.set('n', 'gb', vim.lsp.buf.references, opts)
   vim.keymap.set('n', '[e', vim.diagnostic.goto_prev, opts)
   vim.keymap.set('n', ']e', vim.diagnostic.goto_next, opts)
   vim.keymap.set('n', '<leader>ce', vim.diagnostic.setloclist, opts)
@@ -87,10 +92,8 @@ local function lsp_installer_config()
       local sumneko_lua_config = require('core.lsp-config.sumneke-lua-config')
       opts.settings = sumneko_lua_config.settings
       opts.on_attach = sumneko_lua_config.on_attach(opts.on_attach)
-      local luadev = require('lua-dev').setup {
-        lspconfig = opts,
-      }
-      server:setup(luadev)
+      opts = sumneko_lua_config.wrap_opts(opts)
+      server:setup(opts)
     elseif server.name == 'pyright' then
       opts.on_init = require('core.lsp-config.pyright-config').on_init
       server:setup(opts)

@@ -15,6 +15,19 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 })
 
 return packer.startup(function(use)
+  _G.defer_plugins = {}
+  local origin_use = use
+  use = function(...)
+    if type(...) == 'table' then
+      local t = ...
+      if t['defer'] then
+        t['opt'] = true
+        table.insert(_G.defer_plugins, t[1]:match('/(.*)$'))
+      end
+    end
+    origin_use(...)
+  end
+
   -- Speed up loading Lua modules in Neovim to improve startup time.
   use('lewis6991/impatient.nvim')
 
@@ -42,13 +55,6 @@ return packer.startup(function(use)
     end,
     disable = (vim.fn.has('wsl') == 1 or vim.fn.has('mac') == 1),
   }
-
-  -- use({
-  --   'nathom/filetype.nvim',
-  --   config = function()
-  --     require('core.filetype')
-  --   end,
-  -- })
 
   use {
     'nvim-lualine/lualine.nvim',
@@ -202,6 +208,7 @@ return packer.startup(function(use)
   use {
     'numToStr/Comment.nvim',
     opt = true,
+    defer = true,
     config = function()
       require('Comment').setup {
         opleader = {
@@ -244,15 +251,6 @@ return packer.startup(function(use)
   --   end
   -- }
 
-  -- use {
-  --   'wfxr/minimap.vim',
-  --   config = function()
-  --     vim.g.minimap_width = 10
-  --     vim.g.minimap_auto_start = 1
-  --     vim.g.minimap_auto_start_win_enter = 1
-  --   end
-  -- }
-
   use {
     'lu5je0/im-switcher.nvim',
     opt = true,
@@ -264,6 +262,7 @@ return packer.startup(function(use)
     'akinsho/toggleterm.nvim',
     branch = 'main',
     opt = true,
+    defer = true,
     config = function()
       require('core.terminal').setup()
     end,
@@ -297,12 +296,11 @@ return packer.startup(function(use)
     'mg979/vim-visual-multi',
     opt = true,
     setup = function()
-      vim.cmd([[
-        let g:VM_maps = {}
-        let g:VM_maps["Select Cursor Down"] = '<m-n>'
-        let g:VM_maps["Remove Region"] = '<c-p>'
-        let g:VM_maps["Skip Region"] = '<c-x>'
-      ]])
+      vim.g.VM_maps = {
+        ['Select Cursor Down'] = '<m-n>',
+        ['Remove Region'] = '<c-p>',
+        ['Skip Region'] = '<c-x>'
+      }
     end,
     keys = { '<c-n>', '<m-n>' },
   }
@@ -340,9 +338,6 @@ return packer.startup(function(use)
     opt = true,
     cmd = { 'Git', 'Gvdiffsplit', 'Gstatus', 'Gclog', 'Gread', 'help', 'translator' },
     fn = { 'fugitive#repo' },
-    -- requires = {
-    --   { 'skywind3000/asynctasks.vim', opt = true },
-    -- },
   }
 
   use {
@@ -381,7 +376,8 @@ return packer.startup(function(use)
     opt = true,
     cmd = { 'UndotreeToggle' },
     config = function()
-      vim.cmd('let g:undotree_WindowLayout = 3 | let g:undotree_SetFocusWhenToggle = 1')
+      vim.g.undotree_WindowLayout = 3
+      vim.g.undotree_SetFocusWhenToggle = 1
     end,
   }
 
@@ -393,7 +389,7 @@ return packer.startup(function(use)
     'tpope/vim-surround',
   }
 
-  local nvim_colorizer_ft = { 'vim', 'lua', 'css' }
+  local nvim_colorizer_ft = { 'vim', 'lua', 'css', 'conf' }
   use {
     'norcalli/nvim-colorizer.lua',
     config = function()
@@ -430,6 +426,26 @@ return packer.startup(function(use)
 
   use { 'kevinhwang91/nvim-bqf' }
 
+  -- use {
+  --   'github/copilot.vim',
+  --   config = function()
+  --     vim.cmd([[
+  --       imap <silent><script><expr> <c-j> copilot#Accept("\<c-j>")
+  --       let g:copilot_no_tab_map = v:true
+  --     ]])
+  --   end,
+  -- }
+
+  use {
+    'windwp/nvim-autopairs',
+    commit = '94d42cd1afd22f5dcf5aa4d9dbd9f516b04c892e',
+    defer = true,
+    config = function()
+      require('nvim-autopairs').setup {}
+    end,
+    opt = true,
+  }
+
   -- lsp
   use { 'williamboman/nvim-lsp-installer' }
   use { 'ray-x/lsp_signature.nvim' }
@@ -439,6 +455,7 @@ return packer.startup(function(use)
     config = function()
       require('core.null-ls')
     end,
+    defer = true,
     opt = true,
   }
 
@@ -465,6 +482,7 @@ return packer.startup(function(use)
     config = function()
       require('core.lsp').setup()
     end,
+    defer = true,
     opt = true,
   }
 
@@ -473,6 +491,8 @@ return packer.startup(function(use)
     config = function()
       require('core.cmp')
     end,
+    defer = true,
+    after = { 'nvim-lspconfig', 'nvim-autopairs' },
     requires = {
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-buffer',
@@ -488,18 +508,13 @@ return packer.startup(function(use)
     opt = true,
   }
 
-  use {
-    'windwp/nvim-autopairs',
-    commit = '94d42cd1afd22f5dcf5aa4d9dbd9f516b04c892e',
-    config = function()
-      require('nvim-autopairs').setup {}
-      -- If you want insert `(` after select function or method item
-      local cmp_autopairs = require('nvim-autopairs.completion.cmp')
-      local cmp = require('cmp')
-      cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done { map_char = { tex = '' } })
-    end,
-    opt = true,
-  }
+  -- use {
+  --   'neoclide/coc.nvim',
+  --   branch = 'release',
+  --   config = function()
+  --     vim.cmd('runtime plug-config/coc.vim')
+  --   end
+  -- }
 
   -- _G.indent_blankline_filetypes = { 'vim', 'lua', 'json', 'java', 'c', 'python', 'sql', 'xml', 'html', 'bash' }
   use {
@@ -535,6 +550,7 @@ return packer.startup(function(use)
     requires = 'kyazdani42/nvim-web-devicons',
     keys = { '<leader>e', '<leader>fe' },
     opt = true,
+    defer = true,
     config = function()
       require('core.nvimtree').setup()
     end,
@@ -549,97 +565,58 @@ return packer.startup(function(use)
     opt = true,
   }
 
-  -- use {
-  --   'petertriho/nvim-scrollbar',
-  --   config = function()
-  --     require('scrollbar').setup {
-  --       handle = {
-  --         color = '#5C6370',
-  --       },
-  --       excluded_filetypes = { 'NvimTree', 'confirm', 'toggleterm', 'vista' },
-  --     }
-  --   end,
-  -- }
+  use {
+    'nvim-telescope/telescope-fzf-native.nvim',
+    run = 'make',
+  }
 
-  -- use({
-  --   'diepm/vim-rest-console',
-  --   config = function()
-  --     vim.g.vrc_output_buffer_name = '__VRC_OUTPUT.json'
-  --   end
-  -- })
-
-  -- use {
-  --   "NTBBloodbath/rest.nvim",
-  --   requires = { "nvim-lua/plenary.nvim" },
-  --   config = function()
-  --     require("rest-nvim").setup({
-  --       -- Open request results in a horizontal split
-  --       result_split_horizontal = false,
-  --       -- Skip SSL verification, useful for unknown certificates
-  --       skip_ssl_verification = false,
-  --       -- Highlight request on run
-  --       highlight = {
-  --         enabled = true,
-  --         timeout = 150,
-  --       },
-  --       result = {
-  --         -- toggle showing URL, HTTP info, headers at top the of result window
-  --         show_url = true,
-  --         show_http_info = true,
-  --         show_headers = true,
-  --       },
-  --       -- Jump to request line on run
-  --       jump_to_request = false,
-  --       env_file = '.env',
-  --       custom_dynamic_variables = {},
-  --       yank_dry_run = true,
-  --     })
-  --   end
-  -- }
-
-  -- use {
-  --   'nvim-telescope/telescope-fzf-native.nvim',
-  --   run = 'make',
-  -- }
-  --
-  -- use {
-  --   'nvim-telescope/telescope.nvim',
-  --   config = function()
-  --     require('core.telescope').setup()
-  --   end,
-  --   after = 'telescope-fzf-native.nvim',
-  --   requires = {
-  --     { 'nvim-lua/plenary.nvim' },
-  --     {
-  --       'AckslD/nvim-neoclip.lua',
-  --       config = function()
-  --         require('neoclip').setup {
-  --           default_register = '*',
-  --         }
-  --       end,
-  --     },
-  --   },
-  --   opt = true,
-  --   keys = { '<leader>fc' },
-  -- }
-
-  -- use {
-  --   'glacambre/firenvim',
-  --   run = function()
-  --     vim.fn['firenvim#install'](0)
-  --   end,
-  --   config = function()
-  --     vim.cmd('set guifont=JetBrainsMono\\ Nerd\\ Font\\ Mono:h22')
-  --   end,
-  -- }
+  use {
+    'nvim-telescope/telescope.nvim',
+    config = function()
+      require('core.telescope').setup(false)
+    end,
+    defer = true,
+    after = 'telescope-fzf-native.nvim',
+    -- requires = {
+    --   { 'nvim-lua/plenary.nvim' },
+    --   {
+    --     'AckslD/nvim-neoclip.lua',
+    --     config = function()
+    --       require('neoclip').setup {
+    --         default_register = '*',
+    --       }
+    --     end,
+    --   },
+    -- },
+    opt = true,
+    -- keys = { '<leader>f' },
+  }
 
   use {
     'lu5je0/LeaderF',
     run = './install.sh',
     opt = true,
+    defer = true,
     -- cmd = {'Leaderf', 'Git'},
     config = function()
       require('core.leaderf').setup()
     end,
+  }
+
+  use {
+    'Pocco81/HighStr.nvim',
+    config = function()
+      require('core.highstr')
+    end,
+    keys = {'<f1>', '<f2>', '<f3>', '<f4>', '<f6>'}
+  }
+
+  use {
+    'dstein64/nvim-scrollview',
+    opt = true,
+    event = { 'WinScrolled', 'BufRead' },
+    config = function()
+      require('core.scrollview').setup()
+    end
   }
 end)
