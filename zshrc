@@ -1,10 +1,10 @@
 ##########################################
 # zinit
 ##########################################
-if [[ ! -d ~/.dotfiles/.zinit ]]; then
-    git clone --depth=1 git@github.com:zdharma-continuum/zinit.git ~/.dotfiles/.zinit/bin
+if [[ ! -d ~/.zinit ]]; then
+    git clone --depth=1 git@github.com:zdharma-continuum/zinit.git ~/.zinit/bin
 fi
-source ~/.dotfiles/.zinit/bin/zinit.zsh
+source ~/.zinit/bin/zinit.zsh
 
 export UNAME_INFO=`uname -a`
 if [[ $UNAME_INFO =~ "Darwin" ]]; then
