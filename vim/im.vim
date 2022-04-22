@@ -3,7 +3,7 @@ if !has("mac")
 endif
 
 let s:std_config_path = stdpath("config")
-let g:save_last_ime = v:lua.require('misc/env-keeper').get('save_last_ime', '0')
+let g:save_last_ime = v:lua.require('lu5je0.misc.env-keeper').get('save_last_ime', '0')
 
 function! ImFuncInit()
 if get(g:, "im_init", 0) == 1
@@ -31,24 +31,26 @@ EOF
 endfunction
 
 function! SwitchInsertMode()
-    call ImFuncInit()
     if g:save_last_ime == 1
+        call ImFuncInit()
         call libcall(s:std_config_path . "/lib/libinput-source-switcher.dylib", "switchInputSource", py3eval("'com.apple.keylayout.ABC' if switcher is None else switcher.last_ime"))
-    else
-        call libcall(s:std_config_path . "/lib/libinput-source-switcher.dylib", "switchInputSource", "com.apple.keylayout.ABC")
     endif
 endfunction
 
 function! SwitchNormalMode()
+if g:save_last_ime == 1
 call ImFuncInit()
 python3 << EOF
 if switcher != None:
-    switcher.switch_normal_mode()
+    switcher.switch_normal_mode(True)
 EOF
+else
+    call libcall(s:std_config_path . "/lib/libinput-source-switcher.dylib", "switchInputSource", "com.apple.keylayout.ABC")
+endif
 endfunction
 
 function! ToggleSaveLastIme()
-    let v = v:lua.require('misc/env-keeper').get('save_last_ime', '0')
+    let v = v:lua.require('lu5je0.misc.env-keeper').get('save_last_ime', '0')
     if v == '0'
         let g:save_last_ime = 1
         echo "keep last ime enabled"
@@ -56,19 +58,10 @@ function! ToggleSaveLastIme()
         let g:save_last_ime = 0
         echo "keep last ime disabled"
     endif
-    lua require('misc/env-keeper').set('save_last_ime', tostring(vim.g.save_last_ime))
+    lua require('lu5je0.misc.env-keeper').set('save_last_ime', tostring(vim.g.save_last_ime))
 endfunction
 
-" 无操作自动加载
-function! ImFuncJob(timer) abort
-    call ImFuncInit()
-endfunction
-call timer_start(5000, 'ImFuncJob')
-
-command! SwitchNormalMode call SwitchNormalMode()
-command! SwitchInsertMode call SwitchInsertMode()
-command! ToggleSaveLastIme call ToggleSaveLastIme()
-
+nmap <silent> <leader>vi :call ToggleSaveLastIme()<cr>
 augroup switch_im
     autocmd!
     autocmd InsertLeave * call SwitchNormalMode()

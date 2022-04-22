@@ -104,7 +104,7 @@ sunmap il
 "----------------------------------------------------------------------
 " visual mode
 "----------------------------------------------------------------------
-vmap <silent> # :lua require("core.terminal").run_select_in_terminal()<cr>
+vmap <silent> # :lua require("ext.terminal").run_select_in_terminal()<cr>
 
 vmap <leader>cnc <plug>(ConvertToCamelword)
 nmap <leader>cnc <plug>(ConvertToCamelword)
@@ -176,7 +176,7 @@ nnoremap V m'V
 " leader
 "----------------------------------------------------------------------
 nmap <leader>q <cmd>CloseBuffer<cr>
-nmap <leader>Q <cmd>lua require("base.quit-comfirm").exit()<cr>
+nmap <leader>Q <cmd>lua require("lu5je0.misc.quit-comfirm").exit()<cr>
 
 nmap <leader>wo <c-w>o
 
@@ -243,5 +243,5 @@ vnoremap <leader>xH :!python -c 'import sys,urllib;print urllib.unquote(sys.stdi
 
 " augroup AutoReIndentAfterPaste
 "     autocmd!
-"     autocmd FileType vim,lua,python nmap <buffer> <silent> <expr> p v:lua.require('utils.register-utils').is_register_contains_newline('"') ? 'p`[V`]=^' : 'p'
+"     autocmd FileType vim,lua,python nmap <buffer> <silent> <expr> p v:lua.require('lu5je0.core.register').is_register_contains_newline('"') ? 'p`[V`]=^' : 'p'
 " augroup END

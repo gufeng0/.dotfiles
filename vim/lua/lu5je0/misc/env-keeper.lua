@@ -1,8 +1,8 @@
 local M = {}
 
-local io = require('io')
-
 local config_file = vim.fn.stdpath('data') .. '/nvim.env.json'
+
+local cache = {}
 
 local function read_file(filename)
   local f = io.open(filename, 'r')
@@ -21,17 +21,42 @@ local function write_file(filename, content)
 end
 
 function M.get(name, default)
+  if cache[name] then
+    return cache[name]
+  end
+
   local value = vim.fn.json_decode(read_file(config_file))[name]
   if value == nil or value == "" then
-    return default
+    value = default
   end
+  cache[name] = value
   return value
 end
 
 function M.set(name, value)
   local json = vim.fn.json_decode(read_file(config_file))
   json[name] = value
-  return write_file(config_file, vim.fn.json_encode(json))
+  write_file(config_file, vim.fn.json_encode(json))
+
+  cache[name] = nil
+end
+
+local metatable = {
+  __index = function(t, key)
+    return M.get(key, t.default_values[key])
+  end,
+  __newindex = function(_, key, value)
+    M.set(key, value)
+  end
+}
+
+M.keeper = function(default_values)
+  if not default_values then
+    default_values = {}
+  end
+  local t = {}
+  t.default_values = default_values
+  return setmetatable(t, metatable)
 end
 
 return M

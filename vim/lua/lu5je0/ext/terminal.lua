@@ -1,10 +1,7 @@
 local M = {}
 
-local direction_init = function()
-  if M.direction == nil then
-    M.direction = require('misc.env-keeper').get('terminal_direction', 'float')
-  end
-end
+
+local env_keeper = require('lu5je0.misc.env-keeper').keeper({ terminal_direction = 'float' })
 
 M.send_to_terminal = function(cmd, opts)
   if opts == nil then
@@ -12,22 +9,17 @@ M.send_to_terminal = function(cmd, opts)
     opts.go_back = 0
   end
 
-  direction_init()
-  local v_cmd = "TermExec cmd='%s' go_back=" .. opts.go_back .. ' direction=' .. M.direction
+  local v_cmd = "TermExec cmd='%s' go_back=" .. opts.go_back .. ' direction=' .. env_keeper.terminal_direction
   v_cmd = v_cmd:format(cmd)
   vim.cmd(v_cmd)
 end
 
-M.direction = nil
-
 M.toggle = function()
-  direction_init()
-  vim.cmd('ToggleTerm direction=' .. M.direction)
+  vim.cmd('ToggleTerm direction=' .. env_keeper.terminal_direction)
 end
 
 M.change_terminal_direction = function(direction)
-  M.direction = direction
-  require('misc.env-keeper').set('terminal_direction', direction)
+  env_keeper.terminal_direction = direction
   M.toggle()
 end
 
@@ -60,23 +52,23 @@ M.setup = function()
     start_in_insert = false,
     insert_mappings = true, -- whether or not the open mapping applies in insert mode
     persist_size = true,
-    direction = M.direction,
+    direction = env_keeper.terminal_direction,
     close_on_exit = true, -- close the terminal window when the process exits
     shell = vim.o.shell, -- change the default shell
   }
   vim.cmd([[
-  imap <silent> <m-i> <ESC>:lua require('core.terminal').toggle()<CR>
-  imap <silent> <d-i> <ESC>:lua require('core.terminal').toggle()<CR>
+  imap <silent> <m-i> <ESC>:lua require('lu5je0.ext.terminal').toggle()<CR>
+  imap <silent> <d-i> <ESC>:lua require('lu5je0.ext.terminal').toggle()<CR>
 
-  tmap <silent> <m-i> <c-\><c-n>:lua require('core.terminal').toggle()<CR>
-  tmap <silent> <d-i> <c-\><c-n>:lua require('core.terminal').toggle()<CR>
+  tmap <silent> <m-i> <c-\><c-n>:lua require('lu5je0.ext.terminal').toggle()<CR>
+  tmap <silent> <d-i> <c-\><c-n>:lua require('lu5je0.ext.terminal').toggle()<CR>
   
-  nmap <silent> <m-i> :lua require('core.terminal').toggle()<CR>
-  nmap <silent> <d-i> :lua require('core.terminal').toggle()<CR>
+  nmap <silent> <m-i> :lua require('lu5je0.ext.terminal').toggle()<CR>
+  nmap <silent> <d-i> :lua require('lu5je0.ext.terminal').toggle()<CR>
   
-  tmap <silent> <c-w>L <c-\><c-n><m-i>:lua require('core.terminal').change_terminal_direction('vertical')<CR>
-  tmap <silent> <c-w>J <c-\><c-n><m-i>:lua require('core.terminal').change_terminal_direction('horizontal')<CR>
-  tmap <silent> <c-w>F <c-\><c-n><m-i>:lua require('core.terminal').change_terminal_direction('float')<CR>
+  tmap <silent> <c-w>L <c-\><c-n><m-i>:lua require('lu5je0.ext.terminal').change_terminal_direction('vertical')<CR>
+  tmap <silent> <c-w>J <c-\><c-n><m-i>:lua require('lu5je0.ext.terminal').change_terminal_direction('horizontal')<CR>
+  tmap <silent> <c-w>F <c-\><c-n><m-i>:lua require('lu5je0.ext.terminal').change_terminal_direction('float')<CR>
   
   tmap <silent> <c-h> <c-\><c-n><c-w>h
   tmap <silent> <c-l> <c-\><c-n><c-w>l

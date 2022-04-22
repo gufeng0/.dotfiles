@@ -6,7 +6,8 @@ if [[ ! -d ~/.dotfiles/.zinit ]]; then
 fi
 source ~/.dotfiles/.zinit/bin/zinit.zsh
 
-if [[ -f ~/.mac ]]; then
+export UNAME_INFO=`uname -a`
+if [[ $UNAME_INFO =~ "Darwin" ]]; then
     autoload -Uz compinit && compinit
 fi
 
@@ -39,6 +40,7 @@ zinit ice lucid wait='1'
 zinit snippet ~/.dotfiles/zsh/proxy.sh
 
 zinit snippet ~/.dotfiles/zsh/vi-mode.zsh
+zinit snippet ~/.dotfiles/zsh/vi-im-switch.zsh
 
 zinit ice depth=1 lucid wait='1'
 zinit light paulirish/git-open
