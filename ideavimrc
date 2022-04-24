@@ -31,8 +31,8 @@ let g:WhichKeyDesc_windows="<leader>w Windows"
 nmap yr <Action>(CopyReference)
 
 " leetCode
-nmap <leader>lr <Action>(leetcode.RunCodeAction)
-nmap <leader>ls <Action>(leetcode.SubmitAction)
+nmap <leader>lr <Action>(leetcode.editor.RunCodeAction)
+nmap <leader>ls <Action>(leetcode.editor.SubmitAction)
 
 " idea maven
 nmap <leader>mr <Action>(Maven.Reimport)
