@@ -14,13 +14,12 @@ runtime settings.vim
 runtime functions.vim
 runtime mappings.vim
 runtime misc.vim
-runtime autocmd.vim
 ]])
 
 if vim.fn.has('wsl') == 1 then
   require('lu5je0.misc.im.win.im').boostrap()
 elseif vim.fn.has('mac') == 1 then
-  vim.cmd('runtime im.vim')
+  vim.cmd('runtime mac_im.vim')
 end
 
 for _, plugin in ipairs(_G.defer_plugins) do
