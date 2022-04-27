@@ -523,7 +523,7 @@ return packer.startup(function(use)
   }
 
   use {
-    'lu5je0/nvim-tree.lua',
+    'kyazdani42/nvim-tree.lua',
     requires = 'kyazdani42/nvim-web-devicons',
     keys = { '<leader>e', '<leader>fe' },
     opt = true,
@@ -585,7 +585,7 @@ return packer.startup(function(use)
     config = function()
       require('lu5je0.ext.highstr')
     end,
-    keys = {'<f1>', '<f2>', '<f3>', '<f4>', '<f6>'}
+    keys = { '<f1>', '<f2>', '<f3>', '<f4>', '<f6>' }
   }
 
   use {
