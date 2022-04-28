@@ -20,9 +20,12 @@ return packer.startup(function(use)
   use = function(...)
     if type(...) == 'table' then
       local t = ...
-      if t['defer'] then
-        t['opt'] = true
+      if t.defer then
+        t.opt = true
         table.insert(_G.defer_plugins, t[1]:match('/(.*)$'))
+      end
+      if t.on_compile then
+        t.on_compile()
       end
     end
     origin_use(...)
@@ -49,6 +52,53 @@ return packer.startup(function(use)
   use('MunifTanjim/nui.nvim')
 
   use {
+    'kyazdani42/nvim-web-devicons',
+    config = function()
+      require('nvim-web-devicons').setup {
+        override = {
+          xml = {
+            icon = '',
+            color = '#e37933',
+            name = 'Xml',
+          },
+        },
+        default = true,
+      }
+    end,
+  }
+
+  use {
+    'nvim-telescope/telescope.nvim',
+    config = function()
+      require('lu5je0.ext.telescope').setup(false)
+    end,
+    defer = true,
+    after = 'telescope-fzf-native.nvim',
+    -- requires = {
+    --   { 'nvim-lua/plenary.nvim' },
+    --   {
+    --     'AckslD/nvim-neoclip.lua',
+    --     config = function()
+    --       require('neoclip').setup {
+    --         default_register = '*',
+    --       }
+    --     end,
+    --   },
+    -- },
+    -- keys = { '<leader>f' },
+  }
+
+  use {
+    'lu5je0/LeaderF',
+    run = './install.sh',
+    defer = true,
+    -- cmd = {'Leaderf', 'Git'},
+    config = function()
+      require('lu5je0.ext.leaderf').setup()
+    end,
+  }
+
+  use {
     'ojroques/vim-oscyank',
     config = function()
       vim.cmd("autocmd TextYankPost * execute 'OSCYankReg \"'")
@@ -59,7 +109,6 @@ return packer.startup(function(use)
   use {
     'nvim-lualine/lualine.nvim',
     requires = {
-      { 'kyazdani42/nvim-web-devicons', opt = true },
       -- {
       --   'nvim-lua/lsp-status.nvim',
       --   config = function()
@@ -96,23 +145,6 @@ return packer.startup(function(use)
   --     ]])
   --   end,
   -- }
-
-  use {
-    'kyazdani42/nvim-web-devicons',
-    config = function()
-      local plugin = require('nvim-web-devicons')
-      plugin.setup {
-        override = {
-          xml = {
-            icon = '',
-            color = '#e37933',
-            name = 'Xml',
-          },
-        },
-        default = true,
-      }
-    end,
-  }
 
   use {
     'lu5je0/bufferline.nvim',
@@ -186,7 +218,6 @@ return packer.startup(function(use)
 
   use {
     'numToStr/Comment.nvim',
-    opt = true,
     defer = true,
     config = function()
       require('Comment').setup {
@@ -220,7 +251,20 @@ return packer.startup(function(use)
   use('lu5je0/vim-one')
   use('lu5je0/one-nvim')
   use('sainnhe/sonokai')
-  use('sainnhe/edge')
+
+  use {
+    'sainnhe/edge',
+    on_compile = function()
+      vim.g.edge_better_performance = 1
+      vim.g.edge_enable_italic = 0
+      vim.g.edge_disable_italic_comment = 1
+    end,
+    config = function()
+      vim.g.edge_loaded_file_types = { 'NvimTree' }
+      vim.cmd [[ hi! Folded guifg=#282c34 guibg=#5c6370 ]]
+    end
+  }
+
   use('gruvbox-community/gruvbox')
 
   -- use {
@@ -233,7 +277,6 @@ return packer.startup(function(use)
   use {
     'akinsho/toggleterm.nvim',
     branch = 'main',
-    opt = true,
     defer = true,
     config = function()
       require('lu5je0.ext.terminal').setup()
@@ -420,7 +463,6 @@ return packer.startup(function(use)
     config = function()
       require('nvim-autopairs').setup {}
     end,
-    opt = true,
   }
 
   -- lsp
@@ -433,7 +475,6 @@ return packer.startup(function(use)
       require('lu5je0.ext.null-ls')
     end,
     defer = true,
-    opt = true,
   }
 
   -- highlight cursor word
@@ -460,7 +501,6 @@ return packer.startup(function(use)
       require('lu5je0.ext.lsp').setup()
     end,
     defer = true,
-    opt = true,
   }
 
   use {
@@ -482,7 +522,6 @@ return packer.startup(function(use)
       },
       'hrsh7th/cmp-vsnip',
     },
-    opt = true,
   }
 
   -- use {
@@ -527,7 +566,6 @@ return packer.startup(function(use)
     requires = 'kyazdani42/nvim-web-devicons',
     keys = { '<leader>e', '<leader>fe' },
     opt = true,
-    defer = true,
     config = function()
       require('lu5je0.ext.nvimtree').setup()
     end,
@@ -545,39 +583,6 @@ return packer.startup(function(use)
   use {
     'nvim-telescope/telescope-fzf-native.nvim',
     run = 'make',
-  }
-
-  use {
-    'nvim-telescope/telescope.nvim',
-    config = function()
-      require('lu5je0.ext.telescope').setup(false)
-    end,
-    defer = true,
-    after = 'telescope-fzf-native.nvim',
-    -- requires = {
-    --   { 'nvim-lua/plenary.nvim' },
-    --   {
-    --     'AckslD/nvim-neoclip.lua',
-    --     config = function()
-    --       require('neoclip').setup {
-    --         default_register = '*',
-    --       }
-    --     end,
-    --   },
-    -- },
-    opt = true,
-    -- keys = { '<leader>f' },
-  }
-
-  use {
-    'lu5je0/LeaderF',
-    run = './install.sh',
-    opt = true,
-    defer = true,
-    -- cmd = {'Leaderf', 'Git'},
-    config = function()
-      require('lu5je0.ext.leaderf').setup()
-    end,
   }
 
   use {

@@ -274,7 +274,8 @@ function M.setup()
 
   -- default mappings
   local list = {
-    -- { key = { '<CR>', 'l', 'o', '<2-LeftMouse>' }, cb = ":lua require('lu5je0.ext.nvimtree').edit()<cr>" },
+    { key = { '<CR>', 'l', 'o', '<2-LeftMouse>' }, cb = ":lua require('lu5je0.ext.nvimtree').open_node()<cr>" },
+    { key = 'h', cb = ":lua require('lu5je0.ext.nvimtree').close_node()<cr>" },
     { key = { 'cd', 'C' }, cb = ":lua require('lu5je0.ext.nvimtree').cd()<cr>" },
     { key = { 't' }, cb = ":lua require('lu5je0.ext.nvimtree').terminal_cd()<cr>" },
     { key = '=', cb = ":lua require('lu5je0.ext.nvimtree').increase_width(2)<cr>" },
@@ -284,8 +285,6 @@ function M.setup()
     { key = 'p', cb = ":lua require('lu5je0.ext.nvimtree').preview()<cr>" },
     { key = 'x', cb = ":lua require('lu5je0.ext.nvimtree').toggle_width()<cr>" },
     { key = 'D', cb = ":lua require('lu5je0.ext.nvimtree').remove()<cr>" },
-    { key = 'l', cb = ":lua require('lu5je0.ext.nvimtree').open_node()<cr>" },
-    { key = 'h', cb = ":lua require('lu5je0.ext.nvimtree').close_node()<cr>" },
     { key = 'H', cb = ':cd ~<cr>' },
     { key = 'd', cb = '<nop>' },
     { key = 's', action = 'vsplit' },
@@ -388,6 +387,12 @@ function M.setup()
 
   M.pwd_stack:push(vim.fn.getcwd())
   M.loaded = true
+
+  vim.defer_fn(function()
+    if vim.bo.filetype == 'NvimTree' then
+      require('lu5je0.core.keys').feedkey('<c-w>p', '')
+    end
+  end, 0)
 end
 
 return M
