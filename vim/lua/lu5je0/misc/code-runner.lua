@@ -16,7 +16,7 @@ local function special()
   local fullpath = vim.fn.expand("%:p")
   if vim.bo.filetype == 'lua' and fullpath == '/home/lu5je0/.dotfiles/wezterm/wezterm.lua' and vim.fn.has('wsl') == 1 then
     vim.api.nvim_command('silent write')
-    vim.fn.system('cp ' .. fullpath .. ' ' .. '/mnt/d/Program\\ Files/WezTerm/wezterm.lua')
+    vim.fn.system('cp ' .. fullpath .. ' ' .. '/mnt/c/Users/73995/.wezterm.lua"')
     print("copied to windows")
     return true
   end
@@ -25,19 +25,20 @@ end
 
 M.run_file = function()
   local filetype = vim.bo.filetype
+
+  if vim.bo.modified then
+    vim.cmd('w')
+    print('save')
+  end
+
   if filetype == 'vim' then
-    vim.cmd('w | so %')
+    vim.cmd('so %')
   elseif filetype == 'lua' then
     if special() then
       return
     end
     if vim.g.lua_dev == 1 then
-      vim.cmd [[
-      w
-      luafile %
-      " let file = expand('%')
-      " vnew | pu=execute('luafile ' . file)
-      ]]
+      vim.cmd('luafile %')
     else
       execute_in_terminal(build_cmd_with_file('luajit'))
     end
@@ -55,6 +56,10 @@ M.run_file = function()
     execute_in_terminal(build_cmd_with_file('python3'))
   elseif filetype == 'rust' then
     execute_in_terminal('cargo run')
+  elseif filetype == 'typescript' then
+    execute_in_terminal(build_cmd_with_file('ts-node'))
+  elseif filetype == 'javascript' then
+    execute_in_terminal(build_cmd_with_file('node'))
   elseif filetype == 'java' then
     execute_in_terminal(build_cmd_with_file('java'))
   end

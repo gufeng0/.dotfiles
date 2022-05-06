@@ -1,5 +1,5 @@
 if not pcall(require, 'impatient') then
-  vim.notify('impatient fail')
+  vim.notify('failed to enable impatient')
 end
 require('lu5je0.plugins')
 require('lu5je0.enhance')
@@ -19,15 +19,15 @@ runtime misc.vim
 if vim.fn.has('wsl') == 1 then
   require('lu5je0.misc.im.win.im').boostrap()
 elseif vim.fn.has('mac') == 1 then
-  vim.cmd('runtime mac_im.vim')
+  require('lu5je0.misc.im.mac.im')
 end
 
-local delay = 0;
+local delay = 0
 for _, plugin in ipairs(_G.defer_plugins) do
   vim.defer_fn(function()
     vim.cmd('PackerLoad ' .. plugin)
   end, delay)
-  delay = delay + 10
+  delay = delay + 3
 end
 
 vim.defer_fn(function()

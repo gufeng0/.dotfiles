@@ -1,14 +1,16 @@
 local M = {}
 
-M.loaded = true
-
 local lib = require('nvim-tree.lib')
 
+M.pwd_stack = require('lu5je0.lang.stack'):create()
+M.pwd_forward_stack = require('lu5je0.lang.stack'):create()
+M.pwd_back_state = 0
+
 function M.locate_file()
-  if not M.loaded then
-    vim.cmd('sleep 150m')
-    M.loaded = true
-  end
+  -- if not M.loaded then
+  --   vim.cmd('sleep 150m')
+  --   M.loaded = true
+  -- end
 
   local pwd = vim.fn.getcwd()
 
@@ -31,10 +33,6 @@ function M.locate_file()
   end
   vim.cmd('NvimTreeFindFile')
 end
-
-M.pwd_stack = require('lu5je0.lang.stack'):create()
-M.pwd_forward_stack = require('lu5je0.lang.stack'):create()
-M.pwd_back_state = 0
 
 function M.terminal_cd()
   local cmd = 'cd ' .. vim.fn.fnamemodify(require('nvim-tree.lib').get_node_at_cursor().absolute_path, ':p:h')
@@ -120,10 +118,6 @@ end
 
 function M.cd()
   require('nvim-tree.actions').on_keypress('cd')
-  -- local lib = require('nvim-tree.lib')
-  -- if lib ~= nil then
-  --   vim.cmd(':cd ' .. vim.fn.fnamemodify(lib.get_node_at_cursor().absolute_path, ':p:h'))
-  -- end
   vim.cmd('norm gg')
 end
 
@@ -282,7 +276,7 @@ function M.setup()
     { key = '-', cb = ":lua require('lu5je0.ext.nvimtree').reduce_width(2)<cr>" },
     { key = '+', cb = ":lua require('lu5je0.ext.nvimtree').increase_width(1)<cr>" },
     { key = '_', cb = ":lua require('lu5je0.ext.nvimtree').reduce_width(1)<cr>" },
-    { key = 'p', cb = ":lua require('lu5je0.ext.nvimtree').preview()<cr>" },
+    { key = '<space>', cb = ":lua require('lu5je0.ext.nvimtree').preview()<cr>" },
     { key = 'x', cb = ":lua require('lu5je0.ext.nvimtree').toggle_width()<cr>" },
     { key = 'D', cb = ":lua require('lu5je0.ext.nvimtree').remove()<cr>" },
     { key = 'H', cb = ':cd ~<cr>' },
@@ -305,9 +299,9 @@ function M.setup()
     { key = 'r', action = 'refresh' },
     { key = 'ma', action = 'create' },
     { key = 'mv', action = 'rename' },
-    -- { key = "mv", cb = tree_cb("cut") },
+    { key = "dd", action = ("cut") },
     { key = 'yy', action = 'copy' },
-    { key = 'P', action = 'paste' },
+    { key = 'p', action = 'paste' },
     { key = 'yn', action = 'copy_name' },
     { key = 'yP', action = 'copy_path' },
     { key = 'yp', action = 'copy_absolute_path' },

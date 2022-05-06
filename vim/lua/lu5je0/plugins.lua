@@ -180,7 +180,8 @@ return packer.startup(function(use)
   }
 
   -- stylua: ignore
-  _G.ts_filtypes = { 'json', 'python', 'java', 'lua', 'c', 'vim', 'bash', 'go', 'rust', 'toml', 'yaml', 'markdown', 'bash', 'http' }
+  _G.ts_filtypes = { 'json', 'python', 'java', 'lua', 'c', 'vim', 'bash', 'go',
+    'rust', 'toml', 'yaml', 'markdown', 'bash', 'http', 'typescript', 'javascript' }
   use {
     'nvim-treesitter/nvim-treesitter',
     run = ':TSUpdate',
@@ -466,9 +467,33 @@ return packer.startup(function(use)
   }
 
   -- lsp
-  use { 'williamboman/nvim-lsp-installer' }
+  use {
+    'williamboman/nvim-lsp-installer',
+    defer = true,
+    requires = {
+      {
+        'neovim/nvim-lspconfig',
+        config = function()
+          require('lu5je0.ext.lsp').setup()
+        end,
+      },
+      {
+        'stevearc/dressing.nvim',
+        config = function()
+          require('dressing').setup({
+            input = {
+            },
+            select = {
+              backend = { 'telescope', 'nui' },
+            }
+          })
+        end
+      }
+    }
+  }
+
   use { 'ray-x/lsp_signature.nvim' }
-  use { 'folke/lua-dev.nvim' }
+  use { 'max397574/lua-dev.nvim' }
   use {
     'jose-elias-alvarez/null-ls.nvim',
     config = function()
@@ -493,14 +518,6 @@ return packer.startup(function(use)
         ]])
       end, 0)
     end,
-  }
-
-  use {
-    'neovim/nvim-lspconfig',
-    config = function()
-      require('lu5je0.ext.lsp').setup()
-    end,
-    defer = true,
   }
 
   use {
@@ -565,6 +582,9 @@ return packer.startup(function(use)
     'kyazdani42/nvim-tree.lua',
     requires = 'kyazdani42/nvim-web-devicons',
     keys = { '<leader>e', '<leader>fe' },
+    on_compile = function()
+      require('lu5je0.ext.nvim-tree-hijack')
+    end,
     opt = true,
     config = function()
       require('lu5je0.ext.nvimtree').setup()
@@ -601,4 +621,5 @@ return packer.startup(function(use)
       require('lu5je0.ext.scrollview').setup()
     end
   }
+
 end)

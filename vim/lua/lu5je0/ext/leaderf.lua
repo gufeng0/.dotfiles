@@ -8,14 +8,31 @@ function M.setup()
 
   vim.g.Lf_WindowPosition = 'popup'
 
-  -- vim.g.Lf_PopupShowBorder = 1
+  vim.g.Lf_PopupShowBorder = 0
   -- vim.g.Lf_PopupBorders = { "━","┃","━","┃","┏","┓","┛","┗" }
-  -- vim.g.Lf_PopupBorders = {"─","│","─","│","┌","┐","┘","└"}
+  vim.g.Lf_PopupBorders = { "─", "│", "─", "│", "┌", "┐", "┘", "└" }
 
   vim.g.Lf_CommandMap = {
     ['<C-J>'] = { '<DOWN>' },
     ['<C-K>'] = { '<UP>' },
+    ['<UP>'] = { '<C-K>' },
+    ['<DOWN>'] = { '<C-J>' },
   }
+
+  -- vim.g.Lf_PreviewResult = {
+  --   File = 1,
+  --   Buffer = 0,
+  --   Mru = 1,
+  --   Tag = 0,
+  --   BufTag = 1,
+  --   Function = 1,
+  --   Line = 0,
+  --   Colorscheme = 0,
+  --   Rg = 1,
+  --   Gtags = 0
+  -- }
+  -- vim.g.Lf_PopupPreviewPosition = 'right'
+  -- vim.g.Lf_PopupWidth = 65
 
   vim.g.Lf_ShortcutF = ''
   vim.g.Lf_ShortcutB = ''

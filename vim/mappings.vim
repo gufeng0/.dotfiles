@@ -58,11 +58,6 @@ nmap <silent> <leader>tN :tabnew<cr>
 "----------------------------------------------------------------------
 " window control
 "----------------------------------------------------------------------
-nmap <silent><space>= :resize +3<cr>
-nmap <silent><space>- :resize -3<cr>
-nmap <silent><space>, :vertical resize -3<cr>
-nmap <silent><space>. :vertical resize +3<cr>
-
 " 快速切换窗口
 nmap <silent> <C-J> <C-w>j
 nmap <silent> <C-K> <C-w>k
@@ -176,7 +171,7 @@ nnoremap V m'V
 " leader
 "----------------------------------------------------------------------
 nmap <leader>q <cmd>CloseBuffer<cr>
-nmap <leader>Q <cmd>lua require("lu5je0.misc.quit-comfirm").exit()<cr>
+nmap <leader>Q <cmd>lua require("lu5je0.misc.quit-prompt").exit()<cr>
 
 nmap <leader>wo <c-w>o
 
@@ -238,10 +233,16 @@ vnoremap <leader>xh :!python -c 'import sys,urllib;print urllib.quote(sys.stdin.
 vnoremap <leader>xH :!python -c 'import sys,urllib;print urllib.unquote(sys.stdin.read().strip())'<cr>
 
 " ugly hack to start newline and keep indent
-" nnoremap o o<space><BS>
-" nnoremap O O<space><BS>
+nnoremap <silent> o o<space><BS>
+nnoremap <silent> O O<space><BS>
+inoremap <silent> <cr> <cr><space><BS>
 
 " augroup AutoReIndentAfterPaste
 "     autocmd!
 "     autocmd FileType vim,lua,python nmap <buffer> <silent> <expr> p v:lua.require('lu5je0.core.register').is_register_contains_newline('"') ? 'p`[V`]=^' : 'p'
 " augroup END
+
+"----------------------------------------------------------------------
+" command line map
+"----------------------------------------------------------------------
+cmap <c-a> <c-b>
