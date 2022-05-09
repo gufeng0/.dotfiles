@@ -146,12 +146,7 @@ function M.open_node()
 end
 
 function M.close_node()
-  local node = lib.get_node_at_cursor()
-  if node.open then
-    require('nvim-tree.actions').on_keypress('edit')
-  else
-    require('nvim-tree.actions').on_keypress('close_node')
-  end
+  require('nvim-tree.actions').on_keypress('close_node')
 end
 
 function M.toggle_width()
@@ -360,6 +355,9 @@ function M.setup()
       indent_markers = {
         enable = true,
       },
+      icons = {
+        -- git_placement = 'after'
+      }
     },
     view = {
       width = 27,
