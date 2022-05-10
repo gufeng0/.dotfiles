@@ -15,14 +15,14 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 })
 
 return packer.startup(function(use)
-  _G.defer_plugins = {}
+  _G.__defer_plugins = {}
   local origin_use = use
   use = function(...)
     if type(...) == 'table' then
       local t = ...
       if t.defer then
         t.opt = true
-        table.insert(_G.defer_plugins, t[1]:match('/(.*)$'))
+        table.insert(_G.__defer_plugins, t[1]:match('/(.*)$'))
       end
       if t.on_compile then
         t.on_compile()
@@ -312,6 +312,7 @@ return packer.startup(function(use)
     'mg979/vim-visual-multi',
     opt = true,
     setup = function()
+      vim.cmd [[autocmd User visual_multi_mappings nmap <buffer> p "+<Plug>(VM-p-Paste)]]
       vim.g.VM_maps = {
         ['Select Cursor Down'] = '<m-n>',
         ['Remove Region'] = '<c-p>',
@@ -465,7 +466,7 @@ return packer.startup(function(use)
       require('nvim-autopairs').setup {}
     end,
   }
-  
+
   -- lsp
   use {
     'hrsh7th/nvim-cmp',

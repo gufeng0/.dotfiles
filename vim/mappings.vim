@@ -162,15 +162,15 @@ call ToggleGj(0)
 " other
 "----------------------------------------------------------------------
 nnoremap * m`:keepjumps normal! *``<cr>
-xnoremap * m`:keepjumps <C-u>call VisualStarSearchSet('/')<CR>/<C-R>=@/<CR><CR>``
-nnoremap m<space> i&#8195;&#8195;<esc>l
+xnoremap * m`:keepjumps <C-u>call visual#star_search_set('/')<CR>/<C-R>=@/<CR><CR>``
 nnoremap v m'v
 nnoremap V m'V
 
+nnoremap m<space> i&#8195;&#8195;<esc>l
 "----------------------------------------------------------------------
 " leader
 "----------------------------------------------------------------------
-nmap <leader>q <cmd>CloseBuffer<cr>
+nmap <leader>q <cmd>lua require("lu5je0.misc.quit-prompt").close_buffer()<cr>
 nmap <leader>Q <cmd>lua require("lu5je0.misc.quit-prompt").exit()<cr>
 
 nmap <leader>wo <c-w>o
