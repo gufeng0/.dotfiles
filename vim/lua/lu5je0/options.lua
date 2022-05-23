@@ -9,11 +9,12 @@ opt.incsearch = true
 opt.splitbelow = true -- 默认在下侧分屏
 opt.splitright = true -- 默认在右侧分屏
 opt.shadafile = 'NONE'
+opt.wrap = false
 
 opt.completeopt = 'menu,menuone,noselect'
 
 opt.number = true
-opt.numberwidth = 2
+opt.numberwidth = 3
 
 opt.laststatus = 2
 opt.showmode = false

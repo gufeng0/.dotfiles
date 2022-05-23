@@ -1,36 +1,31 @@
+---@diagnostic disable: missing-parameter
 local M = {}
 
 local lib = require('nvim-tree.lib')
+local keys_helper = require('lu5je0.core.keys')
 
 M.pwd_stack = require('lu5je0.lang.stack'):create()
 M.pwd_forward_stack = require('lu5je0.lang.stack'):create()
 M.pwd_back_state = 0
 
 function M.locate_file()
-  -- if not M.loaded then
-  --   vim.cmd('sleep 150m')
-  --   M.loaded = true
-  -- end
-
-  local pwd = vim.fn.getcwd()
-
-  -- current file path
-  local cur_file_path = vim.fn.expand('%:p')
-
-  if cur_file_path == nil or cur_file_path == '' then
+  local cur_file_dir_path = vim.fn.expand('%:p:h')
+  if cur_file_dir_path == '' then
     return
   end
-
-  -- if pwd has .
-  cur_file_path = string.sub(cur_file_path, 0, cur_file_path:match('^.*()/') - 1)
-
-  if string.match(string.sub(cur_file_path, string.len(pwd) + 2, -1), [[%.]]) ~= nil then
-    require('nvim-tree.actions.toggles').dotfiles()
+  
+  local cwd = vim.fn.getcwd()
+  if not string.startswith(cur_file_dir_path, cwd) then
+    vim.cmd(':cd ' .. cur_file_dir_path)
+  else
+    -- dotfiles check
+    if vim.fn.expand('%:p'):sub(#cwd + 2, #cwd + 2) == '.' then
+      if require("nvim-tree.explorer.filters").config.filter_dotfiles then
+        require('nvim-tree.actions.toggles').dotfiles()
+      end
+    end
   end
 
-  if not string.startswith(cur_file_path, pwd) then
-    vim.cmd(':cd ' .. cur_file_path)
-  end
   vim.cmd('NvimTreeFindFile')
 end
 
@@ -86,7 +81,7 @@ function M.remove()
   if is_remove_cur_file and substitute_buf_id == nil then
     vim.cmd("vnew")
     vim.cmd('NvimTreeResize ' .. cur_width)
-    require('lu5je0.core.keys').feedkey('<c-w>p', '')
+    keys_helper.feedkey('<c-w>p')
   end
 end
 
@@ -154,16 +149,26 @@ end
 
 function M.open_node()
   local node = lib.get_node_at_cursor()
+  local parent_absolute_path = node.absolute_path
   if not node.open and (node.has_children or (node.nodes and #node.nodes ~= 0)) then
     vim.schedule(function()
       vim.cmd('norm j')
+      if lib.get_node_at_cursor().parent.absolute_path ~= parent_absolute_path then
+        vim.cmd('norm k')
+      end
     end)
   end
   require('nvim-tree.actions').on_keypress('edit')
 end
 
 function M.close_node()
+  local node = lib.get_node_at_cursor()
   require('nvim-tree.actions').on_keypress('close_node')
+  if vim.fn.getcwd() == '/' then
+    if node ~= lib.get_node_at_cursor() then
+      keys_helper.feedkey('k')
+    end
+  end
 end
 
 function M.toggle_width()
@@ -276,12 +281,12 @@ function M.setup()
 
   local view = require('nvim-tree.view')
   view.View.winopts.signcolumn = 'no'
-  view.View.winopts.foldcolumn = 1
+  view.View.winopts.foldcolumn = '1'
 
   -- default mappings
   local list = {
     { key = { '<CR>', 'l', 'o', '<2-LeftMouse>' }, cb = ":lua require('lu5je0.ext.nvimtree').open_node()<cr>" },
-    { key = 'h', cb = ":lua require('lu5je0.ext.nvimtree').close_node()<cr>" },
+    { key = { '<BS>', 'h' }, cb = ":lua require('lu5je0.ext.nvimtree').close_node()<cr>" },
     { key = { 'cd', 'C' }, cb = ":lua require('lu5je0.ext.nvimtree').cd()<cr>" },
     { key = { 't' }, cb = ":lua require('lu5je0.ext.nvimtree').terminal_cd()<cr>" },
     { key = '=', cb = ":lua require('lu5je0.ext.nvimtree').increase_width(2)<cr>" },
@@ -295,19 +300,17 @@ function M.setup()
     { key = 'H', cb = ':cd ~<cr>' },
     { key = 'd', cb = '<nop>' },
     { key = 's', action = 'vsplit' },
-    { key = 'S', action = 'search_node' },
     -- { key = 's', action = 'split' },
-    -- { key = "<C-t>", cb = tree_cb("tabnew") },
+    { key = 'S', action = 'search_node' },
+    -- { key = 'K', action = 'first_sibling' },
+    -- { key = 'J', action = 'last_sibling' },
     { key = '<', action = 'prev_sibling' },
     { key = '>', action = 'next_sibling' },
     -- { key = 'f', cb = ":lua require('lu5je0.ext.nvimtree').file_info()<cr>" },
-    { key = 'f', action = 'toggle_file_info' },
+    { key = 'K', action = 'toggle_file_info' },
+    { key = 'f', action = 'live_filter' },
     { key = '.', action = 'run_file_command' },
     -- { key = 'P', action = 'parent_node' },
-    -- { key = { '<BS>', 'h' }, action = 'close_node' },
-    { key = 'K', action = 'first_sibling' },
-    { key = 'J', action = 'last_sibling' },
-    -- { key = "I", cb = tree_cb("toggle_ignored") },
     { key = 'I', action = 'toggle_dotfiles' },
     { key = 'r', action = 'refresh' },
     { key = 'ma', action = 'create' },
@@ -394,13 +397,15 @@ function M.setup()
     filetype = { 'notify', 'packer', 'qf', 'confirm', 'popup' },
     buftype = { 'terminal', 'nowrite' },
   }
+  
+  require('lu5je0.ext.nvimtree.hover-popup')
 
   M.pwd_stack:push(vim.fn.getcwd())
   M.loaded = true
-
+  
   vim.defer_fn(function()
     if vim.bo.filetype == 'NvimTree' then
-      require('lu5je0.core.keys').feedkey('<c-w>p', '')
+      keys_helper.feedkey('<c-w>p')
     end
   end, 0)
 end

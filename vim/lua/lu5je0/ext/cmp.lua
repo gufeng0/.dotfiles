@@ -1,5 +1,5 @@
 local cmp = require('cmp')
-local utils = require('lu5je0.core.keys')
+local keys_helper = require('lu5je0.core.keys')
 local indent_change_items = {
   'endif',
   'end',
@@ -97,13 +97,17 @@ local function comfirm(fallback)
       cmp.confirm { select = true, behavior = cmp.ConfirmBehavior.Insert }
     end
   elseif vim.fn['vsnip#jumpable'](1) == 1 then
-    utils.feedkey('<Plug>(vsnip-jump-next)', '')
+    keys_helper.feedkey('<Plug>(vsnip-jump-next)')
   else
     fallback()
+    keys_helper.feedkey('<space><bs>')
   end
 end
 
 cmp.setup {
+  -- window = {
+  --   documentation = cmp.config.disable
+  -- },
   snippet = {
     expand = function(args)
       vim.fn['vsnip#anonymous'](args.body) -- For `vsnip` users.
@@ -170,7 +174,7 @@ cmp.setup {
       })[entry.source.name]
       return vim_item
     end,
-  }
+  },
 }
 
 -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).

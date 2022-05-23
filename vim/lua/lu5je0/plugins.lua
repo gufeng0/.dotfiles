@@ -5,7 +5,7 @@ end
 
 local packer = require('packer')
 packer.init {
-  max_jobs = 15,
+  max_jobs = 30,
 }
 
 vim.api.nvim_create_autocmd('BufWritePost', {
@@ -151,6 +151,7 @@ return packer.startup(function(use)
     config = function()
       require('lu5je0.ext.bufferline')
     end,
+    -- branch = 'main',
     requires = { 'nvim-web-devicons' },
   }
 
@@ -197,6 +198,10 @@ return packer.startup(function(use)
           require('hlargs').setup()
         end
       },
+      -- {
+      --   'nvim-treesitter/playground',
+      --   run = 'TSInstall query'
+      -- },
       {
         'SmiteshP/nvim-gps',
         config = function()
@@ -249,10 +254,8 @@ return packer.startup(function(use)
   use('lu5je0/vim-base64')
 
   -- themes
-  use('lu5je0/vim-one')
-  use('lu5je0/one-nvim')
   use('sainnhe/sonokai')
-
+  use('sainnhe/gruvbox-material')
   use {
     'sainnhe/edge',
     on_compile = function()
@@ -262,12 +265,12 @@ return packer.startup(function(use)
     end,
     config = function()
       vim.g.edge_loaded_file_types = { 'NvimTree' }
-      vim.cmd [[ hi! Folded guifg=#282c34 guibg=#5c6370 ]]
+      vim.cmd [[
+      hi! Folded guifg=#282c34 guibg=#5c6370
+      hi MatchParen guifg=#ffef28
+      ]]
     end
   }
-
-  use('gruvbox-community/gruvbox')
-
   -- use {
   --   'Mofiqul/vscode.nvim',
   --   config = function()
@@ -290,7 +293,6 @@ return packer.startup(function(use)
   --     vim.g.loaded_fern_git_status = 1
   --   end
   -- }
-
   use {
     'lambdalisue/fern.vim',
     opt = true,
@@ -406,7 +408,7 @@ return packer.startup(function(use)
     'tpope/vim-surround',
   }
 
-  local nvim_colorizer_ft = { 'vim', 'lua', 'css', 'conf' }
+  local nvim_colorizer_ft = { 'vim', 'lua', 'css', 'conf', 'tmux' }
   use {
     'norcalli/nvim-colorizer.lua',
     config = function()
@@ -523,8 +525,6 @@ return packer.startup(function(use)
     end,
     defer = true,
   }
-
-  -- highlight cursor word
   use {
     'lu5je0/vim-illuminate',
     config = function()
