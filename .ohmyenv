@@ -1,7 +1,7 @@
-if [ "$(uname)" = "Darwin" ]; then
+export HTTP_PROXY_PORT='1081'
+export SOCKS5_PROXY_PORT='1080'
 
-    export HTTP_PROXY_PORT='1081'
-    export SOCKS5_PROXY_PORT='1080'
+if [ "$(uname)" = "Darwin" ]; then
 
     #gnubin
     export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
