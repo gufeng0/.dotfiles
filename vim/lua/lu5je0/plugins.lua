@@ -5,7 +5,7 @@ end
 
 local packer = require('packer')
 packer.init {
-  max_jobs = 30,
+  max_jobs = 15,
 }
 
 vim.api.nvim_create_autocmd('BufWritePost', {
@@ -149,6 +149,7 @@ return packer.startup(function(use)
   use {
     'lu5je0/bufferline.nvim',
     config = function()
+      vim.g.bufferline_separator = true
       require('lu5je0.ext.bufferline')
     end,
     -- branch = 'main',
@@ -580,7 +581,9 @@ return packer.startup(function(use)
   }
 
   use {
-    'kyazdani42/nvim-tree.lua',
+    -- '~/IdeaProjects/nvim-tree.lua',
+    'lu5je0/nvim-tree.lua',
+    branch = 'feat/floating-node',
     requires = 'kyazdani42/nvim-web-devicons',
     keys = { '<leader>e', '<leader>fe' },
     on_compile = function()
