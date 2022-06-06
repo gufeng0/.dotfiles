@@ -100,7 +100,7 @@ function M.create_dir()
   local origin_input = vim.ui.input
   vim.ui.input = function(input_opts, fn)
     local origin_fn = fn
-    input_opts.prompt = 'Create Directory'
+    input_opts.prompt = 'Create Directory '
     fn = function(new_file_path)
       if new_file_path ~= nil then
         new_file_path = new_file_path .. '/'
@@ -333,7 +333,7 @@ function M.setup()
       custom = {},
     },
     renderer = {
-      floating_node = true,
+      full_name = true,
       indent_markers = {
         enable = true,
       },

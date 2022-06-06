@@ -172,6 +172,7 @@ nnoremap m<space> i&#8195;&#8195;<esc>l
 "----------------------------------------------------------------------
 nmap <leader>q <cmd>lua require("lu5je0.misc.quit-prompt").close_buffer()<cr>
 nmap <leader>Q <cmd>lua require("lu5je0.misc.quit-prompt").exit()<cr>
+nmap <leader>% :%s/
 
 nmap <leader>wo <c-w>o
 
