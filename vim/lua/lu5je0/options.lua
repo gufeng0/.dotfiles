@@ -14,7 +14,7 @@ opt.incsearch = true
 opt.splitbelow = true -- 默认在下侧分屏
 opt.splitright = true -- 默认在右侧分屏
 opt.shadafile = 'NONE'
-opt.wrap = false
+opt.wrap = true
 
 opt.completeopt = 'menu,menuone,noselect'
 
