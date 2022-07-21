@@ -1,7 +1,7 @@
 local M = {}
 
 require('nvim-lsp-installer').setup {
-  ensure_installed = { 'sumneko_lua', 'pyright', 'jsonls', 'bashls', 'vimls', 'yamlls' }
+  ensure_installed = {}
 }
 
 local installed_server_names = (function()
@@ -13,21 +13,6 @@ local installed_server_names = (function()
 end)()
 
 local lspconfig = require("lspconfig")
-
-local function extensions()
-  require('lsp_signature').setup {
-    floating_window = true, -- show hint in a floating window, set to false for virtual text only mode
-    floating_window_above_cur_line = true,
-    check_completion_visible = true,
-    hint_enable = false, -- virtual hint enable
-    timer_interval = 200,
-    handler_opts = {
-      border = 'rounded', -- double, rounded, single, shadow, none
-    },
-    always_trigger = true,
-    toggle_key = nil, -- toggle signature on and off in insert mode,  e.g. toggle_key = '<M-x>'
-  }
-end
 
 local function diagnostic()
   vim.diagnostic.config {
@@ -60,7 +45,7 @@ local function on_attach(client, bufnr)
 
   vim.keymap.set('n', 'gu', vim.lsp.buf.declaration, opts)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-  -- vim.keymap.set('i', '<c-p>', vim.lsp.buf.signature_help, opts)
+  vim.keymap.set('i', '<c-p>', vim.lsp.buf.signature_help, opts)
   vim.keymap.set('n', '<leader>Wa', vim.lsp.buf.add_workspace_folder, opts)
   vim.keymap.set('n', '<leader>Wr', vim.lsp.buf.remove_workspace_folder, opts)
   vim.keymap.set('n', '<leader>Wl', function()
@@ -86,10 +71,6 @@ local function on_attach(client, bufnr)
   highlight LspReferenceWrite guibg=#344134 gui=none
   highlight LspReferenceRead guibg=#344134 gui=none
   ]]
-
-  -- lsp_signature
-  vim.keymap.set('i', '<c-p>', require('lsp_signature').on_InsertEnter, { silent = true })
-  vim.cmd('autocmd! Signature InsertEnter')
 end
 
 local function config()
@@ -104,29 +85,33 @@ local function config()
     }
 
     if server_name == 'sumneko_lua' then
-      local sumneko_lua_config = require('lu5je0.ext.lsp-config.sumneke-lua-config')
+      local sumneko_lua_config = require('lu5je0.ext.lspconfig.lspservers.sumneke-lua-config')
       opts.settings = sumneko_lua_config.settings
       opts.on_attach = sumneko_lua_config.on_attach(opts.on_attach)
       opts = sumneko_lua_config.wrap_opts(opts)
     elseif server_name == 'pyright' then
-      opts.on_init = require('lu5je0.ext.lsp-config.pyright-config').on_init
+      opts.on_init = require('lu5je0.ext.lspconfig.lspservers.pyright-config').on_init
     elseif server_name == 'tsserver' then
-      opts.on_init = require('lu5je0.ext.lsp-config.pyright-config').on_init
+      opts.on_init = require('lu5je0.ext.lspconfig.lspservers.pyright-config').on_init
     elseif server_name == 'tsserver' then
-      opts.on_init = require('lu5je0.ext.lsp-config.pyright-config').on_init
-      -- opts.root_dir = require('lu5je0.ext.lsp-config.tsserver').root_dir(server.document_config.default_config.root_dir);
+      opts.on_init = require('lu5je0.ext.lspconfig.lspservers.pyright-config').on_init
+      -- opts.root_dir = require('lu5je0.ext.lspconfig.lspservers.tsserver').root_dir(server.document_config.default_config.root_dir);
     elseif server_name == 'jdtls' then
-      -- opts.on_init = require('lu5je0.ext.lsp-config.pyright-config').on_init
+      -- opts.on_init = require('lu5je0.ext.lspconfig.lspservers.pyright-config').on_init
     end
 
     server.setup(opts)
   end
 
-  -- vim.cmd("LspStart")
+  vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
+    vim.lsp.handlers.signature_help, {
+    border = 'rounded',
+    close_events = { 'InsertLeave' },
+    focusable = false
+  })
 end
 
 function M.setup()
-  extensions()
   diagnostic()
   config()
 end

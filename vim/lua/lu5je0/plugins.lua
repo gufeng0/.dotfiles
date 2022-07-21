@@ -499,7 +499,7 @@ return packer.startup(function(use)
       {
         'neovim/nvim-lspconfig',
         config = function()
-          require('lu5je0.ext.lsp').setup()
+          require('lu5je0.ext.lspconfig.lsp').setup()
         end,
       },
       -- {
@@ -517,13 +517,12 @@ return packer.startup(function(use)
     }
   }
 
-  use { 'ray-x/lsp_signature.nvim' }
   use { 'max397574/lua-dev.nvim' }
   use {
     'jose-elias-alvarez/null-ls.nvim',
     config = function()
       if vim.fn.has('nvim-0.8') == 0 then
-        require('lu5je0.ext.null-ls')
+        require('lu5je0.ext.null-ls.null-ls')
       end
     end,
     defer = true,
