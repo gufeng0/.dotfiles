@@ -38,11 +38,13 @@ return packer.startup(function(use)
   use('wbthomason/packer.nvim')
 
   use{
-    'ferrine/md-img-paste.vim',
+    'shuaixiaomi/md-img-paste.vim',
     config = function ()
       vim.cmd([[
-      autocmd FileType markdown nmap <buffer><silent> <leader>p :call mdip#MarkdownClipboardImage()<CR>
-      let g:mdip_imgname = 'image' 
+      autocmd FileType markdown nmap <buffer><silent> <leader>pd :call mdip#MarkdownClipboardImage("d")<CR>
+      autocmd FileType markdown nmap <buffer><silent> <leader>pc :call mdip#MarkdownClipboardImage("c")<CR>
+      let g:mdip_imgdir = 'image'
+      " let g:mdip_imgname = 'image'
       ]])
     end
   }
