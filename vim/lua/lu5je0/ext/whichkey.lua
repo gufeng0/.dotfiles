@@ -252,10 +252,10 @@ M.setup = function()
       },
     },
     d = {
-      n = {":lua require('misc/delete').deleteNullLines()<cr>","delete null lines"},
-      l = {":lua require('misc/delete').deleteLines()<cr>","delete lines"},
-      a = {":lua require('misc/delete').deleteAll()<cr>","delete all"},
-      i = {":lua require('misc/delete').deleteImg()<cr>","delete img"}
+      n = {":lua require('lu5je0.misc.delete').deleteNullLines()<cr>","delete null lines"},
+      l = {":lua require('lu5je0.misc.delete').deleteLines()<cr>","delete lines"},
+      a = {":lua require('lu5je0.misc.delete').deleteAll()<cr>","delete all"},
+      i = {":lua require('lu5je0.misc.delete').deleteImg()<cr>","delete img"}
     },
     g = {
       name = '+git',

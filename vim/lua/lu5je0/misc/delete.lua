@@ -2,20 +2,20 @@ local M = {}
 
 function M.deleteLines()
   local source = vim.call('visual#visual_selection')
-  source = require("misc/vim_escape").escape(source)
+  source = require('lu5je0.misc.vim_escape').escape(source)
   vim.cmd(":g/" .. source  .. "/d")
 end
 
 function M.deleteAll()
   local source = vim.call('visual#visual_selection')
-  source = require("misc/vim_escape").escape(source)
+  source = require('lu5je0.misc.vim_escape').escape(source)
   local r = ":%s/" .. source .. "//g"
   vim.cmd(r)
 end
 
 function M.deleteImg()
   local source = vim.call('visual#visual_selection')
-  local text = require("misc/vim_escape").escape(source)
+  local text = require('lu5je0.misc.vim_escape').escape(source)
   local r = ":s/" .. text .. "//g"
   vim.cmd(r)
 
@@ -27,3 +27,4 @@ function M.deleteImg()
 end
 
 return M
+ 
