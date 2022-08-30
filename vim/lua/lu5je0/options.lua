@@ -1,9 +1,7 @@
 local o = vim.o
 local g = vim.g
+
 local has = function(feature)
-  if feature == 'gui' then
-    return vim.g.gonvim_running
-  end
   return vim.fn.has(feature) == 1
 end
 
