@@ -71,7 +71,7 @@ return packer.startup(function(use)
       }
     end,
   }
-  
+
   -- use {
   --   'nvim-telescope/telescope-fzf-native.nvim',
   --   run = 'make',
@@ -199,6 +199,28 @@ return packer.startup(function(use)
   }
 
   use {
+    'sgur/vim-textobj-parameter',
+    requires = {
+      {
+        'kana/vim-textobj-user'
+      },
+      opt = true
+    },
+    after = {
+      'vim-exchange',
+    },
+    setup = function()
+      vim.g.vim_textobj_parameter_mapping = 'a'
+    end,
+    keys = { { 'x', 'ia' }, { 'o', 'ia' }, { 'x', 'aa' }, { 'o', 'aa' }, { 'n', 'cxia' }, { 'n', 'cxaa' } }
+  }
+  
+  use {
+    'tommcdo/vim-exchange',
+    keys = { { 'n', 'cx' } },
+  }
+
+  use {
     'othree/eregex.vim',
     opt = true,
     keys = { '/', '?' },
@@ -211,7 +233,6 @@ return packer.startup(function(use)
 
   use {
     'numToStr/Comment.nvim',
-    defer = true,
     config = function()
       require('Comment').setup {
         opleader = {
@@ -228,16 +249,16 @@ return packer.startup(function(use)
         },
       }
     end,
+    keys = { { 'x', 'gc' }, { 'n', 'gc' } }
   }
 
   use('tpope/vim-repeat')
 
   use {
     'vim-scripts/ReplaceWithRegister',
-    keys = { 'gr' },
+    keys = { { 'x', 'gr' }, { 'n', 'gr' } },
   }
 
-  use('tommcdo/vim-exchange')
   use('lu5je0/vim-base64')
 
   -- themes
@@ -312,16 +333,6 @@ return packer.startup(function(use)
     keys = { '<c-n>', '<m-n>' },
   }
 
-  -- textobj
-  -- use('kana/vim-textobj-user')
-  -- use('michaeljsmith/vim-indent-object')
-  -- use({
-  --   'sgur/vim-textobj-parameter',
-  --   setup = function()
-  --     vim.g.vim_textobj_parameter_mapping = 'a'
-  --   end
-  -- })
-
   use {
     'lewis6991/gitsigns.nvim',
     requires = {
@@ -376,6 +387,7 @@ return packer.startup(function(use)
 
   use {
     'tpope/vim-surround',
+    keys = { { 'n', 'cs' }, { 'n', 'cS' }, { 'n', 'ys' }, { 'n', 'ds' }, { 'x', 'S' } }
   }
 
   local nvim_colorizer_ft = { 'vim', 'lua', 'css', 'conf', 'tmux' }
@@ -462,6 +474,7 @@ return packer.startup(function(use)
           saga.init_lsp_saga({
             finder_action_keys = {
               open = "<cr>",
+              quit = "<ESC>",
             },
             code_action_lightbulb = {
               enable = false,
@@ -476,6 +489,7 @@ return packer.startup(function(use)
   }
 
   use { 'max397574/lua-dev.nvim' }
+
   use {
     'jose-elias-alvarez/null-ls.nvim',
     config = function()
@@ -485,6 +499,7 @@ return packer.startup(function(use)
     end,
     defer = true,
   }
+
   use {
     'lu5je0/vim-illuminate',
     config = function()
@@ -584,5 +599,12 @@ return packer.startup(function(use)
       require('lu5je0.ext.nvim-ufo')
     end
   }
+
+  -- use {
+  --   'mhartington/formatter.nvim',
+  --   config = function()
+  --     require('lu5je0.ext.formatter')
+  --   end
+  -- }
 
 end)

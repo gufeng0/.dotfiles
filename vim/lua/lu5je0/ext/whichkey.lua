@@ -84,7 +84,6 @@ M.setup = function()
       c = { '<cmd>PackerCompile<cr>', 'compile' },
       i = { '<cmd>PackerInstall<cr>', 'install' },
       u = { '<cmd>PackerUpdate<cr>', 'update' },
-      C = { '<cmd>PackerClean<cr>', 'clean' },
       d = { '<cmd>PackerClean<cr>', 'clean' },
     },
     c = {
@@ -221,7 +220,7 @@ M.setup = function()
     nowait = true, -- use `nowait` when creating keymaps
   }
 
-  local v_mappings = {
+  local x_mappings = {
     x = {
       name = '+text',
       c = { 'g<c-g>', 'count in the selection region' },
@@ -263,8 +262,8 @@ M.setup = function()
     },
   }
 
-  local v_opts = {
-    mode = 'v', -- VISUAL mode
+  local x_opts = {
+    mode = 'x', -- VISUAL mode
     prefix = '<leader>',
     buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
     silent = true, -- use `silent` when creating keymaps
@@ -276,7 +275,7 @@ M.setup = function()
   wk.setup(setup)
 
   wk.register(n_mappings, n_opts)
-  wk.register(v_mappings, v_opts)
+  wk.register(x_mappings, x_opts)
 end
 
 return M
