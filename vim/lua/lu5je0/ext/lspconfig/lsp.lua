@@ -1,16 +1,6 @@
 local M = {}
 
-require('nvim-lsp-installer').setup {
-  ensure_installed = {}
-}
-
-local installed_server_names = (function()
-  local r = {}
-  for _, v in pairs(require('nvim-lsp-installer').get_installed_servers()) do
-    table.insert(r, v.name)
-  end
-  return r;
-end)()
+local installed_server_names = require('mason-lspconfig').get_installed_servers()
 
 local lspconfig = require("lspconfig")
 
@@ -31,7 +21,7 @@ local function diagnostic()
   end
 end
 
-local function on_attach(client, bufnr)
+M.on_attach = function(client, bufnr)
   local opts = { noremap = true, silent = true, buffer = bufnr, desc = 'lsp.lua' }
   local keymap = vim.keymap.set
 
@@ -100,7 +90,7 @@ local function config()
 
     local opts = {
       capabilities = capabilities,
-      on_attach = on_attach,
+      on_attach = M.on_attach,
     }
 
     if server_name == 'sumneko_lua' then
@@ -133,6 +123,7 @@ end
 function M.setup()
   diagnostic()
   config()
+  vim.cmd("LspStart")
 end
 
 return M
