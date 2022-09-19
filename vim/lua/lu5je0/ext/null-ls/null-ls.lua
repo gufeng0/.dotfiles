@@ -16,9 +16,9 @@ function _G.lsp_format_wrapper(fn)
       vim.api.nvim_buf_set_name(0, buf_name)
     end
   end
+
   return wrapper
 end
-
 
 -- 避免null-ls在没有文件名的时候报错
 local make_params = require('null-ls.utils').make_params
@@ -37,8 +37,9 @@ null_ls.setup {
     --   extra_args = { '--config-path', vim.fn.stdpath('config') .. '/stylua.toml' },
     -- },
     require('null-ls').builtins.formatting.autopep8,
-    require('lu5je0.ext.null-ls.sql-formatter'),
+    require('null-ls').builtins.formatting.yamlfmt,
     require("null-ls").builtins.diagnostics.markdownlint,
+    require('lu5je0.ext.null-ls.sql-formatter'),
     -- require("null-ls").builtins.code_actions.refactoring
     -- require("null-ls").builtins.diagnostics.eslint,
     -- require("null-ls").builtins.completion.spell,
