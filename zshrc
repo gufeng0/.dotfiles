@@ -80,7 +80,7 @@ bindkey "^[[6~" history-beginning-search-forward
 ##########################################
 # ENV
 ##########################################
-source ~/.dotfiles/.ohmyenv
+source ~/.ohmyenv
 export ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=""
 export PATH=~/.local/bin:~/.local/bin/solid:$PATH
 export PATH=$PATH:~/go/bin
