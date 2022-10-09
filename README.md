@@ -11,6 +11,6 @@ bash ~/.dotfiles/scripts/setup.sh
 
 todo
 
-### shortcut key
-vim/plug-config/fern.vim
+## shortcut key
 
+vim/plug-config/fern.vim
