@@ -1,7 +1,11 @@
 local M = {}
 
 local cursor_util = require('lu5je0.core.cursor')
-
+local log = function(...)
+  if vim.g.enable_formatter_log then
+    print(...)
+  end
+end
 
 M.FORMAT_TOOL_TYPE = {
   LSP = 'LSP',
@@ -15,11 +19,36 @@ M.FORMAT_TYPE = {
 
 local config = {}
 
-local get_format_priority = function(filetype)
+local function get_format_priority(filetype)
   if config.format_priority[filetype] then
     return config.format_priority[filetype]
   end
+  for k, v in pairs(config.format_priority) do
+    if type(k) == "table" then
+      for _, ft in ipairs(k) do
+        if ft == filetype then
+          return v
+        end
+      end
+    end
+  end
+  
   return { M.FORMAT_TOOL_TYPE.LSP, M.FORMAT_TOOL_TYPE.EXTERNAL }
+end
+
+local function get_external_formatter(filetype)
+  if config.external_formatter[filetype] then
+    return config.external_formatter[filetype]
+  end
+  for k, v in pairs(config.external_formatter) do
+    if type(k) == "table" then
+      for _, ft in ipairs(k) do
+        if ft == filetype then
+          return v
+        end
+      end
+    end
+  end
 end
 
 local function is_exists_lsp_format_capabilities()
@@ -45,38 +74,38 @@ local function lsp_format(format_type)
   local server_capabilities = is_exists_lsp_format_capabilities()
   if format_type == M.FORMAT_TYPE.FORMAT then
     if server_capabilities.format then
-      vim.lsp.buf.formatting({})
+      vim.lsp.buf.format { async = true }
       return true
     end
   elseif format_type == M.FORMAT_TYPE.RANGE_FORMAT then
     if server_capabilities.format then
-      ---@diagnostic disable-next-line: missing-parameter
-      vim.lsp.buf.range_formatting()
+      vim.lsp.buf.format { async = true }
       return true
     end
   end
 end
 
 local function external_format(format_type, filetype)
-  if not config.external_formatter[filetype] then
-    print('miss format config')
+  local external_formatter = get_external_formatter(filetype)
+  
+  if not external_formatter then
+    log('miss format config')
     return
   end
-  
+
   cursor_util.save_position()
-  print('external_format')
   if format_type == M.FORMAT_TYPE.FORMAT then
-    if not config.external_formatter[filetype].format then
-      print('miss external_format')
+    if not external_formatter.format then
+      log('miss external_format')
       return false
     end
-    config.external_formatter[filetype].format()
+    external_formatter.format()
   elseif format_type == M.FORMAT_TYPE.RANGE_FORMAT then
-    if not config.external_formatter[filetype].range_format then
-      print('miss range external_format')
+    if not external_formatter.range_format then
+      log('miss range external_format')
       return false
     end
-    config.external_formatter[filetype].range_format()
+    external_formatter.range_format()
   end
   cursor_util.goto_saved_position()
   return true
@@ -90,7 +119,7 @@ function M.format(format_type)
     -- lsp format
     if v == M.FORMAT_TOOL_TYPE.LSP then
       if lsp_format(format_type) then
-        print('lsp_format')
+        print('lsp format')
         return
       end
     end
@@ -113,9 +142,11 @@ local function keymapping()
       M.format(M.FORMAT_TYPE.FORMAT)
     end, opts)
 
-    vim.keymap.set('x', '<leader>cf', function()
-      M.format(M.FORMAT_TYPE.RANGE_FORMAT)
-    end, opts)
+    vim.cmd("xmap <leader>cf :lua require('lu5je0.misc.formatter.formatter').format('RANGE_FORMAT')<cr>")
+    -- 会在末尾加上一行 todo
+    -- vim.keymap.set('x', '<leader>cf', function()
+    --   M.format(M.FORMAT_TYPE.RANGE_FORMAT)
+    -- end, opts)
   end, 10)
 end
 

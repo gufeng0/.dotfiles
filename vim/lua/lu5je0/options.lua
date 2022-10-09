@@ -41,6 +41,7 @@ o.shiftwidth = 4
 o.softtabstop = 4
 o.expandtab = true
 o.autoindent = true
+-- o.cmdheight = 0
 
 -- filetype.lua
 if not has('nvim-0.8.0') then
@@ -49,19 +50,19 @@ if not has('nvim-0.8.0') then
 end
 
 -- 不显示启动界面
-o.shortmess = 'atI'
+o.shortmess = o.shortmess .. 'I'
 o.foldtext = 'misc#fold_text()'
+o.showcmd = false
 
 -- colorscheme
 o.termguicolors = true
 o.bg = 'dark'
-vim.cmd [[
-colorscheme edge
-
-" " StatusLine 左边
-hi! StatusLine guibg=#373943
-hi! StatusLineNC guibg=#373943
-]]
+vim.cmd.colorscheme('edge')
+vim.api.nvim_set_hl(0, "StatusLine", { fg = '#c5cdd9', bg = '#1d2024' })
+-- StatusLine 左边
+-- vim.api.nvim_set_hl(0, "StatusLine", { fg = '#373943' })
+-- vim.api.nvim_set_hl(0, "StatusLineNC", { fg = '#373943' })
+o.statusline = " "
 
 local default_plugins = {
   "2html_plugin",
@@ -108,7 +109,7 @@ if has('mac') then
 end
 
 if has('gui') then
-  vim.o.guifontwide ='Microsoft YaHei UI'
+  vim.o.guifontwide = 'Microsoft YaHei UI'
 end
 
 local defer_options = {
@@ -124,3 +125,6 @@ local defer_options = {
 for delay, fn in ipairs(defer_options) do
   vim.defer_fn(fn, 2 * delay)
 end
+vim.g.ts_highlight_c = true
+vim.g.ts_highlight_vim = true
+vim.g.ts_highlight_lua = true

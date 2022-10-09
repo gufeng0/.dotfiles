@@ -15,9 +15,10 @@ require('lu5je0.misc.base64').setup()
 
 -- formatter
 local formatter = require('lu5je0.misc.formatter.formatter')
-formatter.setup({
+formatter.setup {
   format_priority = {
     json = { formatter.FORMAT_TOOL_TYPE.LSP, formatter.FORMAT_TOOL_TYPE.EXTERNAL },
+    [{ 'bash', 'sh' }] = { formatter.FORMAT_TOOL_TYPE.EXTERNAL, formatter.FORMAT_TOOL_TYPE.LSP },
   },
   external_formatter = {
     json = {
@@ -26,6 +27,22 @@ formatter.setup({
       end,
       range_format = function()
       end,
+    },
+    [{ 'bash', 'sh' }] = {
+      format = function()
+        vim.cmd(':%!shfmt -i ' .. vim.bo.shiftwidth)
+      end,
+      range_format = function()
+      end,
     }
   }
-})
+}
+
+-- var-naming-converter
+require('lu5je0.misc.var-naming-converter').key_mapping()
+
+-- code-runner
+require('lu5je0.misc.code-runner').key_mapping()
+
+-- quit-prompt
+require('lu5je0.misc.quit-prompt').setup()

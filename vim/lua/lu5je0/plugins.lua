@@ -45,9 +45,6 @@ return packer.startup(function(use)
     origin_use(...)
   end
 
-  -- Speed up loading Lua modules in Neovim to improve startup time.
-  use('lewis6991/impatient.nvim')
-
   -- Packer can manage itself
   use('wbthomason/packer.nvim')
 
@@ -67,7 +64,7 @@ return packer.startup(function(use)
 
   use {
     'MunifTanjim/nui.nvim',
-    commit = '042cceb497cc4cfa3ae735a5e7bc01b4b6f19ef1'
+    -- commit = '042cceb497cc4cfa3ae735a5e7bc01b4b6f19ef1'
   }
 
   use {
@@ -87,7 +84,7 @@ return packer.startup(function(use)
   }
 
   use {
-    'lu5je0/LeaderF',
+    'Yggdroot/LeaderF',
     run = './install.sh',
     defer = true,
     -- cmd = {'Leaderf', 'Git'},
@@ -239,8 +236,6 @@ return packer.startup(function(use)
 
   -- themes
   batch_use {
-    'sainnhe/sonokai',
-    'sainnhe/gruvbox-material',
     {
       'sainnhe/edge',
       on_compile = function()
@@ -251,17 +246,26 @@ return packer.startup(function(use)
       config = function()
         vim.g.edge_loaded_file_types = { 'NvimTree' }
         vim.cmd [[
-      hi! Folded guifg=#282c34 guibg=#5c6370
-      hi MatchParen guifg=#ffef28
-      ]]
+        hi! Folded guifg=#282c34 guibg=#5c6370
+        hi MatchParen guifg=#ffef28
+        ]]
       end
     },
     -- {
-    --   'Mofiqul/vscode.nvim',
+    --   "catppuccin/nvim",
+    --   as = "catppuccin",
     --   config = function()
-    --     vim.g.vscode_style = "dark"
+    --     vim.g.catppuccin_flavour = "macchiato" -- latte, frappe, macchiato, mocha
+    --     require("catppuccin").setup()
     --   end
     -- }
+  }
+
+  -- syntax
+  batch_use {
+    {
+      'aklt/plantuml-syntax',
+    },
   }
 
   use {
@@ -380,9 +384,15 @@ return packer.startup(function(use)
 
   local nvim_colorizer_ft = { 'vim', 'lua', 'css', 'conf', 'tmux' }
   use {
-    'norcalli/nvim-colorizer.lua',
+    'NvChad/nvim-colorizer.lua',
     config = function()
-      require('colorizer').setup(nvim_colorizer_ft, { names = false })
+      require('colorizer').setup {
+        filetypes = nvim_colorizer_ft,
+        user_default_options = {
+          names = false,
+          mode = "virtualtext"
+        }
+      }
     end,
     ft = nvim_colorizer_ft,
   }
@@ -422,13 +432,10 @@ return packer.startup(function(use)
   }
 
   -- treesitter
+  _G.__ts_filetypes = { 'json', 'python', 'java', 'bash', 'go',
+    'rust', 'toml', 'yaml', 'markdown', 'bash', 'http', 'typescript', 'javascript', 'sql',
+    'html', 'json5', 'jsonc', 'regex', 'vue', 'css', 'dockerfile' }
   batch_use {
-    function()
-      -- stylua: ignore
-      _G.__ts_filtypes = { 'json', 'python', 'java', 'lua', 'c', 'vim', 'bash', 'go',
-        'rust', 'toml', 'yaml', 'markdown', 'bash', 'http', 'typescript', 'javascript', 'sql',
-        'html', 'json5', 'jsonc', 'regex', 'vue', 'css', 'dockerfile' }
-    end,
     {
       'nvim-treesitter/nvim-treesitter',
       run = ':TSUpdate',
@@ -436,13 +443,19 @@ return packer.startup(function(use)
       config = function()
         require('lu5je0.ext.treesiter')
       end,
-      ft = _G.__ts_filtypes,
+      ft = (function()
+        local t = vim.tbl_values(_G.__ts_filetypes)
+        table.insert(t, 'lua')
+        table.insert(t, 'lua')
+        table.insert(t, 'c')
+        return t
+      end)(),
       requires = {
         {
           'm-demare/hlargs.nvim',
           config = function()
             require('hlargs').setup()
-          end
+          end,
         },
         -- {
         --   'nvim-treesitter/playground',
@@ -481,6 +494,7 @@ return packer.startup(function(use)
       after = {
         'mason-lspconfig.nvim',
         'lua-dev.nvim',
+        'nvim-cmp',
       },
       defer = true,
       config = function()
@@ -491,7 +505,7 @@ return packer.startup(function(use)
           "lu5je0/lspsaga.nvim",
           branch = "main",
           config = function()
-            require('lu5je0.ext.lspsaga')
+            require('lu5je0.ext.lspconfig.lspsaga')
           end,
           opt = true,
         }
@@ -503,7 +517,7 @@ return packer.startup(function(use)
         require('lu5je0.ext.cmp')
       end,
       defer = true,
-      after = { 'nvim-lspconfig', 'nvim-autopairs' },
+      after = { 'nvim-autopairs' },
       requires = {
         'hrsh7th/cmp-nvim-lsp',
         'hrsh7th/cmp-buffer',
@@ -531,17 +545,7 @@ return packer.startup(function(use)
       'lu5je0/vim-illuminate',
       after = 'nvim-lspconfig',
       config = function()
-        vim.g.Illuminate_delay = 0
-        vim.cmd([[
-      hi! illuminatedWord ctermbg=green guibg=#344134
-      ]] )
-        vim.defer_fn(function()
-          vim.cmd([[
-        augroup illuminated_autocmd
-          autocmd!
-        augroup END
-        ]] )
-        end, 0)
+        require('lu5je0.ext.lspconfig.illuminate')
       end,
     },
   }
@@ -634,11 +638,41 @@ return packer.startup(function(use)
     { 'kevinhwang91/promise-async' },
     {
       'kevinhwang91/nvim-ufo',
-      defer = true,
+      after = 'nvim-treesitter',
       config = function()
         require('lu5je0.ext.nvim-ufo')
       end,
     }
+  }
+
+  use {
+    'AckslD/messages.nvim',
+    config = function()
+      require("messages").setup {
+        post_open_float = function(_)
+          vim.cmd [[
+          au! BufLeave * ++once lua vim.cmd(":q")
+          set number
+          ]]
+          vim.fn.cursor { 99999, 0 }
+        end
+      }
+    end,
+    cmd = 'Messages',
+  }
+
+  use {
+    "smjonas/live-command.nvim",
+    -- live-command supports semantic versioning via tags
+    -- tag = "1.*",
+    config = function()
+      require("live-command").setup {
+        commands = {
+          Norm = { cmd = "norm" },
+        },
+      }
+    end,
+    event = "CmdlineEnter",
   }
 
   -- use {

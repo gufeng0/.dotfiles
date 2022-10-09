@@ -105,9 +105,13 @@ local function comfirm(fallback)
 end
 
 cmp.setup {
-  -- window = {
-  --   documentation = cmp.config.disable
-  -- },
+  window = {
+    -- documentation = cmp.config.disable,
+    documentation = {
+      max_width = 40,
+      max_height = 25,
+    },
+  },
   snippet = {
     expand = function(args)
       vim.fn['vsnip#anonymous'](args.body) -- For `vsnip` users.
@@ -123,8 +127,8 @@ cmp.setup {
     -- ghost_text = true
   },
   mapping = {
-    ['<c-u>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
-    ['<c-d>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
+    ['<c-u>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i' --[[ , 'c' ]] }),
+    ['<c-d>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i' --[[ , 'c' ]] }),
     ['<c-n>'] = cmp.mapping(function()
       if cmp.visible() then
         cmp.mapping.abort()()
@@ -132,7 +136,7 @@ cmp.setup {
         ---@diagnostic disable-next-line: missing-parameter
         cmp.mapping.complete()()
       end
-    end, { 'i', 'c' }),
+    end, { 'i', --[[ 'c' ]] }),
     ['<down>'] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Select },
     ['<up>'] = cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Select },
     ['<cr>'] = cmp.mapping(comfirm, { 'i' }),
@@ -162,7 +166,7 @@ cmp.setup {
     -- end,
     format = function(entry, vim_item)
       local ELLIPSIS_CHAR = '…'
-      local MAX_LABEL_WIDTH = 37
+      local MAX_LABEL_WIDTH = 34
       local MIN_LABEL_WIDTH = 0
       local label = vim_item.abbr
       local truncated_label = vim.fn.strcharpart(label, 0, MAX_LABEL_WIDTH)

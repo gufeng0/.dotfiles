@@ -1,7 +1,3 @@
-if not pcall(require, 'impatient') then
-  vim.notify('Failed to enable impatient')
-end
-
 local core_modules = {
   'lu5je0.lang.enhance',
   'lu5je0.plugins',
@@ -21,10 +17,7 @@ for _, module in ipairs(core_modules) do
   end
 end
 
-vim.cmd [[
-runtime functions.vim
-runtime mappings.vim
-]]
+vim.cmd('runtime functions.vim')
 
 local i = 1
 local function defer_loads()

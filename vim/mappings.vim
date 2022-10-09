@@ -162,7 +162,6 @@ xnoremap * m`:keepjumps <C-u>call visual#star_search_set('/')<CR>/<C-R>=@/<CR><C
 nnoremap v m'v
 nnoremap V m'V
 
-nnoremap m<space> i&#8195;&#8195;<esc>l
 "----------------------------------------------------------------------
 " leader
 "----------------------------------------------------------------------
