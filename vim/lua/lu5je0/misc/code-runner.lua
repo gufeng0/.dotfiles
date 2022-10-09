@@ -29,6 +29,17 @@ local function special()
   return false
 end
 
+M.run_curl = function()
+  local filetype = vim.bo.filetype
+
+  if vim.bo.modified then
+    vim.cmd('w')
+    print('save')
+  end
+
+  execute_in_terminal('source ~/work_proxy',build_cmd_with_file('sh') .. ';unset http_proxy;unset https_proxy')
+end
+
 M.run_file = function()
   local filetype = vim.bo.filetype
 

@@ -187,6 +187,7 @@ M.setup = function()
       name = '+run',
       r = 'run',
       d = 'debug',
+      s = {":lua require('lu5je0.misc.code-runner').run_curl()<cr>","curl"}
     },
     g = {
       name = '+git',
