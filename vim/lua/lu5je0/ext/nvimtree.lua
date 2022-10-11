@@ -258,8 +258,6 @@ function M.setup()
     require('nvim-tree').toggle(false, true)
   end, opts)
   vim.keymap.set('n', '<leader>fe', require('lu5je0.ext.nvimtree').locate_file, opts)
-  vim.api.nvim_set_keymap('n', '<leader>fp', ':cd ~/.local/share/nvim/site/pack/packer<cr>', opts)
-  vim.api.nvim_set_keymap('n', '<leader>fd', ':cd ~/.dotfiles<cr>', opts)
 
   local view = require('nvim-tree.view')
   view.View.winopts.signcolumn = 'no'
@@ -325,7 +323,7 @@ function M.setup()
     update_cwd = true,
     filesystem_watchers = {
       enable = true,
-      debounce_delay = 100,
+      debounce_delay = 1000,
     },
     diagnostics = {
       enable = false,
@@ -350,7 +348,7 @@ function M.setup()
         window_picker = {
           exclude = {
             filetype = { 'notify', 'packer', 'qf', 'confirm', 'popup' },
-            buftype = { 'terminal', 'nowrite' },
+            buftype = { 'terminal', 'nowrite', 'nofile' },
           }
         }
       }
