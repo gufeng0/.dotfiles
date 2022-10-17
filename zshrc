@@ -79,6 +79,10 @@ bindkey "^[[6~" history-beginning-search-forward
 ##########################################
 # ENV
 ##########################################
+if [[ ! -f ~/.ohmyenv ]]; then
+  touch ~/.ohmyenv
+  echo "HTTP_PROXY_PORT=1081\nSOCKS5_PROXY_PORT=1080" >~/.ohmyenv
+fi
 source ~/.ohmyenv
 export ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=""
 export PATH=~/.local/bin:~/.local/bin/solid:$PATH
