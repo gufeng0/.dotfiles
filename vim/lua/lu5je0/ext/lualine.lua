@@ -102,8 +102,8 @@ local config = {
 }
 
 local function component_init(component)
-  if component.should_inc then
-    if not component.should_inc then
+  if component.should_insert then
+    if not component.should_insert then
       return false;
     end
   end
@@ -174,15 +174,29 @@ ins_left {
 
 ins_left {
   function()
+    return ''
+  end,
+  cond = function() return vim.bo.filetype == '' end,
+  inactive = true,
+  color = { fg = colors.white, gui = 'bold' },
+  padding = { left = 1, right = 0 },
+}
+
+ins_left {
+  function()
     local max_len = 20
     local filename = expand('%:t')
-    if #filename > max_len then
+    local filename_len = #filename
+    if filename_len > max_len then
       local suffix = filename:match('.+%.(%w+)$')
       filename = vim.fn.strcharpart(filename, 0, max_len - 6) .. '…'
       if suffix ~= nil then
         filename = filename .. '.' .. suffix
       end
+    elseif filename_len == 0 then
+      return '[Untitled]'
     end
+    
     return filename
   end,
   inactive = true,
@@ -191,51 +205,40 @@ ins_left {
 }
 
 ins_left {
+  -- filesize component
   function()
-    -- return [[ %2p%% %l:%c ]]
-    return [[ %l:%c]]
-  end,
-  padding = { left = 1, right = 0 },
-  color = { fg = colors.violet },
-}
-
-local gps_ft_white_list = { 'json' }
-ins_left {
-  function()
-    return require('nvim-gps').get_location()
-  end,
-  inactive = true,
-  should_inc = function()
-    local ok = pcall(require, 'nvim-gps')
-    return ok
+    if not vim.b.filesize then
+      vim.b.filesize = vim.fn['FileSize']()
+    end
+    return vim.b.filesize
   end,
   cond = function()
-    return table.contain(gps_ft_white_list, vim.bo.filetype) and require('nvim-gps').is_available()
+    return vim.b.filesize ~= '0B' and conditions.hide_in_width()
+  end,
+  setup = function()
+    vim.api.nvim_create_autocmd('BufWritePost', {
+      group = require('lu5je0.autocmds').default_group,
+      pattern = '*',
+      callback = function()
+        vim.b.filesize = nil
+      end,
+    })
+  end,
+  color = { fg = colors.violet },
+  padding = { left = 1, right = 0 },
+}
+
+
+ins_left {
+  function()
+    return require('lu5je0.misc.gps-path').path()
+  end,
+  inactive = true,
+  cond = function()
+    return require('lu5je0.misc.gps-path').is_available() and conditions.hide_in_width()
   end,
   color = { fg = colors.white },
   padding = { left = 1, right = 0 },
-}
-
-ins_right {
-  'diagnostics',
-  -- table of diagnostic sources, available sources:
-  -- 'nvim_lsp', 'nvim_diagnostic', 'coc', 'ale', 'vim_lsp'
-  -- Or a function that returns a table like
-  --   {error=error_cnt, warn=warn_cnt, info=info_cnt, hint=hint_cnt}
-  sources = { 'nvim_diagnostic' },
-  -- displays diagnostics from defined severity
-  sections = { 'error', 'warn', 'info', 'hint' },
-  symbols = { error = ' ', warn = ' ', info = ' ' },
-  diagnostics_color = {
-    -- Same values like general color option can be used here.
-    error = { fg = colors.red },
-    warn = { fg = colors.yellow },
-    info = { fg = colors.fg },
-    hint = { fg = colors.white },
-  },
-  colored = true, -- displays diagnostics status in color if set to true
-  update_in_insert = false, -- Update diagnostics in insert mode
-  padding = { left = 0, right = 1 },
 }
 
 -- local function percentage_icon(per)
@@ -295,26 +298,33 @@ ins_right {
 -- }
 
 ins_right {
-  -- filesize component
   function()
-    if not vim.b.filesize then
-      vim.b.filesize = vim.fn['FileSize']()
-    end
-    return vim.b.filesize
+    -- return [[ %2p%% %l:%c ]]
+    return [[%l:%c ]]
   end,
-  cond = function()
-    return vim.b.filesize ~= '0B' and conditions.hide_in_width()
-  end,
-  setup = function()
-    vim.api.nvim_create_autocmd('BufWritePost', {
-      group = require('lu5je0.autocmds').default_group,
-      pattern = '*',
-      callback = function()
-        vim.b.filesize = nil
-      end,
-    })
-  end,
-  color = { fg = colors.white },
+  padding = { left = 0, right = 1 },
+  color = { fg = colors.grey },
+}
+
+ins_right {
+  'diagnostics',
+  -- table of diagnostic sources, available sources:
+  -- 'nvim_lsp', 'nvim_diagnostic', 'coc', 'ale', 'vim_lsp'
+  -- Or a function that returns a table like
+  --   {error=error_cnt, warn=warn_cnt, info=info_cnt, hint=hint_cnt}
+  sources = { 'nvim_diagnostic' },
+  -- displays diagnostics from defined severity
+  sections = { 'error', 'warn', 'info', 'hint' },
+  symbols = { error = ' ', warn = ' ', info = ' ' },
+  diagnostics_color = {
+    -- Same values like general color option can be used here.
+    error = { fg = colors.red },
+    warn = { fg = colors.yellow },
+    info = { fg = colors.fg },
+    hint = { fg = colors.white },
+  },
+  colored = true, -- displays diagnostics status in color if set to true
+  update_in_insert = false, -- Update diagnostics in insert mode
   padding = { left = 0, right = 1 },
 }
 

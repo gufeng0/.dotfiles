@@ -8,11 +8,21 @@ M.format = function()
   vim.cmd(':%!jq')
 end
 
+M.path_copy = function()
+  local path = require('jsonpath').get()
+  vim.cmd(string.format('let @*=\'%s\'', path))
+  print(path)
+end
+
 M.jq = function(args)
   vim.cmd(string.format(':%%!jq \'%s\'', args))
 end
 
-local function process_json_keys(complete_text)
+M.extract = function()
+  vim.cmd(string.format(':%%!jq \'%s\'', require('jsonpath').get()))
+end
+
+local function process_json_keys()
   local jq_result = ''
   if not vim.b.__jq_result or vim.bo.modified then
     local json_string = table.concat(vim.api.nvim_buf_get_text(0, 0, 0, -1, -1, {}), '\n')
@@ -56,7 +66,7 @@ local function jq_complete(text)
   end
 
   -- get json keys
-  local json_keys = process_json_keys(text)
+  local json_keys = process_json_keys()
 
   -- match
   local words = {}
@@ -71,6 +81,14 @@ end
 M.setup = function()
   vim.api.nvim_create_user_command('JsonCompress', function()
     M.compress()
+  end, { force = true })
+  
+  vim.api.nvim_create_user_command('JsonExtract', function()
+    M.extract()
+  end, { force = true })
+  
+  vim.api.nvim_create_user_command('JsonPathCopy', function()
+    M.path_copy()
   end, { force = true })
 
   vim.api.nvim_create_user_command('JsonFormat', function()

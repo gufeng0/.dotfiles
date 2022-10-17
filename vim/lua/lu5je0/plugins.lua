@@ -1,4 +1,6 @@
 local install_path = vim.fn.stdpath('data') .. '/site/pack/packer/start/packer.nvim'
+
+---@diagnostic disable-next-line: missing-parameter
 if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
   vim.cmd('term git clone --depth 1 https://github.com/wbthomason/packer.nvim ' .. install_path)
 end
@@ -444,6 +446,7 @@ return packer.startup(function(use)
         --   'nvim-treesitter/playground',
         --   run = 'TSInstall query'
         -- },
+        { 'phelipetls/jsonpath.nvim' },
         {
           'SmiteshP/nvim-gps',
           config = function()
@@ -460,7 +463,7 @@ return packer.startup(function(use)
       cmd = { 'AerialToggle' }
     }
   }
-  
+
   use {
     'williamboman/mason.nvim',
     defer = true,
@@ -476,7 +479,6 @@ return packer.startup(function(use)
     end,
     defer = true,
     requires = {
-      'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-buffer',
       'hrsh7th/cmp-path',
       {
@@ -498,12 +500,13 @@ return packer.startup(function(use)
       require('lu5je0.ext.nvim-autopairs');
     end,
   }
-  
+
   -- lsp
   batch_use {
     {
       'williamboman/mason-lspconfig.nvim',
       after = 'mason.nvim',
+      defer = true,
       config = function()
         require('mason-lspconfig').setup {
           ensure_installed = {}
@@ -511,11 +514,13 @@ return packer.startup(function(use)
       end,
     },
     {
+      'hrsh7th/cmp-nvim-lsp',
+    },
+    {
       'neovim/nvim-lspconfig',
       after = {
         'mason-lspconfig.nvim',
         'lua-dev.nvim',
-        'nvim-cmp',
       },
       defer = true,
       config = function()
@@ -550,7 +555,7 @@ return packer.startup(function(use)
       end,
     },
   }
-  
+
   -- use {
   --   'neoclide/coc.nvim',
   --   branch = 'release',
