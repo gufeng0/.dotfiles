@@ -20,21 +20,21 @@ class HostType:
     @staticmethod
     def get_host(host_type):
         if host_type == HostType.PRIVATE:
-            return 'http://{}:20404/'.format(socket.gethostbyname('sh.665665.xyz'))
+            return 'http://{}:20404/'.format('in.tcyun')
         elif host_type == HostType.TRANSFER:
             return 'https://transfer.sh/'
 
 
-class Cache:
-    def __init__(self):
-        self.token = None
-
-    def get_token(self):
-        if self.token == None:
-            self.token = os.getenv('TRANSFER_PRIVATE_TOKEN')
-            if self.token == None:
-                self.token = getpass.getpass('token: ')
-        return self.token
+# class Cache:
+#     def __init__(self):
+#         self.token = None
+#
+#     def get_token(self):
+#         if self.token == None:
+#             self.token = os.getenv('TRANSFER_PRIVATE_TOKEN')
+#             if self.token == None:
+#                 self.token = getpass.getpass('token: ')
+#         return self.token
 
 
 class FileHelper:
@@ -55,8 +55,8 @@ class FileHelper:
 
 class Uploader:
 
-    def __init__(self):
-        self.cache = Cache()
+    # def __init__(self):
+    #     self.cache = Cache()
 
     def upload(self, host_type, file_path):
         put = self.put(host_type)
@@ -76,10 +76,10 @@ class Uploader:
 
     def put(self, host_type):
         if host_type == HostType.PRIVATE:
-            token = self.cache.get_token()
+            # token = self.cache.get_token()
 
             def func(filename, data=None):
-                return requests.put(HostType.get_host(host_type) + filename, data=data, auth=HTTPBasicAuth(token, token))
+                return requests.put(HostType.get_host(host_type) + filename, data=data )# , auth=HTTPBasicAuth(token, token))
             return func
         else:
             def func(filename, data=None):
