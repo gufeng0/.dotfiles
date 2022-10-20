@@ -208,7 +208,7 @@ ins_left {
   -- filesize component
   function()
     if not vim.b.filesize then
-      vim.b.filesize = vim.fn['FileSize']()
+      vim.b.filesize = require('lua.lu5je0.core.file').hunman_readable_file_size(vim.fn.expand('%'))
     end
     return vim.b.filesize
   end,
@@ -228,6 +228,16 @@ ins_left {
   padding = { left = 1, right = 0 },
 }
 
+-- vim-visual-multi
+ins_left {
+  function()
+    local vm_infos = vim.fn.VMInfos()
+    return ('%s [%s/%s]'):format(require('lu5je0.ext.vim-visual-multi').mode(), vm_infos['current'], vm_infos['total'])
+  end,
+  cond = function() return vim.fn.exists('b:VM_Selection') == 1 and vim.api.nvim_eval('empty(b:VM_Selection)') == 0 end,
+  color = { fg = colors.white, gui = 'bold' },
+  padding = { left = 1, right = 0 },
+}
 
 ins_left {
   function()

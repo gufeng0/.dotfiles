@@ -69,6 +69,46 @@ return packer.startup(function(use)
     -- commit = '042cceb497cc4cfa3ae735a5e7bc01b4b6f19ef1'
   }
 
+  -- git
+  batch_use {
+    {
+      'lewis6991/gitsigns.nvim',
+      config = function()
+        require('lu5je0.ext.gitsigns').setup()
+      end,
+      defer = true
+    },
+    {
+      'rbong/vim-flog',
+      cmd = { 'Flogsplit', 'Floggit', 'Flog' },
+      opt = true,
+      requires = {
+        {
+          'tpope/vim-fugitive',
+          opt = true,
+          cmd = { 'Git', 'Gvdiffsplit', 'Gstatus', 'Gclog', 'Gread', 'help', 'translator' },
+          fn = { 'fugitive#repo' },
+        },
+      },
+      config = function()
+        vim.cmd [[
+        augroup flog
+          autocmd FileType floggraph nmap <buffer> <leader>q ZZ
+        augroup END
+        ]]
+      end
+    },
+    {
+      'mattn/vim-gist',
+      config = function()
+        vim.cmd("let github_user = 'lu5je0@gmail.com'")
+        vim.cmd('let g:gist_show_privates = 1')
+        vim.cmd('let g:gist_post_private = 1')
+      end,
+      requires = { 'mattn/webapi-vim' },
+    }
+  }
+
   use {
     'kyazdani42/nvim-web-devicons',
     config = function()
@@ -309,47 +349,18 @@ return packer.startup(function(use)
   use {
     'mg979/vim-visual-multi',
     opt = true,
-    setup = function()
-      vim.cmd [[autocmd User visual_multi_mappings nmap <buffer> p "+<Plug>(VM-p-Paste)]]
+    setup = function ()
       vim.g.VM_maps = {
         ['Select Cursor Down'] = '<m-n>',
         ['Remove Region'] = '<c-p>',
-        ['Skip Region'] = '<c-x>'
+        ['Skip Region'] = '<c-x>',
+        ['VM-Switch-Mode'] = 'v',
       }
     end,
+    config = function()
+      require('lu5je0.ext.vim-visual-multi').setup()
+    end,
     keys = { '<c-n>', '<m-n>' },
-  }
-
-  -- git
-  batch_use {
-    {
-      'lewis6991/gitsigns.nvim',
-      config = function()
-        require('lu5je0.ext.gitsigns').setup()
-      end,
-      event = 'BufRead',
-    },
-    {
-      'tpope/vim-fugitive',
-      opt = true,
-      cmd = { 'Git', 'Gvdiffsplit', 'Gstatus', 'Gclog', 'Gread', 'help', 'translator' },
-      fn = { 'fugitive#repo' },
-    },
-    {
-      'rbong/vim-flog',
-      cmd = 'Flogsplit',
-      opt = true,
-      requires = { { 'tpope/vim-fugitive' } },
-    },
-    {
-      'mattn/vim-gist',
-      config = function()
-        vim.cmd("let github_user = 'lu5je0@gmail.com'")
-        vim.cmd('let g:gist_show_privates = 1')
-        vim.cmd('let g:gist_post_private = 1')
-      end,
-      requires = { 'mattn/webapi-vim' },
-    }
   }
 
   use {
@@ -471,7 +482,7 @@ return packer.startup(function(use)
       require("mason").setup()
     end
   }
-  
+
   use {
     'hrsh7th/nvim-cmp',
     config = function()
@@ -490,7 +501,7 @@ return packer.startup(function(use)
       'hrsh7th/cmp-vsnip',
     },
   }
-  
+
   use {
     'windwp/nvim-autopairs',
     after = { 'nvim-cmp' },
@@ -680,12 +691,5 @@ return packer.startup(function(use)
     end,
     event = "CmdlineEnter",
   }
-
-  -- use {
-  --   'mhartington/formatter.nvim',
-  --   config = function()
-  --     require('lu5je0.ext.formatter')
-  --   end
-  -- }
 
 end)
