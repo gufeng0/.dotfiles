@@ -349,7 +349,7 @@ return packer.startup(function(use)
   use {
     'mg979/vim-visual-multi',
     opt = true,
-    setup = function ()
+    setup = function()
       vim.g.VM_maps = {
         ['Select Cursor Down'] = '<m-n>',
         ['Remove Region'] = '<c-p>',
