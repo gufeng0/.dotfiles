@@ -7,6 +7,7 @@ import sys
 import requests
 import getpass
 import socket
+import qrcode
 from requests.auth import HTTPBasicAuth
 
 from tqdm import tqdm
@@ -55,10 +56,17 @@ class FileHelper:
 
 class Uploader:
 
-    # def __init__(self):
-    #     self.cache = Cache()
+    def __init__(self):
+        self.cache = Cache()
+        
+    @staticmethod
+    def print_qr_code_ascii(url):
+        qr = qrcode.QRCode(version=1, box_size=20, border=1)
+        qr.add_data(url)
+        qr.make(fit=True)
+        qr.print_ascii()
 
-    def upload(self, host_type, file_path):
+    def upload(self, host_type, file_path, qrcode):
         put = self.put(host_type)
 
         filename = os.path.basename(file_path)
@@ -72,7 +80,8 @@ class Uploader:
         print('Delete command: curl --request DELETE', resp.headers['X-Url-Delete'])
         print('Delete token:', re.findall('/([^/]*?)$', resp.headers['X-Url-Delete'])[0])
         print('Download link:', resp.text)
-        print()
+        if qrcode:
+            self.print_qr_code_ascii(resp.text)
 
     def put(self, host_type):
         if host_type == HostType.PRIVATE:
@@ -104,6 +113,8 @@ class Uploader:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--private', '-p', help='private', action='store_true')
+    parser.add_argument('--yes', '-y', help='yes', action='store_true')
+    parser.add_argument('--qrcode', '-q', help='qr-code', action='store_true')
     parser.add_argument('files', metavar='file', type=str,
                         nargs='*', help='files', default=[])
 
@@ -122,14 +133,15 @@ def main():
 
     CRED = '\033[91m'
     CEND = '\033[0m'
-    is_upload = input(
-        CRED + 'Do you really want to upload the above files to {}? (y/n): '.format(HostType.get_host(host_type)) + CEND)
-    if is_upload != 'Y' and is_upload != 'y' and is_upload != '':
-        return
+    if not args.yes:
+        is_upload = input(
+            CRED + 'Do you really want to upload the above files to {}? (y/n): '.format(HostType.get_host(host_type)) + CEND)
+        if is_upload != 'Y' and is_upload != 'y' and is_upload != '':
+            return
 
     uploader = Uploader()
     for f in args.files:
-        uploader.upload(host_type, f)
+        uploader.upload(host_type, f, args.qrcode)
 
 
 if __name__ == "__main__":
