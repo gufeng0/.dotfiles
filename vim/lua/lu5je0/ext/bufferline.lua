@@ -49,20 +49,26 @@ bl.setup {
       },
       {
         filetype = 'fern',
-        text = 'File Explorer',
+        text = 'Fern',
         highlight = 'NvimTreeNormal',
         text_align = 'center',
       },
       {
+        filetype = 'neo-tree',
+        text = 'NeoTree',
+        highlight = 'Normal',
+        text_align = 'center',
+      },
+      {
         filetype = 'NvimTree',
-        text = 'File Explorer',
+        text = 'NvimTree',
         highlight = 'NvimTreeNormal',
         text_align = 'center',
         -- padding = 1
       },
       {
         filetype = 'vista',
-        text = 'vista',
+        text = 'Vista',
         highlight = 'Directory',
         text_align = 'center',
       },
