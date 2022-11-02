@@ -391,7 +391,13 @@ return packer.startup(function(use)
   }
 
   use {
-    'tpope/vim-surround',
+    "kylechui/nvim-surround",
+    tag = "*", -- Use for stability; omit to use `main` branch for the latest features
+    config = function()
+      require("nvim-surround").setup {
+        move_cursor = false
+      }
+    end,
     keys = { { 'n', 'cs' }, { 'n', 'cS' }, { 'n', 'ys' }, { 'n', 'ds' }, { 'x', 'S' } }
   }
 
@@ -647,7 +653,7 @@ return packer.startup(function(use)
       cmd = 'Dirbuf'
     }
   }
-  
+
   use {
     'folke/which-key.nvim',
     config = function()
