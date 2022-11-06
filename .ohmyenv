@@ -1,4 +1,4 @@
-export HTTP_PROXY_PORT='1081'
+export HTTP_PROXY_PORT='1080'
 export SOCKS5_PROXY_PORT='1080'
 
 if [ "$(uname)" = "Darwin" ]; then
