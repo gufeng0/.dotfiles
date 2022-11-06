@@ -1,30 +1,27 @@
+USER_HTTP_PROXY=${USER_HTTP_PROXY:-'http://127.0.0.1:1080'}
+USER_SOCKS_PROXY=${USER_SOCKS_PROXY:-'socks5://127.0.0.1:1080'}
+
 proxy() {
-  if [[ $(uname -r) == *WSL2* ]]; then
-    # export HOST_IP=$(cat /etc/resolv.conf | grep nameserver | awk '{ print $2 }')
-    # export HOST_IP=$(cat /mnt/wsl/resolv.conf | grep nameserver | awk '{ print $2 }')
-    export HOST_IP='p775.local'
-  fi
+  export http_proxy=$USER_HTTP_PROXY
+  export HTTP_PROXY=$USER_HTTP_PROXY
+  export https_proxy=$USER_HTTP_PROXY
+  export HTTPS_PROXY=$USER_HTTP_PROXY
+}
 
-  export http_proxy="http://${HOST_IP:-127.0.0.1}:${HTTP_PROXY_PORT:-1080}"
-  export HTTP_PROXY="http://${HOST_IP:-127.0.0.1}:${HTTP_PROXY_PORT:-1080}"
-
-  export https_proxy="http://${HOST_IP:-127.0.0.1}:${HTTP_PROXY_PORT:-1080}"
-  export HTTPS_PROXY="http://${HOST_IP:-127.0.0.1}:${HTTP_PROXY_PORT:-1080}"
+unproxy() {
+  unset http_proxy
+  unset HTTP_PROXY
+  unset https_proxy
+  unset HTTPS_PROXY
 }
 
 git_ssh_proxy() {
-  if [[ $(uname -r) == *WSL2* ]]; then
-    # export HOST_IP=$(cat /etc/resolv.conf | grep nameserver | awk '{ print $2 }')
-    # export HOST_IP=$(cat /mnt/wsl/resolv.conf | grep nameserver | awk '{ print $2 }')
-    export HOST_IP='p775.local'
-  fi
-
   if [ "$(uname)" = "Darwin" ]; then
     gsed -i "s/# ProxyCommand/ProxyCommand/" ~/.ssh/config
-    gsed -i -E "s/ProxyCommand nc -v -x [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+/ProxyCommand nc -v -x ${HOST_IP:-127.0.0.1}:${SOCKS5_PROXY_PORT:-1080}/" ~/.ssh/config
+    gsed -i -E "s/ProxyCommand nc -v -x [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+/ProxyCommand nc -v -x ${USER_SOCKS_PROXY}/" ~/.ssh/config
   else
     sed -i "s/# ProxyCommand/ProxyCommand/" ~/.ssh/config
-    sed -i -E "s/ProxyCommand nc -v -x [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+/ProxyCommand nc -v -x ${HOST_IP:-127.0.0.1}:${SOCKS5_PROXY_PORT:-1080}/" ~/.ssh/config
+    sed -i -E "s/ProxyCommand nc -v -x [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+/ProxyCommand nc -v -x ${USER_SOCKS_PROXY}/" ~/.ssh/config
   fi
 }
 
@@ -34,12 +31,4 @@ git_ssh_unproxy() {
   else
     sed -i "s/ProxyCommand/# ProxyCommand/" ~/.ssh/config
   fi
-}
-
-unproxy() {
-  unset http_proxy
-  unset HTTP_PROXY
-
-  unset https_proxy
-  unset HTTPS_PROXY
 }

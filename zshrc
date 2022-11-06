@@ -8,10 +8,10 @@ fi
 ##########################################
 # zinit
 ##########################################
-if [[ ! -d ~/.zinit ]]; then
-  git clone --depth=1 https://github.com/zdharma-continuum/zinit.git ~/.zinit/bin
+if [[ ! -d ~/.local/share/zinit/zinit.git ]]; then
+  git clone --depth=1 https://github.com/zdharma-continuum/zinit.git ~/.local/share/zinit/zinit.git
 fi
-source ~/.zinit/bin/zinit.zsh
+source ~/.local/share/zinit/zinit.git/zinit.zsh
 
 export UNAME_INFO=$(uname -a)
 if [[ $UNAME_INFO =~ "Darwin" ]]; then
@@ -66,9 +66,12 @@ zinit light hlissner/zsh-autopair
 # zinit light zsh-users/zsh-autosuggestions
 
 ## THEME
+
 # lu5je0
 zinit snippet OMZ::lib/theme-and-appearance.zsh
 # zinit snippet ~/.dotfiles/zsh/lu5je0.zsh-theme
+
+# jovial
 # zinit snippet ~/jovial.zsh-theme
 
 # p10k
@@ -201,6 +204,12 @@ bindkey -M visual S add-surround
 #   'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
 #   'r:|?=** m:{a-z\-}={A-Z\_}'
 
+if [[ ! -f ~/.ohmyenv ]]; then
+  touch ~/.ohmyenv
+  echo "PROXY_HTTP_PORT=7890\nPROXY_SOCKS5_PORT=7890" >~/.ohmyenv
+fi
+source ~/.ohmyenv
+
 # if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
 #   exec tmux
 # fi
@@ -222,3 +231,4 @@ function bash-ctrl-d() {
 export IGNOREEOF=2
 zle -N bash-ctrl-d
 bindkey '^D' bash-ctrl-d
+### End of Zinit's installer chunk

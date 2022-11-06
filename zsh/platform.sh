@@ -1,11 +1,17 @@
 # mac
 if [[ $UNAME_INFO =~ "Darwin" ]]; then
-  PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+  # todo
+  # intel
+  # PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+  
+  # arm
+  PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+  
   alias ls='ls -F --show-control-chars --color=auto'
   eval $(gdircolors -b $HOME/.dir_colors)
-  export JAVA_HOME_8=/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
-  export JAVA_HOME_11=/Library/Java/JavaVirtualMachines/openjdk-11.0.2.jdk/Contents/Home
-  export JAVA_HOME_17=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
+  export JAVA_HOME_8='/Users/lu5je0/Library/Java/JavaVirtualMachines/azul-1.8.0_352/Contents/Home'
+  export JAVA_HOME_11='/Users/lu5je0/Library/Java/JavaVirtualMachines/temurin-11.0.17/Contents/Home'
+  export JAVA_HOME_17='/Users/lu5je0/Library/Java/JavaVirtualMachines/temurin-17.0.5/Contents/Home'
   alias jdk8='export JAVA_HOME=$JAVA_HOME_8'
   alias jdk11='export JAVA_HOME=$JAVA_HOME_11'
   alias jdk17='export JAVA_HOME=$JAVA_HOME_17'
@@ -14,7 +20,7 @@ if [[ $UNAME_INFO =~ "Darwin" ]]; then
   alias yy='pbcopy'
   alias p='pbpaste'
   alias iterm='open -a iTerm .'
-  export JAVA_HOME=$JAVA_HOME_11
+  export JAVA_HOME=$JAVA_HOME_8
   ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#555555"
 
   # brew
