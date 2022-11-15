@@ -373,6 +373,9 @@ return packer.startup(function(use)
   use {
     'dstein64/vim-startuptime',
     opt = true,
+    config = function()
+      vim.cmd("let $NEOVIM_MEASURE_STARTUP_TIME = 'TRUE'")
+    end,
     cmd = { 'StartupTime' },
   }
 
@@ -391,6 +394,7 @@ return packer.startup(function(use)
   }
 
   use {
+    -- 'tpope/vim-surround',
     "kylechui/nvim-surround",
     tag = "*", -- Use for stability; omit to use `main` branch for the latest features
     config = function()
@@ -560,10 +564,12 @@ return packer.startup(function(use)
     },
     {
       'jose-elias-alvarez/null-ls.nvim',
-      after = 'nvim-lspconfig',
+      -- after = 'nvim-lspconfig',
       config = function()
         require('lu5je0.ext.null-ls.null-ls')
       end,
+      opt = true,
+      cmd = 'NullLsEnable',
     },
     {
       'lu5je0/vim-illuminate',
@@ -724,8 +730,10 @@ return packer.startup(function(use)
 
   use {
     "samjwill/nvim-unception",
-    config = function ()
-      vim.api.nvim_create_autocmd("User",{
+    cond = function() return os.getenv('NEOVIM_MEASURE_STARTUP_TIME') ~= 'TRUE' end,
+    config = function()
+      vim.api.nvim_create_autocmd("User", {
+        -- disable unception by nvim --cmd 'let g:unception_disable=1'
         pattern = "UnceptionEditRequestReceived",
         callback = function()
           if vim.bo.filetype == 'toggleterm' then
