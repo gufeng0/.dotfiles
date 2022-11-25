@@ -96,8 +96,10 @@ local function comfirm(fallback)
     else
       cmp.confirm { select = true, behavior = cmp.ConfirmBehavior.Insert }
     end
-  elseif vim.fn['vsnip#jumpable'](1) == 1 then
-    keys_helper.feedkey('<Plug>(vsnip-jump-next)')
+  elseif require('lu5je0.ext.luasnip').jump_next_able() then -- luasnip
+    require('luasnip').jump(1)
+    -- elseif vim.fn['vsnip#jumpable'](1) == 1 then -- vsnip
+    --   keys_helper.feedkey('<Plug>(vsnip-jump-next)')
   else
     fallback()
     keys_helper.feedkey('<space><bs>')
@@ -114,14 +116,17 @@ cmp.setup {
   },
   snippet = {
     expand = function(args)
-      vim.fn['vsnip#anonymous'](args.body) -- For `vsnip` users.
+      require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+      -- vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+      -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
+      -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
     end,
+  },
+  performance = {
+    debounce = 25,
   },
   completion = {
     completeopt = 'menu,menuone,noinsert',
-  },
-  view = {
-    -- entries = 'native',
   },
   experimental = {
     -- ghost_text = true
@@ -131,10 +136,9 @@ cmp.setup {
     ['<c-d>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i' --[[ , 'c' ]] }),
     ['<c-n>'] = cmp.mapping(function()
       if cmp.visible() then
-        cmp.mapping.abort()()
+        cmp.abort()
       else
-        ---@diagnostic disable-next-line: missing-parameter
-        cmp.mapping.complete()()
+        cmp.complete()
       end
     end, { 'i', --[[ 'c' ]] }),
     ['<down>'] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Select },
@@ -143,8 +147,9 @@ cmp.setup {
     ['<tab>'] = cmp.mapping(comfirm, { 'i' }),
   },
   sources = cmp.config.sources {
-    { name = 'nvim_lsp' },
-    { name = 'vsnip' },
+    { name = 'nvim_lsp', },
+    { name = 'luasnip', },
+    -- { name = 'vsnip' },
     { name = 'path' },
     { name = 'buffer' },
   },
@@ -228,6 +233,4 @@ hi! CmpItemKindMethod guibg=NONE guifg=#C586C0
 hi! CmpItemKindKeyword guibg=NONE guifg=#D4D4D4
 hi! CmpItemKindProperty guibg=NONE guifg=#D4D4D4
 hi! CmpItemKindUnit guibg=NONE guifg=#D4D4D4
-
-smap <expr> <cr>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<cr>'
 ]])
