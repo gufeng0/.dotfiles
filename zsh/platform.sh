@@ -2,10 +2,10 @@
 if [[ $UNAME_INFO =~ "Darwin" ]]; then
   # todo
   # intel
-  # PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+  PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
   
-  # arm
-  PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+  # # arm
+  # PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
   
   alias ls='ls -F --show-control-chars --color=auto'
   eval $(gdircolors -b $HOME/.dir_colors)
