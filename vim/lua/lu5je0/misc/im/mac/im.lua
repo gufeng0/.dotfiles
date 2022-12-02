@@ -17,7 +17,7 @@ local im_switcher = (function()
   return {
     switch_to_im = function(im_code)
       ---@diagnostic disable-next-line: undefined-field
-      switcher.switchInputSource(string.char(im_code))
+      switcher.switchInputSource(im_code)
     end
   }
 end)()
