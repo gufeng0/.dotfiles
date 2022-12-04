@@ -426,25 +426,19 @@ return packer.startup(function(use)
   }
 
   -- treesitter
-  _G.__ts_filetypes = { 'json', 'python', 'java', 'bash', 'go',
-    'rust', 'toml', 'yaml', 'markdown', 'bash', 'http', 'typescript', 'javascript', 'sql',
-    'html', 'json5', 'jsonc', 'regex', 'vue', 'css', 'dockerfile' }
   batch_use {
     {
       'nvim-treesitter/nvim-treesitter',
       run = ':TSUpdate',
-      commit = '3b040ce8',
-      opt = true,
       config = function()
         require('lu5je0.ext.treesiter')
       end,
-      ft = (function()
-        local t = vim.tbl_values(_G.__ts_filetypes)
-        table.insert(t, 'lua')
-        table.insert(t, 'lua')
-        table.insert(t, 'c')
-        return t
-      end)(),
+      defer = true,
+      -- ft = (function()
+      --   local t = vim.tbl_values(_G.__ts_filetypes)
+      --   return t
+      -- end)(),
+      -- cmd = { 'TSInstall', 'TSUpdate' },
       requires = {
         {
           'm-demare/hlargs.nvim',
@@ -626,9 +620,9 @@ return packer.startup(function(use)
       'kyazdani42/nvim-tree.lua',
       requires = 'kyazdani42/nvim-web-devicons',
       keys = { '<leader>e', '<leader>fe' },
-      on_compile = function()
-        require('lu5je0.ext.nvim-tree-hijack')
-      end,
+      -- on_compile = function()
+      --   require('lu5je0.ext.nvim-tree-hijack')
+      -- end,
       opt = true,
       config = function()
         require('lu5je0.ext.nvimtree').setup()
