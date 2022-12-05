@@ -187,14 +187,13 @@ ins_left {
   function()
     local max_len = 20
     local filename = expand('%:t')
-    local filename_len = #filename
-    if filename_len > max_len then
+    if #filename > max_len then
       local suffix = filename:match('.+%.(%w+)$')
       filename = vim.fn.strcharpart(filename, 0, max_len - 6) .. '…'
       if suffix ~= nil then
         filename = filename .. '.' .. suffix
       end
-    elseif filename_len == 0 then
+    elseif #filename == 0 then
       return '[Untitled]'
     end
     return string.gsub(filename, '%%', '%%%%')
@@ -310,7 +309,7 @@ ins_left {
 ins_right {
   function()
     -- return [[ %2p%% %l:%c ]]
-    return [[%l:%c ]]
+    return ([[%%l:%s ]]):format(vim.fn.charcol('.'))
   end,
   padding = { left = 0, right = 1 },
   color = { fg = colors.grey },
