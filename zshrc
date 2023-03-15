@@ -232,3 +232,4 @@ export IGNOREEOF=2
 zle -N bash-ctrl-d
 bindkey '^D' bash-ctrl-d
 ### End of Zinit's installer chunk
+export PATH="/usr/local/opt/maven@3.5/bin:$PATH"

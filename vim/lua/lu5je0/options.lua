@@ -12,7 +12,7 @@ o.incsearch = true
 o.splitbelow = true -- 默认在下侧分屏
 o.splitright = true -- 默认在右侧分屏
 o.shadafile = 'NONE'
-o.wrap = true
+o.wrap = false
 
 o.completeopt = 'menu,menuone,noselect'
 
