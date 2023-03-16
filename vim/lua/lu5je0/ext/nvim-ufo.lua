@@ -1,4 +1,5 @@
 local parsers = require('nvim-treesitter.parsers')
+local keys = require('lu5je0.core.keys')
 
 local fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate)
   local newVirtText = {}
@@ -34,8 +35,38 @@ vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decr
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
 
-vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
-vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
+local trigger_fold_opened = function()
+  vim.defer_fn(function()
+    vim.cmd('doautocmd User FoldChanged')
+    vim.cmd('doautocmd User FoldOpened')
+  end, 0)
+end
+
+local trigger_fold_closed = function()
+  vim.defer_fn(function()
+    vim.cmd('doautocmd User FoldChanged')
+    vim.cmd('doautocmd User FoldClosed')
+  end, 0)
+end
+
+vim.keymap.set('n', 'zR', function()
+  require('ufo').openAllFolds()
+  trigger_fold_opened()
+end)
+vim.keymap.set('n', 'zM', function()
+  require('ufo').closeAllFolds()
+  trigger_fold_closed()
+end)
+
+vim.keymap.set('n', 'zc', function()
+  vim.api.nvim_feedkeys('zc', 'n', true)
+  trigger_fold_closed()
+end, { noremap = true })
+
+vim.keymap.set('n', 'zo', function()
+  vim.api.nvim_feedkeys('zo', 'n', true)
+  trigger_fold_opened()
+end, { noremap = true })
 
 require('ufo').setup({
   provider_selector = function(bufnr, filetype, buftype)

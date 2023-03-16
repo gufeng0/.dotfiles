@@ -10,17 +10,6 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
-vim.api.nvim_create_autocmd('BufWinEnter', {
-  group = M.default_group,
-  pattern = '*',
-  callback = function()
-    if vim.fn.line2byte(vim.fn.line('$') + 1) > 1024 * 1024 * 3 and not vim.b.gitsigns_status_dict then
-      vim.cmd('setlocal signcolumn=auto')
-      vim.cmd('silent! syntax clear')
-    end
-  end,
-})
-
 vim.api.nvim_create_autocmd('BufReadPost', {
   group = M.default_group,
   pattern = '*',
@@ -38,7 +27,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = M.default_group,
   pattern = '*',
   callback = function()
-    vim.highlight.on_yank({ higroup="Visual", timeout = 300 })
+    pcall(vim.highlight.on_yank, { higroup="Visual", timeout = 300 })
   end
 })
 

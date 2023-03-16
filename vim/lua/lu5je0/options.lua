@@ -44,7 +44,6 @@ o.autoindent = true
 
 -- 不显示启动界面
 o.shortmess = o.shortmess .. 'I'
-o.foldtext = 'misc#fold_text()'
 o.showcmd = false
 
 -- colorscheme
@@ -98,7 +97,7 @@ if has('wsl') then
 end
 
 if has('mac') then
-  vim.g.python3_host_prog = '/usr/bin/python3'
+  vim.g.python3_host_prog = '/usr/local/bin/python3'
 end
 
 if has('gui') then
@@ -118,6 +117,7 @@ local defer_options = {
 for delay, fn in ipairs(defer_options) do
   vim.defer_fn(fn, 2 * delay)
 end
-vim.g.ts_highlight_c = true
-vim.g.ts_highlight_vim = true
-vim.g.ts_highlight_lua = true
+
+-- vim.g.ts_highlight_c = true
+-- vim.g.ts_highlight_vim = true
+-- vim.g.ts_highlight_lua = true

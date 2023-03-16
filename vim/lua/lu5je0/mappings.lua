@@ -7,10 +7,10 @@ local default_opts = { desc = 'mappings.lua', silent = true }
 local function del_map(modes, lhs, opts)
   if type(lhs) == 'table' then
     for _, v in ipairs(lhs) do
-      vim.keymap.del(modes, v, opts)
+      pcall(vim.keymap.del, modes, v, opts)
     end
   else
-    vim.keymap.del(modes, lhs, opts)
+    pcall(vim.keymap.del, modes, lhs, opts)
   end
 end
 
@@ -51,16 +51,16 @@ vim.defer_fn(function()
   set_n_map('<leader>vd', option_toggler.new_toggle_fn({ 'windo difft', 'windo diffo' }))
   set_n_map('<leader>vh', option_toggler.new_toggle_fn({ 'call hexedit#ToggleHexEdit()' }))
   set_n_map('<leader>vc', option_toggler.new_toggle_fn({ 'set noignorecase', 'set ignorecase' }))
-  set_n_map('<leader>vi', option_toggler.new_toggle_fn(function() vim.fn['ToggleSaveLastIme']() end))
+  -- set_n_map('<leader>vi', require('lu5je0.misc.im.mac.im').toggle_save_last_ime)
   set_n_map('<leader>vw', function()
     if vim.wo.wrap then
-      print("set unwrap")
+      print("setlocal nowrap")
       vim.wo.wrap = false
-      del_map({ 'x', 'n' }, { 'j', 'k' }, { buffer = 0 })
-      del_map({ 'x', 'n', 'o' }, { 'H', 'L' }, { buffer = 0 })
+      del_map({ 'x', 'n' }, { 'j', 'k' }, { buffer = 0, silent = true })
+      del_map({ 'x', 'n', 'o' }, { 'H', 'L' }, { buffer = 0, silent = true })
       -- del_map({ 'n' }, 'Y', { buffer = 0 })
     else
-      print("set wrap")
+      print("setlocal wrap")
       vim.wo.wrap = true
       local buffer_opts = vim.deepcopy(default_opts)
       buffer_opts.buffer = 0
@@ -89,6 +89,8 @@ vim.defer_fn(function()
   " 缩进后重新选择
   xmap < <gv
   xmap > >gv
+  
+  " xmap : :<c-u>
 
   imap <M-j> <down>
   imap <M-k> <up>
@@ -113,6 +115,11 @@ vim.defer_fn(function()
   nmap <silent> <right> :bn<cr>
   nmap <silent> <c-b>o <c-w>p
   nmap <silent> <c-b><c-o> <c-w>p
+  
+  nnoremap <s-up> <c-w>+
+  nnoremap <s-down> <c-w>-
+  nnoremap <s-right> <c-w>>
+  nnoremap <s-left> <c-w><
 
   " 打断undo
   inoremap . <c-g>u.
@@ -149,22 +156,6 @@ vim.defer_fn(function()
 
   nmap <leader>wo <c-w>o
 
-  " Echo translation in the cmdline
-  nmap <silent> <Leader>sc <Plug>Translate
-  xmap <silent> <Leader>sc <Plug>TranslateV
-
-  " say it
-  nmap <silent> <Leader>sa :call misc#say_it()<cr><Plug>TranslateW
-  xmap <silent> <Leader>sa :call misc#visual_say_it()<cr><Plug>TranslateWV
-
-  " xmap <silent> <Leader>sc <Plug>TranslateV
-  " Display translation in a window
-  nmap <silent> <Leader>ss <Plug>TranslateW
-  xmap <silent> <Leader>ss <Plug>TranslateWV
-  " Replace the text with translation
-  nmap <silent> <Leader>sr <Plug>TranslateR
-  xmap <silent> <Leader>sr <Plug>TranslateRV
-
   "----------------------------------------------------------------------
   " 繁体简体
   "----------------------------------------------------------------------
@@ -174,34 +165,10 @@ vim.defer_fn(function()
   nmap <leader>xZ :%!opencc -c s2t<cr>
 
   "----------------------------------------------------------------------
-  " base64
-  "----------------------------------------------------------------------
-  xmap <silent> <leader>xB :<c-u>call base64#v_atob()<cr>
-  xmap <silent> <leader>xb :<c-u>call base64#v_btoa()<cr>
-
-  "----------------------------------------------------------------------
   " unicode escape
   "----------------------------------------------------------------------
   xmap <silent> <leader>xu :<c-u>call visual#replace_by_fn("UnicodeEscapeString")<cr>
   xmap <silent> <leader>xU :<c-u>call visual#replace_by_fn("UnicodeUnescapeString")<cr>
-
-  "----------------------------------------------------------------------
-  " text escape
-  "----------------------------------------------------------------------
-  xmap <silent> <leader>xs :<c-u>call visual#replace_by_fn("EscapeText")<cr>
-  " xmap <silent> <leader>xU :<c-u>call visual#replace_by_fn("UnicodeUnescapeString")<cr>
-
-  "----------------------------------------------------------------------
-  " url encode
-  "----------------------------------------------------------------------
-  nmap <leader>xh :%!python -c 'import sys,urllib;print urllib.quote(sys.stdin.read().strip())'<cr>
-  nmap <leader>xH :%!python -c 'import sys,urllib;print urllib.unquote(sys.stdin.read().strip())'<cr>
-
-  xmap <silent> <leader>cc <Plug>(coc-codeaction-selected)<cr>
-  nmap <silent> <leader>cc <Plug>(coc-codeaction-selected)<cr>
-
-  xmap <leader>xh :!python -c 'import sys,urllib;print urllib.quote(sys.stdin.read().strip())'<cr>
-  xmap <leader>xH :!python -c 'import sys,urllib;print urllib.unquote(sys.stdin.read().strip())'<cr>
 
   " ugly hack to start newline and keep indent
   nnoremap <silent> o o<space><bs>

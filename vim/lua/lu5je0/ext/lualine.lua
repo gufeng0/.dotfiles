@@ -1,4 +1,5 @@
 local lualine = require('lualine')
+local file_util = require('lu5je0.core.file')
 
 ---@diagnostic disable: missing-parameter
 local expand = vim.fn.expand
@@ -186,18 +187,16 @@ ins_left {
   function()
     local max_len = 20
     local filename = expand('%:t')
-    local filename_len = #filename
-    if filename_len > max_len then
+    if #filename > max_len then
       local suffix = filename:match('.+%.(%w+)$')
       filename = vim.fn.strcharpart(filename, 0, max_len - 6) .. '…'
       if suffix ~= nil then
         filename = filename .. '.' .. suffix
       end
-    elseif filename_len == 0 then
+    elseif #filename == 0 then
       return '[Untitled]'
     end
-    
-    return filename
+    return string.gsub(filename, '%%', '%%%%')
   end,
   inactive = true,
   color = { fg = colors.magenta, gui = 'bold' },
@@ -207,13 +206,13 @@ ins_left {
 ins_left {
   -- filesize component
   function()
-    if not vim.b.filesize then
-      vim.b.filesize = require('lua.lu5je0.core.file').hunman_readable_file_size(vim.fn.expand('%'))
+    if vim.b.filesize == nil then
+      vim.b.filesize = file_util.hunman_readable_file_size(vim.api.nvim_buf_get_name(0))
     end
     return vim.b.filesize
   end,
   cond = function()
-    return vim.b.filesize ~= '0B' and conditions.hide_in_width()
+    return conditions.hide_in_width()
   end,
   setup = function()
     vim.api.nvim_create_autocmd('BufWritePost', {
@@ -310,7 +309,7 @@ ins_left {
 ins_right {
   function()
     -- return [[ %2p%% %l:%c ]]
-    return [[%l:%c ]]
+    return ([[%%l:%s ]]):format(vim.fn.charcol('.'))
   end,
   padding = { left = 0, right = 1 },
   color = { fg = colors.grey },

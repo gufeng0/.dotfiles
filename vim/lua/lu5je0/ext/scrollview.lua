@@ -34,7 +34,10 @@ M.begin_timer = function()
       if vim.bo.buftype == 'nofile' and vim.bo.filetype == 'vim' then
         return
       end
-      vim.cmd("ScrollViewDisable")
+      local ok, err = pcall(vim.cmd, "ScrollViewDisable")
+      if not ok then
+        print(err)
+      end
     end, visible_duration)
   end
 
@@ -44,6 +47,14 @@ M.begin_timer = function()
     group = scroll_view_group,
     pattern = { '*' },
     callback = show,
+  })
+  
+  vim.api.nvim_create_autocmd('User', {
+    group = scroll_view_group,
+    pattern = 'FoldChanged',
+    callback = function()
+      vim.cmd('ScrollViewRefresh')
+    end,
   })
 
   -- vim.api.nvim_create_autocmd({ 'WinLeave', 'BufLeave', 'BufWinLeave', 'FocusLost', 'QuitPre' }, {

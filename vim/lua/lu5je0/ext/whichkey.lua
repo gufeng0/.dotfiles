@@ -52,7 +52,7 @@ M.setup = function()
     ['0'] = 'BufferLinePick',
     ['q'] = 'close buffer',
     ['Q'] = 'exit vim',
-    ['u'] = { '<cmd>UndotreeToggle<cr>', 'undotree' },
+    ['u'] = 'undotree',
     ['i'] = { ':AerialToggle!<cr>', 'aerial' },
     ['n'] = { ':noh<cr>', 'no highlight' },
     ['d'] = { '<c-^>', 'buffer switch' },
@@ -106,7 +106,11 @@ M.setup = function()
     },
     t = {
       name = '+tab',
-      o = { ':call buffer#CloseOtherBuffers()<cr>', 'close-other-buffers' },
+      o = { function()
+        if vim.fn.confirm("Close other buffers?", "&No\n&Yes") == 2 then
+          vim.cmd('BufOnly!')
+        end
+      end, 'close-other-buffers' },
       n = { ':enew<cr>', 'new-buffer' },
       t = { ':TSBufToggle highlight<cr>', 'toggle treesitter highlight' },
     },
@@ -227,10 +231,6 @@ M.setup = function()
     x = {
       name = '+text',
       c = { 'g<c-g>', 'count in the selection region' },
-      b = { 'base64' },
-      B = { 'unbase64' },
-      h = { 'http encode' },
-      H = { 'http decode' },
       s = { 'text escape' },
       r = { ":lua require('lu5je0.misc.replace').v_replace()<cr>", 'replace' },
     },

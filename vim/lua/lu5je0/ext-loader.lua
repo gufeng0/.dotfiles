@@ -1,17 +1,53 @@
 -- im
 if vim.fn.has('gui') == 0 then
   if vim.fn.has('wsl') == 1 then
-    require('lu5je0.misc.im.win.im').boostrap()
+    require('lu5je0.misc.im.win.im').setup()
   elseif vim.fn.has('mac') == 1 then
-    require('lu5je0.misc.im.mac.im')
+    require('lu5je0.misc.im.mac.im').setup()
   end
 end
+
+require('lu5je0.misc.im.im_keeper').setup({
+    mac = {
+      keep = false,
+      interval = 1000,
+      focus_gained = true,
+    },
+    win = {
+      keep = false,
+      interval = 1000,
+      focus_gained = true,
+    }
+})
 
 -- json-helper
 require('lu5je0.misc.json-helper').setup()
 
--- base64
-require('lu5je0.misc.base64').setup()
+-- big-file
+require('lu5je0.misc.big-file').setup {
+  size = 1024 * 1024, -- 1000 KB
+  features = {
+    {
+      size = 500 * 1024,
+      function()
+        vim.cmd [[ CmpAutocompleteDisable ]]
+      end
+    },
+    {
+      size = 300 * 1024,
+      function()
+        if not vim.b.gitsigns_status_dict then
+          vim.cmd('setlocal signcolumn=auto')
+        end
+      end
+    },
+    function(buf_nr)
+      vim.cmd [[ IndentBlanklineDisable ]]
+      vim.treesitter.stop(buf_nr)
+      require('hlargs').disable()
+    end
+  }
+}
 
 -- formatter
 local formatter = require('lu5je0.misc.formatter.formatter')

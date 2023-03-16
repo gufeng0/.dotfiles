@@ -56,8 +56,8 @@ class FileHelper:
 
 class Uploader:
 
-    def __init__(self):
-        self.cache = Cache()
+    # def __init__(self):
+    #     self.cache = Cache()
         
     @staticmethod
     def print_qr_code_ascii(url):

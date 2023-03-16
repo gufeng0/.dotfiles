@@ -37,7 +37,7 @@ M.on_attach = function(client, bufnr)
   
   keymap('n', 'gy', vim.lsp.buf.type_definition, opts)
   keymap('n', 'gn', vim.lsp.buf.implementation, opts)
-  keymap('n', 'gb', vim.lsp.buf.references, opts)
+  -- keymap('n', 'gb', vim.lsp.buf.references, opts)
 
   keymap('n', 'gu', vim.lsp.buf.declaration, opts)
   keymap('i', '<c-p>', vim.lsp.buf.signature_help, opts)
@@ -81,13 +81,8 @@ local function config()
       opts = sumneko_lua_config.wrap_opts(opts)
     elseif server_name == 'pyright' then
       opts.on_init = require('lu5je0.ext.lspconfig.lspservers.pyright-config').on_init
-    elseif server_name == 'tsserver' then
-      opts.on_init = require('lu5je0.ext.lspconfig.lspservers.pyright-config').on_init
-    elseif server_name == 'tsserver' then
-      opts.on_init = require('lu5je0.ext.lspconfig.lspservers.pyright-config').on_init
-      -- opts.root_dir = require('lu5je0.ext.lspconfig.lspservers.tsserver').root_dir(server.document_config.default_config.root_dir);
     elseif server_name == 'jdtls' then
-      -- opts.on_init = require('lu5je0.ext.lspconfig.lspservers.pyright-config').on_init
+      -- todo
     end
 
     server.setup(opts)
