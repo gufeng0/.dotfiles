@@ -1,4 +1,6 @@
 local M = {}
+local string_utils = require('lu5je0.lang.string-utils')
+local cursor_utils = require('lu5je0.core.cursor')
 
 M.compress = function()
   vim.cmd(':%!jq -c')
@@ -10,8 +12,10 @@ end
 
 M.path_copy = function()
   local path = require('jsonpath').get()
-  vim.cmd(string.format('let @*=\'%s\'', path))
+  
   print(path)
+  vim.fn.setreg('*', path)
+  vim.fn.setreg('"', path)
 end
 
 M.jq = function(args)
@@ -75,7 +79,7 @@ local function jq_complete(text)
   -- match
   local words = {}
   for _, json_key in ipairs(json_keys) do
-    if json_key:startswith(complete_text) then
+    if string_utils.starts_with(json_key, complete_text) then
       table.insert(words, text .. json_key:sub(#complete_text + 1, -1))
     end
   end
@@ -96,7 +100,9 @@ M.setup = function()
   end, { force = true })
 
   vim.api.nvim_create_user_command('JsonFormat', function()
+    cursor_utils.save_position()
     M.format()
+    cursor_utils.goto_saved_position()
   end, { force = true })
 
   vim.api.nvim_create_user_command('Json', function()

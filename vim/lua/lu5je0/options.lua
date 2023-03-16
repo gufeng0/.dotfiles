@@ -15,6 +15,7 @@ o.shadafile = 'NONE'
 o.wrap = false
 
 o.completeopt = 'menu,menuone,noselect'
+o.pumheight = 13
 
 o.number = true
 o.numberwidth = 3
@@ -94,6 +95,19 @@ if has('wsl') then
     },
     cache_enabled = 1,
   }
+elseif has('mac') then
+  g.clipboard = {
+    name = 'pbcopy',
+    copy = {
+      ['+'] = { 'pbcopy' },
+      ['*'] = { 'pbcopy'},
+    },
+    paste = {
+      ['+'] = { 'pbpaste' },
+      ['*'] = { 'pbpaste' },
+    },
+    cache_enabled = 1,
+  }
 end
 
 if has('mac') then
@@ -111,6 +125,7 @@ local defer_options = {
   end,
   function()
     o.clipboard = 'unnamedplus'
+    -- require('lu5je0.ext.clipboard').setup()
     vim.cmd [[ packadd matchit ]]
   end
 }

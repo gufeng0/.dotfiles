@@ -1,10 +1,16 @@
 local parsers = require('nvim-treesitter.parsers')
-local keys = require('lu5je0.core.keys')
+local string_utils = require('lu5je0.lang.string-utils')
+local render = require('ufo.render')
 
 local fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate)
   local newVirtText = {}
-  -- local suffix = (' … %s  %d '):format(vim.fn.getline(endLnum), endLnum - lnum)
-  local suffix = ('  %d '):format(endLnum - lnum)
+
+  -- 获取下一行，并移除首尾空格
+  local next_line = string_utils.trim(vim.fn.getline(endLnum))
+  -- todo 冗余
+  local suffix = (' … %s  %d'):format(next_line, endLnum - lnum)
+
+  -- local suffix = ('  %d '):format(endLnum - lnum)
   local sufWidth = vim.fn.strdisplaywidth(suffix)
   local targetWidth = width - sufWidth
   local curWidth = 0
@@ -26,7 +32,30 @@ local fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate
     end
     curWidth = curWidth + chunkWidth
   end
-  table.insert(newVirtText, { suffix, 'MoreMsg' })
+  
+  local suffix_list = suffix:split('')
+  table.insert(newVirtText, { ' … ', 'TSPunctBracket' })
+  
+  local nss = {}
+  for _, ns in pairs(vim.api.nvim_get_namespaces()) do
+    table.insert(nss, ns)
+  end
+  local end_line_virt_text = render.captureVirtText(vim.api.nvim_get_current_buf(), vim.fn.getline(endLnum), endLnum, nil, nss)
+  
+  -- 移除前导空格
+  local encounter_text = false
+  for _, v in ipairs(end_line_virt_text) do
+    if not encounter_text and string_utils.is_blank(v[1]) then
+      goto continue
+    end
+    
+    table.insert(newVirtText, v)
+    encounter_text = true
+    
+    ::continue::
+  end
+  
+  table.insert(newVirtText, { ' ' .. suffix_list[2], 'MoreMsg' })
   return newVirtText
 end
 
@@ -80,7 +109,7 @@ require('ufo').setup({
   fold_virt_text_handler = fold_virt_text_handler
 })
 
--- local group = vim.api.nvim_create_augroup('illuminate', { clear = true })
+-- local group = vim.api.nvim_create_augroup('nvim-ufo', { clear = true })
 -- vim.api.nvim_create_autocmd("LspAttach", {
 --   group = group,
 --   ---@diagnostic disable-next-line: unused-local

@@ -8,6 +8,9 @@ end
 local packer = require('packer')
 packer.init {
   max_jobs = 15,
+  git = {
+    clone_timeout = 600, -- Timeout, in seconds, for git clones
+  }
 }
 
 vim.api.nvim_create_autocmd('BufWritePost', {
@@ -21,7 +24,7 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 
 return packer.startup(function(use)
   _G.__defer_plugins = {}
-  local origin_use = use
+  local original_use = use
 
   local function inject_use(params)
     if params.defer then
@@ -47,12 +50,14 @@ return packer.startup(function(use)
     if type(...) == 'table' then
       inject_use(...)
     end
-    origin_use(...)
+    original_use(...)
   end
 
-  -- Packer can manage itself
-  use('wbthomason/packer.nvim')
+  use 'lewis6991/impatient.nvim'
 
+  use 'wbthomason/packer.nvim'
+
+  use 'nvim-lua/plenary.nvim'
   use{
     'shuaixiaomi/md-img-paste.vim',
     config = function ()
@@ -69,7 +74,44 @@ return packer.startup(function(use)
 
   use {
     'MunifTanjim/nui.nvim',
-    -- commit = '042cceb497cc4cfa3ae735a5e7bc01b4b6f19ef1'
+    commit = '7427f979cc0dc991d8d177028e738463f17bcfcb'
+  }
+
+  use 'tpope/vim-repeat'
+
+  -- themes
+  batch_use {
+    {
+      'sainnhe/edge',
+      on_compile = function()
+        vim.g.edge_better_performance = 1
+        vim.g.edge_enable_italic = 0
+        vim.g.edge_disable_italic_comment = 1
+      end,
+      config = function()
+        vim.g.edge_loaded_file_types = { 'NvimTree' }
+        vim.cmd [[
+        hi! Folded guifg=#282c34 guibg=#5c6370
+        hi MatchParen guifg=#ffef28
+        ]]
+      end
+    },
+    -- {
+    --   "catppuccin/nvim",
+    --   as = "catppuccin",
+    --   config = function()
+    --     vim.g.catppuccin_flavour = "macchiato" -- latte, frappe, macchiato, mocha
+    --     require("catppuccin").setup()
+    --   end
+    -- }
+  }
+
+  -- syntax
+  batch_use {
+    {
+      'aklt/plantuml-syntax',
+      ft = 'plantuml'
+    },
   }
 
   -- git
@@ -108,7 +150,11 @@ return packer.startup(function(use)
         vim.cmd('let g:gist_show_privates = 1')
         vim.cmd('let g:gist_post_private = 1')
       end,
-      requires = { 'mattn/webapi-vim' },
+      requires = {
+        'mattn/webapi-vim',
+        opt = true
+      },
+      cmd = 'Gist'
     }
   }
 
@@ -128,42 +174,25 @@ return packer.startup(function(use)
     end,
   }
 
-  use {
-    'Yggdroot/LeaderF',
-    run = './install.sh',
-    defer = true,
-    -- cmd = {'Leaderf', 'Git'},
-    config = function()
-      require('lu5je0.ext.leaderf').setup()
-    end,
-  }
+  -- use {
+  --   'Yggdroot/LeaderF',
+  --   run = './install.sh',
+  --   defer = true,
+  --   -- cmd = {'Leaderf', 'Git'},
+  --   config = function()
+  --     require('lu5je0.ext.leaderf').setup()
+  --   end,
+  -- }
 
   -- telescope
   batch_use {
-    -- {
-    --   'nvim-telescope/telescope-fzf-native.nvim',
-    --   run = 'make',
-    -- },
-    -- {
-    --   'nvim-telescope/telescope.nvim',
-    --   config = function()
-    --     require('lu5je0.ext.telescope').setup(false)
-    --   end,
-    --   defer = true,
-    --   after = 'telescope-fzf-native.nvim',
-    --   -- requires = {
-    --   --   { 'nvim-lua/plenary.nvim' },
-    --   --   {
-    --   --     'AckslD/nvim-neoclip.lua',
-    --   --     config = function()
-    --   --       require('neoclip').setup {
-    --   --         default_register = '*',
-    --   --       }
-    --   --     end,
-    --   --   },
-    --   -- },
-    --   -- keys = { '<leader>f' },
-    -- }
+    {
+      'nvim-telescope/telescope.nvim',
+      config = function()
+        require('lu5je0.ext.telescope').setup()
+      end,
+      defer = true,
+    }
   }
 
   use {
@@ -190,17 +219,22 @@ return packer.startup(function(use)
     end,
   }
 
-  use {
-    'lu5je0/bufferline.nvim',
-    config = function()
-      vim.g.bufferline_separator = true
-      require('lu5je0.ext.bufferline')
-    end,
-    -- branch = 'main',
-    requires = { 'nvim-web-devicons' },
+  batch_use {
+    {
+      'lu5je0/bufferline.nvim',
+      config = function()
+        vim.g.bufferline_separator = true
+        require('lu5je0.ext.bufferline')
+      end,
+      requires = { 'nvim-web-devicons' },
+    },
+    -- {
+    --   "tiagovla/scope.nvim",
+    --   config = function()
+    --     require("scope").setup()
+    --   end
+    -- }
   }
-
-  use { 'schickling/vim-bufonly' }
 
   use {
     'theniceboy/vim-calc',
@@ -217,16 +251,7 @@ return packer.startup(function(use)
 
   use {
     'sgur/vim-textobj-parameter',
-    requires = {
-      {
-        'kana/vim-textobj-user',
-        -- opt = true
-      }
-    },
-    after = {
-      'vim-exchange',
-      'vim-textobj-user'
-    },
+    requires = 'kana/vim-textobj-user',
     setup = function()
       vim.g.vim_textobj_parameter_mapping = 'a'
     end,
@@ -234,8 +259,11 @@ return packer.startup(function(use)
   }
 
   use {
-    'tommcdo/vim-exchange',
-    keys = { { 'n', 'cx' } },
+    "gbprod/substitute.nvim",
+    config = function()
+      require('lu5je0.ext.substitute')
+    end,
+    keys = { { 'n', 'cx' }, { 'x', 'gr' }, { 'n', 'gr' } }
   }
 
   use {
@@ -252,70 +280,16 @@ return packer.startup(function(use)
   use {
     'numToStr/Comment.nvim',
     config = function()
-      require('Comment').setup {
-        opleader = {
-          -- Line-comment keymap
-          line = 'gc',
-          -- Block-comment keymap
-          block = 'gB',
-        },
-        toggler = {
-          -- Line-comment toggle keymap
-          line = 'gcc',
-          -- Block-comment toggle keymap
-          block = 'gcgc',
-        },
-      }
+      require('lu5je0.ext.comment')
     end,
-    keys = { { 'x', 'gc' }, { 'n', 'gc' } }
-  }
-
-  use('tpope/vim-repeat')
-
-  use {
-    'vim-scripts/ReplaceWithRegister',
-    keys = { { 'x', 'gr' }, { 'n', 'gr' } },
-  }
-
-  -- themes
-  batch_use {
-    {
-      'sainnhe/edge',
-      on_compile = function()
-        vim.g.edge_better_performance = 1
-        vim.g.edge_enable_italic = 0
-        vim.g.edge_disable_italic_comment = 1
-      end,
-      config = function()
-        vim.g.edge_loaded_file_types = { 'NvimTree' }
-        vim.cmd [[
-        hi! Folded guifg=#282c34 guibg=#5c6370
-        hi MatchParen guifg=#ffef28
-        ]]
-      end
-    },
-    -- {
-    --   "catppuccin/nvim",
-    --   as = "catppuccin",
-    --   config = function()
-    --     vim.g.catppuccin_flavour = "macchiato" -- latte, frappe, macchiato, mocha
-    --     require("catppuccin").setup()
-    --   end
-    -- }
-  }
-
-  -- syntax
-  batch_use {
-    {
-      'aklt/plantuml-syntax',
-    },
+    keys = { { 'x', 'gc' }, { 'n', 'gc' }, { 'n', 'gcc' }, { 'n', 'gC' } }
   }
 
   use {
     'akinsho/toggleterm.nvim',
     branch = 'main',
     defer = true,
-    commit = '62683d927dfd30dc68441a5811fdcb6c9f176c42',
+    -- commit = '62683d927dfd30dc68441a5811fdcb6c9f176c42',
     config = function()
       require('lu5je0.ext.terminal').setup()
     end,
@@ -451,7 +425,10 @@ return packer.startup(function(use)
         --   'nvim-treesitter/playground',
         --   run = 'TSInstall query'
         -- },
-        { 'phelipetls/jsonpath.nvim' },
+        {
+          'phelipetls/jsonpath.nvim',
+          ft = { 'json', 'jsonc' }
+        },
         {
           'SmiteshP/nvim-gps',
           config = function()
@@ -524,10 +501,25 @@ return packer.startup(function(use)
       'hrsh7th/cmp-nvim-lsp',
     },
     {
+      'folke/neodev.nvim',
+      config = function()
+        require("neodev").setup {
+          library = {
+            enabled = true, -- when not enabled, neodev will not change any settings to the LSP server
+            -- these settings will be used for your Neovim config directory
+            runtime = true, -- runtime path
+            types = true, -- full signature, docs and completion of vim.api, vim.treesitter, vim.lsp and others
+            plugins = false
+            -- plugins = { 'nvim-tree.lua', "nvim-treesitter", "plenary.nvim", "telescope.nvim" }, -- installed opt or start plugins in packpath
+          },
+        }
+      end
+    },
+    {
       'neovim/nvim-lspconfig',
       after = {
         'mason-lspconfig.nvim',
-        'lua-dev.nvim',
+        'neodev.nvim',
       },
       defer = true,
       config = function()
@@ -545,9 +537,6 @@ return packer.startup(function(use)
       }
     },
     {
-      'max397574/lua-dev.nvim'
-    },
-    {
       'jose-elias-alvarez/null-ls.nvim',
       -- after = 'nvim-lspconfig',
       config = function()
@@ -557,7 +546,7 @@ return packer.startup(function(use)
       cmd = 'NullLsEnable',
     },
     {
-      'lu5je0/vim-illuminate',
+      'RRethy/vim-illuminate',
       after = 'nvim-lspconfig',
       config = function()
         require('lu5je0.ext.lspconfig.illuminate')
@@ -574,32 +563,25 @@ return packer.startup(function(use)
 
   -- debug dap
   batch_use {
-    --   {
-    --     "rcarriga/nvim-dap-ui",
-    --     requires = { "mfussenegger/nvim-dap" },
-    --     config = function()
-    --       require("dapui").setup()
-    --       local dap, dapui = require("dap"), require("dapui")
-    --       dap.listeners.after.event_initialized["dapui_config"] = function()
-    --         dapui.open()
-    --       end
-    --       dap.listeners.before.event_terminated["dapui_config"] = function()
-    --         dapui.close()
-    --       end
-    --       dap.listeners.before.event_exited["dapui_config"] = function()
-    --         dapui.close()
-    --       end
-    --     end
-    --   }
-  }
-
-  use {
-    'puremourning/vimspector',
-    config = function()
-      require('lu5je0.ext.vimspector').setup()
-    end,
-    keys = { '<F10>', '<S-F10>' },
-    fn = { 'vimspector#Launch', 'vimspector#Reset', 'vimspector#LaunchWithConfigurations' },
+    {
+      "mfussenegger/nvim-dap",
+      requires = {
+        'rcarriga/nvim-dap-ui',
+      },
+      config = function()
+        require('lu5je0.ext.dap').setup()
+      end,
+      keys = { '<F10>', '<S-F10>' },
+    },
+    {
+      'jbyuki/one-small-step-for-vimkind',
+      config = function()
+        vim.api.nvim_create_user_command('LuaDebug', function()
+          require("osv").launch({ port = 8086 })
+        end, { force = true })
+      end,
+      cmd = 'LuaDebug'
+    }
   }
 
   -- file manager
@@ -621,6 +603,7 @@ return packer.startup(function(use)
       'kyazdani42/nvim-tree.lua',
       requires = 'kyazdani42/nvim-web-devicons',
       keys = { '<leader>e', '<leader>fe' },
+      commit = '9c97e6449b0b0269bd44e1fd4857184dfa57bb4c',
       -- on_compile = function()
       --   require('lu5je0.ext.nvim-tree-hijack')
       -- end,
@@ -673,18 +656,18 @@ return packer.startup(function(use)
         require('lu5je0.ext.nvim-ufo')
       end,
     },
-    {
-      'kevinhwang91/nvim-fundo',
-      requires = 'kevinhwang91/promise-async',
-      run = function()
-        require('fundo').install()
-      end,
-      disable = (vim.fn.has('mac') == 1),
-      config = function()
-        vim.o.undofile = true
-        require('fundo').setup()
-      end
-    },
+    -- {
+    --   'kevinhwang91/nvim-fundo',
+    --   requires = 'kevinhwang91/promise-async',
+    --   run = function()
+    --     require('fundo').install()
+    --   end,
+    --   disable = (vim.fn.has('mac') == 1),
+    --   config = function()
+    --     vim.o.undofile = true
+    --     require('fundo').setup()
+    --   end
+    -- },
     {
       'nat-418/boole.nvim',
       config = function()
@@ -717,8 +700,7 @@ return packer.startup(function(use)
             Norm = { cmd = "norm" },
           },
         }
-      end,
-      event = "CmdlineEnter",
+      end
     },
     {
       'AckslD/messages.nvim',
@@ -726,9 +708,9 @@ return packer.startup(function(use)
         require("messages").setup {
           post_open_float = function(_)
             vim.cmd [[
-          au! BufLeave * ++once lua vim.cmd(":q")
-          set number
-          ]]
+            au! BufLeave * ++once lua vim.cmd(":q")
+            set number
+            ]]
             vim.fn.cursor { 99999, 0 }
           end
         }
@@ -736,6 +718,44 @@ return packer.startup(function(use)
       cmd = 'Messages',
     }
   }
+
+  use {
+    'stevearc/profile.nvim',
+    config = function() require('lu5je0.ext.profile') end,
+    keys = { { 'n', '<S-F1>' } }
+  }
+
+  batch_use {
+    function()
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.ui.input = function(...)
+        vim.cmd("PackerLoad dressing.nvim")
+        return vim.ui.input(...)
+      end
+    end,
+    {
+      'stevearc/dressing.nvim',
+      config = function()
+        require('lu5je0.ext.dressing')
+      end,
+      opt = true
+    }
+  }
+
+  use {
+    'phaazon/hop.nvim',
+    branch = 'v2', -- optional but strongly recommended
+    config = function()
+      -- you can configure Hop the way you like here; see :h hop-config
+      require 'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
+      vim.keymap.set('n', '<space>', function()
+        vim.cmd("HopWord")
+      end)
+    end,
+    keys = { '<space>' }
+  }
+
+  -- use { 'sindrets/diffview.nvim', requires = 'nvim-lua/plenary.nvim' }
 
   -- use {
   --   "samjwill/nvim-unception",

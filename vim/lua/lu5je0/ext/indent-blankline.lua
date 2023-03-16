@@ -1,6 +1,6 @@
 vim.g.indent_blankline_char = '▏'
 vim.g.indentLine_fileTypeExclude = { 'undotree', 'vista', 'git', 'diff', 'translator', 'help', 'packer',
-'lsp-installer', 'toggleterm', 'confirm' }
+  'lsp-installer', 'toggleterm', 'confirm' }
 -- vim.g.indent_blankline_filetype = _G.indent_blankline_filetypes
 vim.g.indent_blankline_show_first_indent_level = false
 vim.g.indent_blankline_show_trailing_blankline_indent = false
@@ -20,3 +20,22 @@ vim.api.nvim_create_autocmd('User', {
     vim.cmd('IndentBlanklineRefresh')
   end,
 })
+
+
+vim.defer_fn(function()
+  vim.keymap.set('n', 'H', function()
+    require('lu5je0.core.keys').feedkey('^')
+    
+    if require('lu5je0.core.window').is_cur_line_out_of_window() then
+      vim.cmd('IndentBlanklineRefresh')
+    end
+  end)
+
+  vim.keymap.set('n', 'L', function()
+    require('lu5je0.core.keys').feedkey('$')
+    
+    if require('lu5je0.core.window').is_cur_line_out_of_window() then
+      vim.cmd('IndentBlanklineRefresh')
+    end
+  end)
+end, 100)

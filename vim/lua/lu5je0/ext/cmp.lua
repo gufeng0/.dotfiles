@@ -1,5 +1,7 @@
 local cmp = require('cmp')
 local keys_helper = require('lu5je0.core.keys')
+local string_utils = require('lu5je0.lang.string-utils')
+
 local indent_change_items = {
   'endif',
   'end',
@@ -16,32 +18,34 @@ local indent_change_items = {
   'catch',
 }
 
-local kind_icons = {
-  Text = '',
-  Method = '',
-  Function = '',
-  Constructor = '',
-  Field = '',
-  Variable = '',
-  Class = 'ﴯ',
-  Interface = '',
-  Module = '',
-  Property = 'ﰠ',
-  Unit = '',
-  Value = '',
-  Enum = '',
-  Keyword = '',
-  Snippet = '',
-  Color = '',
-  File = '',
-  Reference = '',
-  Folder = '',
-  EnumMember = '',
-  Constant = '',
-  Struct = '',
-  Event = '',
-  Operator = '',
-  TypeParameter = '',
+local lsp_kind_icons = {
+  -- if you change or add symbol here
+  -- replace corresponding line in readme
+  Text = "",
+  Method = "",
+  Function = "",
+  Constructor = "",
+  Field = "ﰠ",
+  Variable = "",
+  Class = "ﴯ",
+  Interface = "",
+  Module = "",
+  Property = "ﰠ",
+  Unit = "塞",
+  Value = "",
+  Enum = "",
+  Keyword = "",
+  Snippet = "",
+  Color = "",
+  File = "",
+  Reference = "",
+  Folder = "",
+  EnumMember = "",
+  Constant = "",
+  Struct = "פּ",
+  Event = "",
+  Operator = "",
+  TypeParameter = "",
 }
 
 local origin_emit = require('cmp.utils.autocmd').emit
@@ -98,21 +102,55 @@ local function comfirm(fallback)
     end
   elseif require('lu5je0.ext.luasnip').jump_next_able() then -- luasnip
     require('luasnip').jump(1)
-    -- elseif vim.fn['vsnip#jumpable'](1) == 1 then -- vsnip
-    --   keys_helper.feedkey('<Plug>(vsnip-jump-next)')
   else
     fallback()
     keys_helper.feedkey('<space><bs>')
   end
 end
 
+local function truncate(label)
+  local ELLIPSIS_CHAR = '…'
+  local MAX_LABEL_WIDTH = 25
+  local MIN_LABEL_WIDTH = 0
+
+  local truncated_label = vim.fn.strcharpart(label, 0, MAX_LABEL_WIDTH)
+
+  if #truncated_label ~= #label then
+    label = truncated_label .. ELLIPSIS_CHAR
+  elseif string.len(label) < MIN_LABEL_WIDTH then
+    local padding = string.rep(' ', MIN_LABEL_WIDTH - #label)
+    label = label .. padding
+  end
+  return label
+end
+
+local format = function(entry, vim_item)
+  vim_item.kind = ' ' .. (lsp_kind_icons[vim_item.kind] or ' ') .. ''
+  vim_item.abbr = truncate(vim_item.abbr)
+  vim_item.menu = ({
+    buffer = '[B]',
+    nvim_lsp = '[L]',
+    ultisnips = '[U]',
+    luasnip = '[S]',
+  })[entry.source.name]
+
+  return vim_item
+end
+
+---@diagnostic disable-next-line: redundant-parameter
 cmp.setup {
   window = {
-    -- documentation = cmp.config.disable,
-    documentation = {
-      max_width = 40,
-      max_height = 25,
+    completion = {
+      -- winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None",
+      max_height = 10,
+      col_offset = -2,
+      side_padding = 0,
+      scroll_off = 10
     },
+  },
+  formatting = {
+    fields = { 'kind', 'abbr', 'menu' },
+    format = format
   },
   snippet = {
     expand = function(args)
@@ -123,7 +161,7 @@ cmp.setup {
     end,
   },
   performance = {
-    debounce = 25,
+    -- debounce = 25,
   },
   completion = {
     completeopt = 'menu,menuone,noinsert',
@@ -143,60 +181,26 @@ cmp.setup {
     end, { 'i', --[[ 'c' ]] }),
     ['<down>'] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Select },
     ['<up>'] = cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Select },
-    ['<cr>'] = cmp.mapping(comfirm, { 'i' }),
-    ['<tab>'] = cmp.mapping(comfirm, { 'i' }),
+    ['<cr>'] = cmp.mapping(comfirm, { 'i', 's' }),
+    ['<tab>'] = cmp.mapping(comfirm, { 'i', 's' }),
   },
   sources = cmp.config.sources {
     { name = 'nvim_lsp', },
-    { name = 'luasnip', },
-    -- { name = 'vsnip' },
+    {
+      name = 'luasnip',
+      entry_filter = function(entry, ctx)
+        if string_utils.starts_with(entry.completion_item.label, '.') then
+          return string_utils.contains(ctx.cursor_before_line, '%.')
+        end
+        return true
+      end,
+      keyword_length = 2
+    },
     { name = 'path' },
-    { name = 'buffer' },
-  },
-  formatting = {
-    -- fields = { "kind", "abbr", "menu" },
-    -- format = function(entry, vim_item)
-    --   -- vim_item.menu = vim_item.kind
-    --   vim_item.menu = ({
-    --     buffer = '[B]',
-    --     nvim_lsp = '[L]',
-    --     ultisnips = '[U]',
-    --     luasnip = '[LuaSnip]',
-    --     nvim_lua = '[Lua]',
-    --     latex_symbols = '[LaTeX]',
-    --   })[entry.source.name]
-    --
-    --   vim_item.kind = kind_icons[vim_item.kind]
-    --   return vim_item
-    -- end,
-    format = function(entry, vim_item)
-      local ELLIPSIS_CHAR = '…'
-      local MAX_LABEL_WIDTH = 34
-      local MIN_LABEL_WIDTH = 0
-      local label = vim_item.abbr
-      local truncated_label = vim.fn.strcharpart(label, 0, MAX_LABEL_WIDTH)
-      if truncated_label ~= label then
-        vim_item.abbr = truncated_label .. ELLIPSIS_CHAR
-      elseif string.len(label) < MIN_LABEL_WIDTH then
-        local padding = string.rep(' ', MIN_LABEL_WIDTH - string.len(label))
-        vim_item.abbr = label .. padding
-      end
-
-      -- Kind icons
-      -- vim_item.kind = string.format('%s %s', kind_icons[vim_item.kind], vim_item.kind)
-      vim_item.kind = string.format(' %s', kind_icons[vim_item.kind])
-      -- Source
-      vim_item.menu = ({
-        buffer = '[B]',
-        nvim_lsp = '[L]',
-        ultisnips = '[U]',
-        luasnip = '[S]',
-        vsnip = '[S]',
-        nvim_lua = '[Lua]',
-        latex_symbols = '[LaTeX]',
-      })[entry.source.name]
-      return vim_item
-    end,
+    {
+      name = 'buffer',
+      keyword_length = 2
+    },
   },
 }
 

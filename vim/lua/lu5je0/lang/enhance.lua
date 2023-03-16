@@ -1,7 +1,3 @@
-function string.startswith(self, str)
-  return string.sub(self, 1, string.len(str)) == str
-end
-
 function string:split(delimiter)
   local result = {}
   local from = 1
@@ -13,14 +9,6 @@ function string:split(delimiter)
   end
   table.insert(result, string.sub(self, from))
   return result
-end
-
-function table:remove_by_value(v)
-  for i, item in ipairs(self) do
-    if item == v then
-      table.remove(self, i)
-    end
-  end
 end
 
 function table:contain(value)
@@ -49,5 +37,3 @@ vim.fn.has = function(feature)
   
   return r
 end
-
-_G.log = require('plenary.log')

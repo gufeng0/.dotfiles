@@ -1,67 +1,63 @@
-local M = {}
-
-local py3eval = vim.fn.pyeval
-
 local ABC_IM_SOURCE_CODE = 'com.apple.keylayout.ABC'
 
-local std_config_path = vim.fn.stdpath('config')
-
+local std_path = vim.fn.stdpath('config')
+local group = vim.api.nvim_create_augroup('ime-status', { clear = true })
 local rate_limiter = require('lu5je0.lang.ratelimiter'):create(7, 0.5)
 
-local im_switcher = (function()
-  local ffi = require('ffi')
-  local switcher = ffi.load(std_config_path .. '/lib/libinput-source-switcher.dylib')
-  ffi.cdef([[
-  int switchInputSource(const char *s);
-  const char* getCurrentInputSourceID();
-  ]])
-  
-  return {
-    switch_to_im = function(im_code)
-      ---@diagnostic disable-next-line: undefined-field
-      switcher.switchInputSource(im_code)
-    end
-  }
-end)()
+local M = {
+  last_ime = ABC_IM_SOURCE_CODE
+}
 
-local group = vim.api.nvim_create_augroup('ime-status', { clear = true })
-
-M.py_im_init_script = ([[
-python3 << EOF
-import threading
-
-import sys
-import time
-from os.path import normpath, join
-import vim
-python_root_dir = "%s" + "/python"
-sys.path.insert(0, python_root_dir)
-switcher = None
-
-def im_init():
-  import im
-  global switcher
-  switcher = im.ImSwitcher()
-
-def switch_normal_mode():
-  if switcher != None:
-    switcher.switch_normal_mode(True)
-
-threading.Thread(target=im_init).start()
-EOF
-]]):format(std_config_path)
-
-local python_im_helper_is_init = false
-local function init_python_im_helper()
-  if python_im_helper_is_init then
-    return
+M.get_im_switcher = function()
+  if M.im_switcher ~= nil then
+    return M.im_switcher
   end
-  vim.cmd(M.py_im_init_script)
-  python_im_helper_is_init = true
+  M.im_switcher = (function()
+    local ffi = require('ffi')
+    local xkb_switch_lib = ffi.load(std_path .. '/lib/XkbSwitchLib.lib')
+    ffi.cdef([[
+    const char* Xkb_Switch_getXkbLayout();
+    void Xkb_Switch_setXkbLayout(const char *s);
+    ]])
+
+    -- local macism = ffi.load(std_path .. '/lib/libmacism.dylib')
+    -- ffi.cdef([[
+    -- void switch_ime(const char *ime);
+    -- ]])
+
+    return {
+      switch_to_ime = function(im_code)
+        if im_code == nil then
+          return
+        end
+        ---@diagnostic disable-next-line: undefined-field
+        pcall(xkb_switch_lib.Xkb_Switch_setXkbLayout, im_code)
+      end,
+      -- switch_to_ime_macism_dylib = function(im_code)
+      --   macism.switch_ime(im_code)
+      -- end,
+      switch_to_ime_macism_executed_file = function(im_code)
+        vim.loop.new_thread(function(path, ime)
+          io.popen(('%s %s 3000 2>/dev/null'):format(path, ime)):close()
+        end, std_path .. '/lib/macism', im_code)
+      end,
+      get_ime = function()
+        ---@diagnostic disable-next-line: undefined-field
+        local ok, ime = pcall(xkb_switch_lib.Xkb_Switch_getXkbLayout)
+        if ok then
+          return ffi.string(ime)
+        end
+        return ABC_IM_SOURCE_CODE
+      end
+    }
+  end)()
+  return M.im_switcher
 end
 
 M.switch_to_en = function()
-  im_switcher.switch_to_im(ABC_IM_SOURCE_CODE)
+  if M.get_im_switcher().get_ime() ~= ABC_IM_SOURCE_CODE then
+    M.get_im_switcher().switch_to_ime(ABC_IM_SOURCE_CODE)
+  end
 end
 
 M.toggle_save_last_ime = function()
@@ -77,27 +73,22 @@ M.toggle_save_last_ime = function()
 end
 
 M.switch_insert_mode = rate_limiter:wrap(function()
-  if M.save_last_ime then
-    init_python_im_helper()
-    local py_watched_im_source = py3eval("'com.apple.keylayout.ABC' if switcher is None else switcher.last_ime")
-    im_switcher.switch_to_im(tostring(py_watched_im_source))
-  else
-    im_switcher.switch_to_im(ABC_IM_SOURCE_CODE)
+  if M.save_last_ime and M.last_ime ~= ABC_IM_SOURCE_CODE then
+    M.get_im_switcher().switch_to_ime(M.last_ime)
+    -- M.get_im_switcher().switch_to_ime_macism_executed_file(M.last_ime)
   end
 end)
 
 M.switch_normal_mode = rate_limiter:wrap(function()
   if M.save_last_ime then
-    init_python_im_helper()
-    py3eval("switch_normal_mode()")
-  else
-    im_switcher.switch_to_im(ABC_IM_SOURCE_CODE)
+    M.last_ime = M.get_im_switcher().get_ime()
   end
+  M.get_im_switcher().switch_to_ime(ABC_IM_SOURCE_CODE)
 end)
 
 M.setup = function()
   M.save_last_ime = require('lu5je0.misc.env-keeper').get('save_last_ime', true)
-  
+
   vim.api.nvim_create_autocmd('InsertLeave', {
     group = group,
     pattern = { '*' },
@@ -105,7 +96,7 @@ M.setup = function()
       M.switch_normal_mode()
     end
   })
-  
+
   vim.api.nvim_create_autocmd('CmdlineLeave', {
     group = group,
     pattern = { '*' },
@@ -121,7 +112,7 @@ M.setup = function()
       M.switch_insert_mode()
     end
   })
-  
+
   vim.keymap.set('n', '<leader>vi', M.toggle_save_last_ime)
 end
 

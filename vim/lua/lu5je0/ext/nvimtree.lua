@@ -4,6 +4,8 @@ local M = {}
 local lib = require('nvim-tree.lib')
 local keys_helper = require('lu5je0.core.keys')
 local api = require('nvim-tree.api')
+local log = require('lu5je0.core.log')
+local string_utils = require('lu5je0.lang.string-utils')
 
 M.pwd_stack = require('lu5je0.lang.stack'):create()
 M.pwd_forward_stack = require('lu5je0.lang.stack'):create()
@@ -29,12 +31,16 @@ function M.locate_file()
     turn_on_hidden_filter()
   end
 
-  if not string.startswith(cur_file_dir_path, cwd) then
+  if not string_utils.starts_with(cur_file_dir_path, cwd) then
     vim.cmd(':cd ' .. cur_file_dir_path)
   else
     -- check if file in dotdir
     if not is_dotfile then
       for dir in vim.fs.parents(cur_filepath) do
+        if dir == vim.fn.getcwd() then
+          -- 如果和当前目录一样，就直接跳过吧
+          break
+        end
         if vim.fs.basename(dir):sub(1, 1) == '.' then
           turn_on_hidden_filter()
           break
@@ -51,7 +57,7 @@ function M.terminal_cd()
   require('lu5je0.ext.terminal').send_to_terminal(('cd "%s"'):format(path))
 end
 
-function M.remove()
+function M.delete_node()
   local bufs = require("lu5je0.core.buffers").valid_buffers()
   -- local bufs = vim.api.nvim_list_bufs()
 
@@ -115,6 +121,7 @@ end
 
 function M.create_dir()
   local origin_input = vim.ui.input
+  --- @diagnostic disable-next-line: duplicate-set-field
   vim.ui.input = function(input_opts, fn)
     local origin_fn = fn
     input_opts.prompt = 'Create Directory '
@@ -155,7 +162,7 @@ function M.preview()
   if vim.fn.isdirectory(path) == 1 then
     return
   end
-  require('lu5je0.core.ui').preview(path)
+  pcall(require('lu5je0.core.ui').preview, path)
 end
 
 function M.file_info()
@@ -221,6 +228,29 @@ function M.reduce_width(w)
   vim.cmd('NvimTreeResize ' .. (width - w))
 end
 
+local recursion_limit = 20
+function M.target_git_item_reveal_to_file(action, recursion_count)
+  recursion_count = recursion_count or 0
+  if recursion_count > recursion_limit then
+    return
+  end
+
+  local old_node = api.tree.get_node_under_cursor()
+  require 'nvim-tree.actions.dispatch'.dispatch(action)
+  local node = api.tree.get_node_under_cursor()
+  if node == old_node and node.git_status and node.git_status.dir and next(node.git_status.dir) == nil then
+    return
+  end
+
+  if node.type == 'directory' then
+    if not node.open and node.git_status and node.git_status.dir and next(node.git_status.dir) ~= nil then
+      require 'nvim-tree.actions.dispatch'.dispatch('edit')
+    end
+    M.target_git_item_reveal_to_file(action, recursion_count + 1)
+  end
+  vim.cmd('norm zz')
+end
+
 function M.setup()
   vim.cmd([[
     hi NvimTreeFolderName guifg=#e5c07b
@@ -242,13 +272,6 @@ function M.setup()
     lua vim.api.nvim_set_keymap('n', '<leader>fe', ':call NvimLocateFile()<cr>', { noremap = true, silent = true })
   ]])
 
-  vim.cmd([[
-  augroup nvim_tree_group
-      autocmd!
-      autocmd BufWinEnter NvimTree_* setlocal cursorline
-  augroup END
-  ]])
-
   local opts = {
     noremap = true,
     silent = true,
@@ -267,27 +290,29 @@ function M.setup()
   local list = {
     { key = { '<CR>', 'l', 'o', '<2-LeftMouse>' }, cb = ":lua require('lu5je0.ext.nvimtree').open_node()<cr>" },
     { key = { '<BS>', 'h' }, cb = ":lua require('lu5je0.ext.nvimtree').close_node()<cr>" },
-    { key = { 'cd', 'C' }, cb = ":lua require('lu5je0.ext.nvimtree').cd()<cr>" },
+    { key = { 'cd' }, cb = ":lua require('lu5je0.ext.nvimtree').cd()<cr>" },
+    { key = { 'C' }, action = 'toggle_git_clean' },
+    { key = { 'B' }, action = 'toggle_no_buffer' },
     { key = { 't' }, cb = ":lua require('lu5je0.ext.nvimtree').terminal_cd()<cr>" },
     { key = '=', cb = ":lua require('lu5je0.ext.nvimtree').increase_width(2)<cr>" },
     { key = '-', cb = ":lua require('lu5je0.ext.nvimtree').reduce_width(2)<cr>" },
     { key = '+', cb = ":lua require('lu5je0.ext.nvimtree').increase_width(1)<cr>" },
     { key = '_', cb = ":lua require('lu5je0.ext.nvimtree').reduce_width(1)<cr>" },
-    { key = 'v', cb = ":lua require('lu5je0.ext.nvimtree').preview()<cr>" },
-    { key = 'x', cb = ":lua require('lu5je0.ext.nvimtree').toggle_width()<cr>" },
-    { key = 'mk', cb = ":lua require('lu5je0.ext.nvimtree').create_dir()<cr>" },
-    { key = 'D', cb = ":lua require('lu5je0.ext.nvimtree').remove()<cr>" },
+    { key = ';', action = 'preview', action_cb = M.preview },
+    { key = 'x', action = 'toggle_width', action_cb = M.toggle_width },
+    { key = 'mk', action = 'create_dir', action_cb = M.create_dir },
+    { key = 'D', action = 'delete', action_cb = M.delete_node },
     { key = 'H', cb = ':cd ~<cr>' },
     { key = 'd', cb = '<nop>' },
     { key = 's', action = 'vsplit' },
-    -- { key = 's', action = 'split' },
+    { key = 'v', action = 'split' },
     { key = 'S', action = 'search_node' },
-    -- { key = 'K', action = 'first_sibling' },
-    -- { key = 'J', action = 'last_sibling' },
+    { key = '[f', action = 'first_sibling' },
+    { key = ']f', action = 'last_sibling' },
     { key = '<', action = 'prev_sibling' },
     { key = '>', action = 'next_sibling' },
     -- { key = 'f', cb = ":lua require('lu5je0.ext.nvimtree').file_info()<cr>" },
-    { key = 'K', action = 'toggle_file_info' },
+    { key = { 'K', 'F' }, action = 'toggle_file_info' },
     { key = 'f', action = 'live_filter' },
     { key = '.', action = 'run_file_command' },
     -- { key = 'P', action = 'parent_node' },
@@ -301,12 +326,22 @@ function M.setup()
     { key = 'yn', action = 'copy_name' },
     { key = 'yP', action = 'copy_path' },
     { key = 'yp', action = 'copy_absolute_path' },
-    { key = '[g', action = 'prev_git_item' },
-    { key = ']g', action = 'next_git_item' },
+    -- { key = '[g', action = 'prev_git_item' },
+    -- { key = ']g', action = 'next_git_item' },
+    { key = '[g', action = 'prev_git_item_reveal_to_file',
+      action_cb = function()
+        M.target_git_item_reveal_to_file('prev_git_item')
+      end
+    },
+    { key = ']g', action = 'next_git_item_reveal_to_file',
+      action_cb = function()
+        M.target_git_item_reveal_to_file('next_git_item')
+      end
+    },
     { key = 'u', action = 'dir_up' },
     { key = 'o', action = 'system_open' },
     { key = 'q', action = 'close' },
-    { key = '<space>', action = 'toggle_mark' },
+    { key = 'x', action = 'toggle_mark' },
     { key = 'g?', action = 'toggle_help' },
     { key = '<c-o>', action = 'backward', action_cb = M.back },
     { key = { '<tab>', '<c-i>' }, action = 'forward', action_cb = M.forward },
@@ -316,7 +351,6 @@ function M.setup()
     disable_netrw = true,
     hijack_netrw = true,
     open_on_setup = false,
-    create_in_closed_folder = true,
     ignore_ft_on_setup = {},
     open_on_tab = false,
     hijack_cursor = false,
@@ -434,6 +468,9 @@ function M.setup()
       keys_helper.feedkey('<c-w>p')
     end
   end, 0)
+
+  -- 关闭wsl executable检测，性能太低了
+  require('nvim-tree.utils').is_wsl_windows_fs_exe = function() return false end
 end
 
 return M

@@ -29,18 +29,9 @@ local function special()
   return false
 end
 
-M.run_curl = function()
-  local filetype = vim.bo.filetype
+M.run_file = function(debug)
+  debug = debug or false
 
-  if vim.bo.modified then
-    vim.cmd('w')
-    print('save')
-  end
-
-  execute_in_terminal('source ~/work_proxy',build_cmd_with_file('sh') .. ';unset http_proxy;unset https_proxy')
-end
-
-M.run_file = function()
   local filetype = vim.bo.filetype
 
   if vim.bo.modified then
@@ -72,7 +63,11 @@ M.run_file = function()
   elseif filetype == 'bash' or filetype == 'zsh' then
     execute_in_terminal(build_cmd_with_file('bash'))
   elseif filetype == 'python' then
-    execute_in_terminal(build_cmd_with_file('python3'))
+    if debug then
+      execute_in_terminal(build_cmd_with_file('python3 -m debugpy --listen localhost:8086 --wait-for-client'))
+    else
+      execute_in_terminal(build_cmd_with_file('python3'))
+    end
   elseif filetype == 'rust' then
     execute_in_terminal('cargo run')
   elseif filetype == 'typescript' then
@@ -92,6 +87,14 @@ M.key_mapping = function()
   }
   vim.keymap.set('n', '<leader>rr', function()
     M.run_file()
+  end, opts)
+
+  vim.keymap.set('n', '<leader>rd', function()
+    M.run_file(true)
+
+    vim.defer_fn(function()
+      require("dap").continue()
+    end, 200)
   end, opts)
 end
 

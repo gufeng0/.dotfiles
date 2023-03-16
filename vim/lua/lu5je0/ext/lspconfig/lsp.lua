@@ -14,7 +14,7 @@ local function diagnostic()
     severity_sort = true,
     update_in_insert = true,
   }
-  local signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' }
+  local signs = { Error = '  ', Warn = '  ', Hint = '  ', Info = '  ' }
   for type, icon in pairs(signs) do
     local hl = 'DiagnosticSign' .. type
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
@@ -54,6 +54,8 @@ M.on_attach = function(client, bufnr)
   keymap('n', '<leader><space>', function()
     vim.diagnostic.open_float { scope = 'line', opts }
   end)
+  
+  -- client.server_capabilities.semanticTokensProvider = nil
 end
 
 local function config()
@@ -78,7 +80,6 @@ local function config()
       local sumneko_lua_config = require('lu5je0.ext.lspconfig.lspservers.sumneke-lua-config')
       opts.settings = sumneko_lua_config.settings
       opts.on_attach = sumneko_lua_config.on_attach(opts.on_attach)
-      opts = sumneko_lua_config.wrap_opts(opts)
     elseif server_name == 'pyright' then
       opts.on_init = require('lu5je0.ext.lspconfig.lspservers.pyright-config').on_init
     elseif server_name == 'jdtls' then
@@ -96,9 +97,18 @@ local function config()
   })
 end
 
+local function semantic_token_highlight()
+  vim.cmd [[
+    hi! link @lsp.type.variable.lua RedItalic
+    hi! link @lsp.typemod.variable.defaultLibrary.lua CyanItalic
+    " hi! link @lsp.mod.defaultLibrary.lua CyanItalic
+  ]]
+end
+
 function M.setup()
   diagnostic()
   config()
+  semantic_token_highlight()
   vim.defer_fn(function()
     vim.cmd("LspStart")
   end, 0)

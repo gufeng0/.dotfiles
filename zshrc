@@ -89,11 +89,6 @@ bindkey "^[[6~" history-beginning-search-forward
 ##########################################
 # ENV
 ##########################################
-if [[ ! -f ~/.ohmyenv ]]; then
-  touch ~/.ohmyenv
-  echo "HTTP_PROXY_PORT=1081\nSOCKS5_PROXY_PORT=1080" >~/.ohmyenv
-fi
-source ~/.ohmyenv
 export ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=""
 export PATH=~/.local/bin:~/.local/bin/solid:$PATH
 export PATH=$PATH:~/go/bin
@@ -113,18 +108,6 @@ alias sudo="sudo "
 alias crontab="cron.sh"
 # alias wgetp="wget -c -e use_proxy=yes -e http_proxy=p775.local:1080 -e https_proxy=p775.local:1080"
 
-alias sdc="sudo docker-compose"
-alias sd="sudo docker"
-
-# .zshrc
-alias vz='vim ~/.zshrc'
-alias sz='source ~/.zshrc'
-
-#souche work
-if [[ -e ~/tools/script/souche/souche_zsh ]];then
-    source ~/tools/script/souche/souche_zsh
-fi
-
 # ls
 alias l='ls -lah'
 alias ll='ls -lh'
@@ -139,8 +122,7 @@ alias gmc='sh ~/tools/script/gmc.sh'
 alias gck='git checkout'
 
 # tmux
-alias tm='tmux'
-alias ta="tmux attach -t"
+# alias ta="tmux attach -t"
 alias td="tmux detach"
 alias tl="tmux ls"
 alias tkss="tmux kill-session -t"
@@ -206,7 +188,7 @@ bindkey -M visual S add-surround
 
 if [[ ! -f ~/.ohmyenv ]]; then
   touch ~/.ohmyenv
-  echo "PROXY_HTTP_PORT=7890\nPROXY_SOCKS5_PORT=7890" >~/.ohmyenv
+  echo "PROXY_HTTP_PORT=1080\nPROXY_SOCKS5_PORT=1080" >~/.ohmyenv
 fi
 source ~/.ohmyenv
 
@@ -232,4 +214,3 @@ export IGNOREEOF=2
 zle -N bash-ctrl-d
 bindkey '^D' bash-ctrl-d
 ### End of Zinit's installer chunk
-export PATH="/usr/local/opt/maven@3.5/bin:$PATH"
