@@ -107,6 +107,9 @@ alias fetch_subs="~/.dotfiles/submodule/SubtitlesDownloader/fetch_subs.py"
 alias sudo="sudo "
 alias crontab="cron.sh"
 # alias wgetp="wget -c -e use_proxy=yes -e http_proxy=p775.local:1080 -e https_proxy=p775.local:1080"
+alias vc='vi ~/tools/script/curl.sh'
+alias vz='vi ~/.zshrc'
+alias sz='source ~/.zshrc'
 
 # ls
 alias l='ls -lah'
