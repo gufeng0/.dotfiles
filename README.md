@@ -14,3 +14,6 @@ todo
 ## shortcut key
 
 vim/plug-config/fern.vim
+
+## packer path
+.local/share/nvim/site/pack/packer
