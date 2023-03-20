@@ -198,7 +198,7 @@ return packer.startup(function(use)
   use {
     'ojroques/vim-oscyank',
     config = function()
-      vim.cmd("autocmd TextYankPost * execute 'OSCYankReg \"'")
+      vim.cmd("autocmd TextYankPost * execute 'OSCYankRegister \"'")
     end,
     disable = (vim.fn.has('wsl') == 1 or vim.fn.has('mac') == 1),
   }
@@ -473,6 +473,7 @@ return packer.startup(function(use)
       -- },
       -- 'hrsh7th/cmp-vsnip',
     },
+    event = 'InsertEnter',
   }
 
   use {
