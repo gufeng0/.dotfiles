@@ -123,6 +123,7 @@ alias md='mkdir -p'
 # git
 alias gmc='sh ~/tools/script/gmc.sh'
 alias gck='git checkout'
+alias glc='python3 ~/tools/script/xhyd/deploy.py'
 
 # tmux
 # alias ta="tmux attach -t"
@@ -139,6 +140,10 @@ alias vimn='nvim -u None'
 # maven
 alias mvni='mvn install -Dmaven.test.skip=true'
 alias mvnp='mvn package -Dmaven.test.skip=true'
+
+# docker
+alias sd='sudo docker'
+alias sdc='sudo docker-compose'
 
 ##########################################
 # vi-mode
@@ -217,3 +222,7 @@ export IGNOREEOF=2
 zle -N bash-ctrl-d
 bindkey '^D' bash-ctrl-d
 ### End of Zinit's installer chunk
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+
