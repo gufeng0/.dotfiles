@@ -1,3 +1,5 @@
+local keys_helper = require('lu5je0.core.keys')
+
 vim.g.mapleader = ','
 
 -- option toggle
@@ -36,10 +38,19 @@ local cmd_and_print = function(...)
   print(...)
 end
 
+---@diagnostic disable-next-line: param-type-mismatch
 vim.defer_fn(function()
   -- movement
   set_map({ 'x', 'n', 'o' }, 'H', '^')
   set_map({ 'x', 'n', 'o' }, 'L', '$')
+  
+  --cmdline
+  vim.cmd [[
+  cnoremap <expr> <up> wildmenumode() ? "\<c-p>" : "\<up>"
+  cnoremap <expr> <down> wildmenumode() ? "\<c-n>" : "\<down>"
+  ]]
+  -- set_map({ 'c' }, '<down>', '<c-n>')
+  -- set_map({ 'c' }, '<up>', '<s-tab>')
 
   -- toggle
   set_n_map('<leader>vn', option_toggler.new_toggle_fn({ 'set nonumber', 'set number' }))
@@ -71,11 +82,21 @@ vim.defer_fn(function()
       -- set_map({ 'n' }, 'Y', 'gyg$', buffer_opts)
     end
   end)
+  -- 
+  -- set_n_map('<space><', function()
+  --   keys_helper.feedkey('`[v`]')
+  -- end)
+  -- set_n_map('<space>>', function()
+  --   
+  -- end)
 
   -- dir
-  set_n_map('<leader>fp', function() cmd_and_print('cd ~/.local/share/nvim/site/pack/packer') end)
-  set_n_map('<leader>fd', function() cmd_and_print(':cd ~/.dotfiles') end)
-  set_n_map('<leader>ft', function() cmd_and_print(':cd ~/test') end)
+  -- set_n_map('<leader>fp', function() cmd_and_print('cd ~/.local/share/nvim/lazy') end)
+  set_n_map('<leader>fd', function() cmd_and_print('cd ~/.dotfiles') end)
+  set_n_map('<leader>ft', function() cmd_and_print('cd ~/test') end)
+  
+  -- selection search
+  set_map('x', { '<leader>/', '<space>/' }, '<Esc>/\\%V', {})
 
   -- lsp
   set_map({ 'n', 'i' }, { '<m-cr>', '<d-cr>' }, '<leader>cc')
@@ -92,6 +113,16 @@ vim.defer_fn(function()
   xmap < <gv
   xmap > >gv
   
+  nnoremap <space>< `[v`]<^
+  nnoremap <space>> `[v`]>^
+  
+  nnoremap <space>H H
+  nnoremap <space>h H
+  nnoremap <space>L L
+  nnoremap <space>l L
+  
+  nnoremap <space><space> %
+  
   " xmap : :<c-u>
 
   imap <M-j> <down>
@@ -102,8 +133,8 @@ vim.defer_fn(function()
   "----------------------------------------------------------------------
   " <leader>
   "----------------------------------------------------------------------
-  nmap <silent> <leader>tN :tabnew<cr>
-  nmap <silent> <leader>tc :tabclose<cr>
+  nmap <silent> <leader>tN <cmd>tabnew<cr>
+  nmap <silent> <leader>tc <cmd>tabclose<cr>
   nmap <silent> <leader><leader> <c-^>
 
   "----------------------------------------------------------------------
@@ -115,8 +146,8 @@ vim.defer_fn(function()
   nmap <silent> <c-h> <c-w>h
   nmap <silent> <c-l> <c-w>l
 
-  nmap <silent> <left> :bp<cr>
-  nmap <silent> <right> :bn<cr>
+  nmap <silent> <left> <cmd>bp<cr>
+  nmap <silent> <right> <cmd>bn<cr>
   nmap <silent> <c-b>o <c-w>p
   nmap <silent> <c-b><c-o> <c-w>p
   
@@ -131,24 +162,25 @@ vim.defer_fn(function()
   "----------------------------------------------------------------------
   " text-objects
   "----------------------------------------------------------------------
-  onoremap il :<c-u>normal! v$o^oh<cr>
+  onoremap il <cmd>normal! v$o^oh<cr>
   xnoremap il $o^oh
 
-  onoremap ie :<c-u>normal! vgg0oG$<cr>
+  onoremap ie <cmd>normal! vgg0oG$<cr>
   xnoremap ie gg0oG$
 
-  onoremap ae :<c-u>normal! vgg0oG$<cr>
+  onoremap ae <cmd>normal! vgg0oG$<cr>
   xnoremap ae gg0oG$
 
   "----------------------------------------------------------------------
   " visual mode
   "----------------------------------------------------------------------
-  xmap <silent> # :lua require("ext.terminal").run_select_in_terminal()<cr>
+  xmap <silent> <m-i> <cmd>lua require("lu5je0.ext.terminal").run_select_in_terminal()<cr>
 
   "----------------------------------------------------------------------
   " other
   "----------------------------------------------------------------------
-  nnoremap * m`:keepjumps normal! *``<cr>
+  " nnoremap * m`<cmd>keepjumps normal! *``<cr>
+  nnoremap <silent> * ms:<c-u>let @/='\V\<'.escape(expand('<cword>'), '/\').'\>'<bar>call histadd('/',@/)<bar>set hlsearch<cr>
   xnoremap * m`:keepjumps <C-u>call visual#star_search_set('/')<CR>/<C-R>=@/<CR><CR>``
   nnoremap v m'v
   nnoremap V m'V
@@ -156,23 +188,23 @@ vim.defer_fn(function()
   "----------------------------------------------------------------------
   " leader
   "----------------------------------------------------------------------
-  nmap <leader>% :%s/
+  nmap <leader>% <cmd>%s/
 
   nmap <leader>wo <c-w>o
 
   "----------------------------------------------------------------------
   " 繁体简体
   "----------------------------------------------------------------------
-  xmap <leader>xz :!opencc -c t2s<cr>
-  nmap <leader>xz :%!opencc -c t2s<cr>
-  xmap <leader>xZ :!opencc -c s2t<cr>
-  nmap <leader>xZ :%!opencc -c s2t<cr>
+  xmap <leader>xz <cmd>!opencc -c t2s<cr>
+  nmap <leader>xz <cmd>%!opencc -c t2s<cr>
+  xmap <leader>xZ <cmd>!opencc -c s2t<cr>
+  nmap <leader>xZ <cmd>%!opencc -c s2t<cr>
 
   "----------------------------------------------------------------------
   " unicode escape
   "----------------------------------------------------------------------
-  xmap <silent> <leader>xu :<c-u>call visual#replace_by_fn("UnicodeEscapeString")<cr>
-  xmap <silent> <leader>xU :<c-u>call visual#replace_by_fn("UnicodeUnescapeString")<cr>
+  xmap <silent> <leader>xu <cmd>call visual#replace_by_fn("UnicodeEscapeString")<cr>
+  xmap <silent> <leader>xU <cmd>call visual#replace_by_fn("UnicodeUnescapeString")<cr>
 
   " ugly hack to start newline and keep indent
   nnoremap <silent> o o<space><bs>

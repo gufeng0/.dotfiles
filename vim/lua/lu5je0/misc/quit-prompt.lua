@@ -3,6 +3,7 @@ local M = {}
 local devicons = require('nvim-web-devicons')
 local cursor_utils = require('lu5je0.core.cursor')
 local keys = require('lu5je0.core.keys')
+local time_machine = require('lu5je0.misc.time-machine')
 
 local function keymap(mode, lhs, rhs, opts)
   if type(lhs) == 'table' then
@@ -14,7 +15,7 @@ local function keymap(mode, lhs, rhs, opts)
   end
 end
 
-local function create_popup(msg)
+local function create_popup(msg, bufinfo_list)
   local Popup = require('nui.popup')
   local event = require('nui.utils.autocmd').event
 
@@ -58,6 +59,11 @@ local function create_popup(msg)
 
   keymap('n', { 'Y', 'y' }, function()
     popup:unmount()
+    
+    -- 保存没有文件名的文件
+    for _, bufinfo in ipairs(bufinfo_list) do
+      time_machine.save_buffer(bufinfo.bufnr)
+    end
     vim.cmd('qa!')
   end, opts)
 
@@ -89,6 +95,8 @@ local function create_popup(msg)
   vim.api.nvim_buf_add_highlight(popup.bufnr, -1, title_group, 0, 0, -1)
   for i, filename in ipairs(msg.text) do
     local icon, hi_group = devicons.get_icon(filename, get_extension(filename), {})
+    icon = icon or ''
+    hi_group = hi_group or 'Normal'
     vim.api.nvim_buf_set_lines(popup.bufnr, i, i + 1, false, { ' ' .. icon .. ' ' .. filename })
     vim.api.nvim_buf_add_highlight(popup.bufnr, -1, hi_group, i, 1, 5)
   end
@@ -108,19 +116,19 @@ local function create_popup(msg)
 end
 
 local function exit_vim_with_dialog()
-  local unsave_buffers = {}
+  local unsave_bufinfo_list = {}
 
   for _, buffer in ipairs(vim.fn.getbufinfo { bufloaded = 1, buflisted = 1 }) do
     if buffer.changed == 1 then
-      table.insert(unsave_buffers, buffer)
+      table.insert(unsave_bufinfo_list, buffer)
     end
   end
 
   local content = { title = '', choice = '', text = {} }
-  if #unsave_buffers ~= 0 then
+  if #unsave_bufinfo_list ~= 0 then
     content.title = 'The change of the following buffers will be discarded.'
 
-    for _, buffer in ipairs(unsave_buffers) do
+    for _, buffer in ipairs(unsave_bufinfo_list) do
       local filename = vim.fn.fnamemodify(buffer.name, ':t')
       if filename == '' then
         filename = '[Untitled] '
@@ -134,48 +142,48 @@ local function exit_vim_with_dialog()
     content.choice = '[N]o, (Y)es'
   end
 
-  create_popup(content)
+  create_popup(content, unsave_bufinfo_list)
 end
 
-local function exit_vim_by_comfirm()
-  local unsave_buffers = {}
+-- local function exit_vim_by_comfirm()
+--   local unsave_buffers = {}
+--
+--   for _, buffer in ipairs(vim.fn.getbufinfo { bufloaded = 1, buflisted = 1 }) do
+--     if buffer.changed == 1 then
+--       table.insert(unsave_buffers, buffer)
+--     end
+--   end
+--
+--   local msg = nil
+--   local options = '&No\n&Yes'
+--
+--   if #unsave_buffers ~= 0 then
+--     msg = 'The change of the following buffers will be discarded.'
+--     for _, buffer in ipairs(unsave_buffers) do
+--       local name = require('nvim-web-devicons').get_icon(buffer.name, string.split(buffer.name, '.')[-1]) ..
+--           ' ' .. vim.fn.fnamemodify(buffer.name, ':t')
+--       if name == '' then
+--         name = '[Untitled] ' .. buffer.bufnr
+--       end
+--       msg = msg .. '\n' .. name
+--     end
+--
+--     options = options .. '\n&Save All'
+--   else
+--     msg = 'Exit vim?'
+--   end
+--
+--   local confirm_value = vim.fn.confirm(msg, options)
+--   if confirm_value == 1 then
+--     return
+--   elseif confirm_value == 2 then
+--     vim.cmd('qa!')
+--   elseif confirm_value == 3 then
+--     vim.cmd('wqa!')
+--   end
+-- end
 
-  for _, buffer in ipairs(vim.fn.getbufinfo { bufloaded = 1, buflisted = 1 }) do
-    if buffer.changed == 1 then
-      table.insert(unsave_buffers, buffer)
-    end
-  end
-
-  local msg = nil
-  local options = '&No\n&Yes'
-
-  if #unsave_buffers ~= 0 then
-    msg = 'The change of the following buffers will be discarded.'
-    for _, buffer in ipairs(unsave_buffers) do
-      local name = require('nvim-web-devicons').get_icon(buffer.name, string.split(buffer.name, '.')[-1]) ..
-          ' ' .. vim.fn.fnamemodify(buffer.name, ':t')
-      if name == '' then
-        name = '[Untitled] ' .. buffer.bufnr
-      end
-      msg = msg .. '\n' .. name
-    end
-
-    options = options .. '\n&Save All'
-  else
-    msg = 'Exit vim?'
-  end
-
-  local confirm_value = vim.fn.confirm(msg, options)
-  if confirm_value == 1 then
-    return
-  elseif confirm_value == 2 then
-    vim.cmd('qa!')
-  elseif confirm_value == 3 then
-    vim.cmd('wqa!')
-  end
-end
-
-M.close_buffer = function()
+function M.close_buffer()
   local valid_buffers = require('lu5je0.core.buffers').valid_buffers()
   local cur_buf_nr = vim.api.nvim_get_current_buf()
 
@@ -198,6 +206,9 @@ M.close_buffer = function()
     if confirm_result ~= 2 then
       return
     end
+    
+    -- 保存不存在buffer
+    time_machine.save_buffer(0)
   end
 
   -- 一个tab页中有两个以上的buffer时，直接quit
@@ -212,7 +223,7 @@ end
 
 M.exit = exit_vim_with_dialog
 
-M.setup = function ()
+function M.setup ()
   local opts = { desc = 'mappings.lua', silent = true }
   vim.keymap.set('n', '<leader>q', M.close_buffer, opts)
   vim.keymap.set('n', '<leader>Q', M.exit, opts)

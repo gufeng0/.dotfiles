@@ -31,7 +31,10 @@ require('lu5je0.misc.big-file').setup {
       size = 500 * 1024,
       function()
         vim.defer_fn(function()
-          vim.cmd [[ CmpAutocompleteDisable ]]
+          require('lu5je0.ext.plugins_helper').load_plugin('nvim-cmp')
+          if vim.fn.exists('CmpAutocompleteDisable') > 0 then
+            vim.cmd [[ CmpAutocompleteDisable ]]
+          end
         end, 200)
       end
     },
@@ -44,9 +47,12 @@ require('lu5je0.misc.big-file').setup {
       end
     },
     function(buf_nr)
-      vim.cmd [[ IndentBlanklineDisable ]]
-      vim.treesitter.stop(buf_nr)
-      require('hlargs').disable()
+      vim.defer_fn(function()
+        require('lu5je0.ext.plugins_helper').load_plugin('indent-blankline.nvim')
+        vim.cmd [[ IndentBlanklineDisable ]]
+        vim.treesitter.stop(buf_nr)
+        require('hlargs').disable()
+      end, 200)
     end
   }
 }
@@ -92,13 +98,15 @@ require('lu5je0.misc.code-runner').key_mapping()
 -- quit-prompt
 require('lu5je0.misc.quit-prompt').setup()
 
+require('lu5je0.misc.dirbuf-hijack').setup()
+
 if vim.fn.has('nvim-0.9') == 1 then
   require('lu5je0.misc.statuscolumn')
 end
 
-require('lu5je0.misc.file-scope-highlight').file_handlers = {
-  json = function(ns_id)
-    vim.api.nvim_set_hl(ns_id, '@boolean', { fg = '#deb974' })
-    vim.api.nvim_set_hl(ns_id, '@number', { fg = '#6cb6eb' })
-  end,
-}
+-- require('lu5je0.misc.file-scope-highlight').file_handlers = {
+--   json = function(ns_id)
+--     vim.api.nvim_set_hl(ns_id, '@boolean', { fg = '#deb974' })
+--     vim.api.nvim_set_hl(ns_id, '@number', { fg = '#6cb6eb' })
+--   end,
+-- }

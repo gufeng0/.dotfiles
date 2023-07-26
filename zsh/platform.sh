@@ -4,8 +4,8 @@ if [[ $UNAME_INFO =~ "Darwin" ]]; then
   # intel
   PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
   
-  # # arm
-  # PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+  # arm
+  export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
   
   alias ls='ls -F --show-control-chars --color=auto'
   eval $(gdircolors -b $HOME/.dir_colors)
@@ -20,8 +20,12 @@ if [[ $UNAME_INFO =~ "Darwin" ]]; then
   alias yy='pbcopy'
   alias p='pbpaste'
   alias iterm='open -a iTerm .'
-  export JAVA_HOME=$JAVA_HOME_8
-  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#555555"
+  
+  if test -z "$JAVA_HOME";then
+    export JAVA_HOME=$JAVA_HOME_8
+  fi
+  
+  export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#555555"
 
   # brew
   export HOMEBREW_NO_AUTO_UPDATE=true
@@ -33,9 +37,9 @@ if [[ $UNAME_INFO =~ "Darwin" ]]; then
 elif [[ $UNAME_INFO =~ "microsoft" ]]; then
   function __git_prompt_git() {
     if [[ "$PWD" =~ '^/mnt/[cdefgh]/' ]]; then
-      GIT_OPTIONAL_LOCKS=0 command git.exe "$@"
+      command git.exe "$@"
     else
-      GIT_OPTIONAL_LOCKS=0 command git "$@"
+      command git "$@"
     fi
   }
   export WSL_IP=$(hostname -I | awk '{print $1}')
@@ -45,11 +49,20 @@ elif [[ $UNAME_INFO =~ "microsoft" ]]; then
   alias gc='__git_prompt_git commit'
   alias gd='__git_prompt_git diff'
   alias grep='grep --color'
-  alias e='explorer.exe'
+  alias e='/mnt/c/Windows/explorer.exe'
   alias yy='win32yank.exe -i'
   alias p='win32yank.exe -o'
   alias cmd='/mnt/c/Windows/System32/cmd.exe /c'
+  export PATH=$PATH:'/mnt/c/Windows/SysWOW64/WindowsPowerShell/v1.0/'
+  export PATH=~/.dotfiles/bin/wsl/:$PATH
   clippaste() {
     powershell.exe -noprofile -command Get-Clipboard | tr -d '\r'
   }
+  
+  vi-escape() {
+    ~/.dotfiles/vim/lib/toDisableIME.exe
+    zle vi-cmd-mode
+  }
+elif [[ $UNAME_INFO =~ "Android" ]]; then
+  alias apk-install='termux-open --view --content-type "application/vnd.android.package-archive" '
 fi

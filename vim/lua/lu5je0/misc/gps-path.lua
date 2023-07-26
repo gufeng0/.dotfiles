@@ -2,15 +2,15 @@ local M = {}
 
 local gps_ft_white_list = { 'json', 'lua', 'java' }
 
-M.path = function()
+function M.path()
   if vim.bo.filetype == 'json' then
     return require('jsonpath').get()
   else
-    return require('nvim-gps').get_location()
+    return require('nvim-navic').get_location()
   end
 end
 
-M.is_available = function()
+function M.is_available()
   local filetype = vim.bo.filetype
   if not table.contain(gps_ft_white_list, filetype) then
     return false
@@ -19,11 +19,11 @@ M.is_available = function()
   if filetype == 'json' then
     return true
   else
-    local ok, nvim_gps = pcall(require, 'nvim-gps')
+    local ok, navic = pcall(require, 'nvim-navic')
     if not ok then
       return false
     end
-    return nvim_gps.is_available()
+    return navic.is_available()
   end
 end
 

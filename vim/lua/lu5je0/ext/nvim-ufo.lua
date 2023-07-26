@@ -2,15 +2,16 @@ local parsers = require('nvim-treesitter.parsers')
 local string_utils = require('lu5je0.lang.string-utils')
 local render = require('ufo.render')
 
+local suffix_ft_black_list = { 'norg', 'markdown', 'python', 'yaml', '' }
 local fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate)
   local newVirtText = {}
 
   -- 获取下一行，并移除首尾空格
   local next_line = string_utils.trim(vim.fn.getline(endLnum))
   -- todo 冗余
-  local suffix = (' … %s  %d'):format(next_line, endLnum - lnum)
+  local suffix = (' … %s 󰁂 %d'):format(next_line, endLnum - lnum)
 
-  -- local suffix = ('  %d '):format(endLnum - lnum)
+  -- local suffix = (' 󰁂 %d '):format(endLnum - lnum)
   local sufWidth = vim.fn.strdisplaywidth(suffix)
   local targetWidth = width - sufWidth
   local curWidth = 0
@@ -32,30 +33,36 @@ local fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate
     end
     curWidth = curWidth + chunkWidth
   end
-  
-  local suffix_list = suffix:split('')
-  table.insert(newVirtText, { ' … ', 'TSPunctBracket' })
-  
-  local nss = {}
-  for _, ns in pairs(vim.api.nvim_get_namespaces()) do
-    table.insert(nss, ns)
-  end
-  local end_line_virt_text = render.captureVirtText(vim.api.nvim_get_current_buf(), vim.fn.getline(endLnum), endLnum, nil, nss)
-  
-  -- 移除前导空格
-  local encounter_text = false
-  for _, v in ipairs(end_line_virt_text) do
-    if not encounter_text and string_utils.is_blank(v[1]) then
-      goto continue
+
+  local suffix_list = suffix:split('󰁂')
+
+  local filetype = vim.bo.filetype
+  -- 不是代码文件跳过最后一行折叠
+  if not table.contain(suffix_ft_black_list, filetype) then
+    table.insert(newVirtText, { ' … ', 'TSPunctBracket' })
+
+    local nss = {}
+    for _, ns in pairs(vim.api.nvim_get_namespaces()) do
+      table.insert(nss, ns)
     end
-    
-    table.insert(newVirtText, v)
-    encounter_text = true
-    
-    ::continue::
+
+    local end_line_virt_text = render.captureVirtText(vim.api.nvim_get_current_buf(), vim.fn.getline(endLnum), endLnum,
+      nil, nss)
+    -- 移除前导空格
+    local encounter_text = false
+    for _, v in ipairs(end_line_virt_text) do
+      if not encounter_text and string_utils.is_blank(v[1]) then
+        goto continue
+      end
+
+      table.insert(newVirtText, v)
+      encounter_text = true
+
+      ::continue::
+    end
   end
-  
-  table.insert(newVirtText, { ' ' .. suffix_list[2], 'MoreMsg' })
+
+  table.insert(newVirtText, { ' 󰁂' .. suffix_list[2], 'MoreMsg' })
   return newVirtText
 end
 
@@ -105,7 +112,7 @@ require('ufo').setup({
     return { 'treesitter' }
   end,
   close_fold_kinds = {},
-  open_fold_hl_timeout = 200,
+  open_fold_hl_timeout = 0,
   fold_virt_text_handler = fold_virt_text_handler
 })
 
@@ -117,3 +124,23 @@ require('ufo').setup({
 --     require('ufo').setup()
 --   end
 -- })
+
+-- 切换virt text
+local ori_virt_text_func = require('ufo.model.foldedline').updateVirtText
+local virt_text_status = false
+local function toggle_ufo_virt_text()
+  if virt_text_status then
+    vim.cmd("set foldtext=v:lua.require('ufo.main').foldtext()")
+    require('ufo.model.foldedline').updateVirtText = ori_virt_text_func
+  else
+    vim.cmd("set foldtext=v:lua.require('pretty-fold').foldtext.global()")
+    require('ufo.model.foldedline').updateVirtText = function()
+    end
+  end
+  virt_text_status = not virt_text_status
+end
+
+vim.api.nvim_create_user_command("FoldTextToggle", function()
+  vim.cmd('Lazy load pretty-fold.nvim')
+  toggle_ufo_virt_text()
+end, {})

@@ -1,5 +1,7 @@
+local timer = require('lu5je0.lang.timer')
 local lualine = require('lualine')
 local file_util = require('lu5je0.core.file')
+local big_file = require('lu5je0.misc.big-file')
 
 ---@diagnostic disable: missing-parameter
 local expand = vim.fn.expand
@@ -175,7 +177,7 @@ ins_left {
 
 ins_left {
   function()
-    return ''
+    return ''
   end,
   cond = function() return vim.bo.filetype == '' end,
   inactive = true,
@@ -240,11 +242,11 @@ ins_left {
 
 ins_left {
   function()
-    return require('lu5je0.misc.gps-path').path()
+    return string.sub(require('lu5je0.misc.gps-path').path(), 1, 100)
   end,
   inactive = true,
   cond = function()
-    return require('lu5je0.misc.gps-path').is_available() and conditions.hide_in_width()
+    return not big_file.is_big_file(0) and require('lu5je0.misc.gps-path').is_available() and conditions.hide_in_width()
   end,
   color = { fg = colors.white },
   padding = { left = 1, right = 0 },
@@ -309,6 +311,7 @@ ins_left {
 ins_right {
   function()
     -- return [[ %2p%% %l:%c ]]
+    -- ' %02p%% ' percentage
     return ([[%%l:%s ]]):format(vim.fn.charcol('.'))
   end,
   padding = { left = 0, right = 1 },
@@ -361,9 +364,17 @@ ins_right {
   },
 }
 
+-- git_branch
 ins_right {
-  'b:gitsigns_head',
-  icon = '',
+  function()
+    local head = vim.b.gitsigns_head
+    if head then
+      return ' ' .. head
+    end
+  end,
+  cond = function()
+    return vim.b.gitsigns_status_dict ~= nil
+  end,
   color = { fg = colors.violet, gui = 'bold' },
   padding = { left = 0, right = 1 },
 }

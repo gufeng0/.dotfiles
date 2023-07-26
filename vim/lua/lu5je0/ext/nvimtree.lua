@@ -4,8 +4,8 @@ local M = {}
 local lib = require('nvim-tree.lib')
 local keys_helper = require('lu5je0.core.keys')
 local api = require('nvim-tree.api')
-local log = require('lu5je0.core.log')
 local string_utils = require('lu5je0.lang.string-utils')
+local ui = require('lu5je0.core.ui')
 
 M.pwd_stack = require('lu5je0.lang.stack'):create()
 M.pwd_forward_stack = require('lu5je0.lang.stack'):create()
@@ -100,19 +100,12 @@ function M.delete_node()
     vim.api.nvim_win_set_buf(cur_file_win_id, substitute_buf_id)
   end
   local cur_width = vim.api.nvim_win_get_width(0)
-  require 'nvim-tree.actions.dispatch'.dispatch('remove')
+  api.fs.remove()
   if is_remove_cur_file and substitute_buf_id == nil then
     vim.cmd("vnew")
     vim.cmd('NvimTreeResize ' .. cur_width)
     keys_helper.feedkey('<c-w>p')
   end
-end
-
-function M.edit()
-  if _G.preview_popup then
-    _G.preview_popup:unmount()
-  end
-  require 'nvim-tree.actions.dispatch'.dispatch('edit')
 end
 
 function M.pwd_stack_push()
@@ -133,7 +126,7 @@ function M.create_dir()
     end
     origin_input(input_opts, fn)
   end
-  require 'nvim-tree.actions.dispatch'.dispatch('create')
+  api.fs.create()
   vim.ui.input = origin_input
 end
 
@@ -153,46 +146,64 @@ function M.forward()
 end
 
 function M.cd()
-  require 'nvim-tree.actions.dispatch'.dispatch('cd')
+  api.tree.change_root_to_node()
   vim.cmd('norm gg')
 end
 
-function M.preview()
-  local path = lib.get_node_at_cursor().absolute_path
+function M.preview(toggle)
+  local node = lib.get_node_at_cursor()
+  if node == nil then
+    return
+  end
+  local path = node.absolute_path
   if vim.fn.isdirectory(path) == 1 then
     return
   end
-  pcall(require('lu5je0.core.ui').preview, path)
-end
-
-function M.file_info()
-  local info = vim.fn.system('ls -alhd "' ..
-    lib.get_node_at_cursor().absolute_path .. '" -l --time-style="+%Y-%m-%d %H:%M:%S"')
-  info = info .. vim.fn.system('du -h --max-depth=0 "' .. lib.get_node_at_cursor().absolute_path .. '"'):sub(1, -2)
-  require('lu5je0.core.ui').popup_info_window(info)
+  if ui.current_popup ~= nil and toggle then
+    ui.close_current_popup()
+  else
+    if path ~= nil then
+      ui.preview(path)
+    end
+  end
 end
 
 function M.open_node()
+  ui.close_current_popup()
+
   local node = lib.get_node_at_cursor()
   if node == nil then
     return
   end
 
-  local parent_absolute_path = node.absolute_path
+  -- local parent_absolute_path = node.absolute_path
   if not node.open and (node.has_children or (node.nodes and #node.nodes ~= 0)) then
     vim.schedule(function()
       vim.cmd('norm j')
-      if lib.get_node_at_cursor().parent.absolute_path ~= parent_absolute_path then
-        vim.cmd('norm k')
-      end
+      -- 这里忘记什么原因了，先注释掉，否则打开submodule下的文件夹有问题
+      -- if lib.get_node_at_cursor().parent.absolute_path ~= parent_absolute_path then
+      --   vim.cmd('norm k')
+      -- end
     end)
   end
-  require 'nvim-tree.actions.dispatch'.dispatch('edit')
+
+  -- 记住光标位置
+  local win_id = vim.api.nvim_get_current_win()
+  local cursor_line = vim.api.nvim_win_get_cursor(win_id)[1]
+
+  api.node.open.edit()
+
+  -- 还原光标位置
+  vim.defer_fn(function()
+    if vim.api.nvim_get_current_win() ~= win_id then
+      vim.api.nvim_win_set_cursor(win_id, { cursor_line, 1 })  
+    end
+  end, 0)
 end
 
 function M.close_node()
   local node = lib.get_node_at_cursor()
-  require 'nvim-tree.actions.dispatch'.dispatch('close_node')
+  api.node.navigate.parent_close()
   if vim.fn.getcwd() == '/' then
     if node ~= lib.get_node_at_cursor() then
       keys_helper.feedkey('k')
@@ -228,6 +239,43 @@ function M.reduce_width(w)
   vim.cmd('NvimTreeResize ' .. (width - w))
 end
 
+local function set_clipboard(text)
+  vim.fn.setreg('"', text)
+  if vim.fn.has('clipboard') then
+    vim.fn.setreg('*', text)
+  end
+end
+
+function M.copy_relative_path()
+  local node = require('nvim-tree.lib').get_node_at_cursor()
+  if not node then
+    return
+  end
+  if node.name == '..' then
+    set_clipboard(vim.fs.basename(vim.fn.getcwd()))
+    print('copied relative path')
+    return
+  end
+  api.fs.copy.relative_path()
+end
+
+function M.copy_absolute_path()
+  local node = require('nvim-tree.lib').get_node_at_cursor()
+  if not node then
+    return
+  end
+  
+  local path
+  if node.name == '..' then
+    path = vim.fn.getcwd()
+  else
+    path = node.absolute_path
+  end
+
+  set_clipboard(path)
+  print('copied absolute path')
+end
+
 local recursion_limit = 20
 function M.target_git_item_reveal_to_file(action, recursion_count)
   recursion_count = recursion_count or 0
@@ -236,19 +284,100 @@ function M.target_git_item_reveal_to_file(action, recursion_count)
   end
 
   local old_node = api.tree.get_node_under_cursor()
-  require 'nvim-tree.actions.dispatch'.dispatch(action)
+  action()
   local node = api.tree.get_node_under_cursor()
+  if node == nil then
+    return
+  end
+
   if node == old_node and node.git_status and node.git_status.dir and next(node.git_status.dir) == nil then
     return
   end
 
   if node.type == 'directory' then
     if not node.open and node.git_status and node.git_status.dir and next(node.git_status.dir) ~= nil then
-      require 'nvim-tree.actions.dispatch'.dispatch('edit')
+      api.node.open.edit()
     end
     M.target_git_item_reveal_to_file(action, recursion_count + 1)
   end
   vim.cmd('norm zz')
+end
+
+local function on_attach(bufnr)
+  local set = vim.keymap.set
+
+  local function opts(desc)
+    return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+  end
+
+  -- preview
+  local arrows = { j = 'down', k = 'up' }
+  for k, v in pairs(arrows) do
+    set('n', k, function()
+      keys_helper.feedkey(k, 'n')
+      if ui.current_popup ~= nil then
+        vim.defer_fn(function() M.preview(false) end, 0)
+      end
+    end, opts(v))
+  end
+  set('n', '<esc>', function()
+    ui.close_current_popup()
+  end, opts("quit"))
+  set('n', '<space>', function() M.preview(true) end, opts('Open Preview'))
+
+  set('n', 'C', api.tree.toggle_git_clean_filter, opts('Toggle Git Clean'))
+  set('n', 'cd', M.cd, opts('cd'))
+  set('n', 'B', api.tree.toggle_no_buffer_filter, opts('Toggle No Buffer'))
+  set('n', 'x', M.toggle_width, opts('toggle_width'))
+  -- set('n', 'x', api.marks.toggle, opts('Toggle Bookmark'))
+  set('n', 'mk', M.create_dir, opts('create_dir'))
+  set('n', 't', M.terminal_cd, opts('terminal cd'))
+  set('n', 'D', function()
+    api.fs.remove()
+    vim.defer_fn(api.tree.reload, 500)
+  end, opts('delete'))
+
+  set('n', 'l', M.open_node, opts('Open Node'))
+  set('n', '<cr>', M.open_node, opts('Open Node'))
+
+  set('n', 'h', M.close_node, opts('Close Node'))
+  set('n', '%', api.node.open.vertical, opts('Open: Vertical Split'))
+  set('n', '=', api.node.open.horizontal, opts('Open: Horizontal Split'))
+  set('n', 'S', api.tree.search_node, opts('Search'))
+  set('n', '[f', api.node.navigate.sibling.first, opts('First Sibling'))
+  set('n', ']f', api.node.navigate.sibling.last, opts('Last Sibling'))
+  set('n', '<', api.node.navigate.sibling.prev, opts('Previous Sibling'))
+  set('n', '>', api.node.navigate.sibling.next, opts('Next Sibling'))
+  set('n', 'K', api.node.show_info_popup, opts('Info'))
+  set('n', 'F', api.node.show_info_popup, opts('Info'))
+  set('n', 'f', api.live_filter.start, opts('Filter'))
+  set('n', '.', api.node.run.cmd, opts('Run Command'))
+  set('n', 'I', api.tree.toggle_hidden_filter, opts('Toggle Dotfiles'))
+  set('n', 'r', api.tree.reload, opts('Refresh'))
+  set('n', 'ma', api.fs.create, opts('Create'))
+  set('n', 'mv', api.fs.rename, opts('Rename'))
+  set('n', 'dd', api.fs.cut, opts('Cut'))
+  set('n', 'yy', api.fs.copy.node, opts('Copy'))
+  set('n', 'p', api.fs.paste, opts('Paste'))
+  set('n', 'yn', api.fs.copy.filename, opts('Copy Name'))
+  set('n', 'yP', M.copy_relative_path, opts('Copy Relative Path'))
+  set('n', 'yp', M.copy_absolute_path, opts('Copy Absolute Path'))
+
+  set('n', '[g', function()
+    M.target_git_item_reveal_to_file(api.node.navigate.git.prev)
+  end, opts('prev_git_item_reveal_to_file'))
+  set('n', ']g', function()
+    M.target_git_item_reveal_to_file(api.node.navigate.git.next)
+  end, opts('next_git_item_reveal_to_file'))
+
+  set('n', 'u', api.tree.change_root_to_parent, opts('Up'))
+  set('n', 'o', api.node.run.system, opts('Run System'))
+  set('n', 'q', api.tree.close, opts('Close'))
+  set('n', '?', api.tree.toggle_help, opts('Help'))
+  set('n', '<c-o>', M.back, opts('backward'))
+
+  set('n', '<tab>', M.forward, opts('forward'))
+  set('n', '<c-i>', M.forward, opts('forward'))
 end
 
 function M.setup()
@@ -277,84 +406,32 @@ function M.setup()
     silent = true,
     desc = 'nvim_tree'
   }
+  
   vim.keymap.set('n', '<leader>e', function()
-    require('nvim-tree').toggle(false, true)
+    api.tree.toggle(false, true)
   end, opts)
+  
+  vim.keymap.set('n', '<leader>E', function()
+    vim.cmd('NvimTreeFocus')
+  end, opts)
+  
   vim.keymap.set('n', '<leader>fe', require('lu5je0.ext.nvimtree').locate_file, opts)
 
   local view = require('nvim-tree.view')
   view.View.winopts.signcolumn = 'no'
   view.View.winopts.foldcolumn = '1'
-
-  -- default mappings
-  local list = {
-    { key = { '<CR>', 'l', 'o', '<2-LeftMouse>' }, cb = ":lua require('lu5je0.ext.nvimtree').open_node()<cr>" },
-    { key = { '<BS>', 'h' }, cb = ":lua require('lu5je0.ext.nvimtree').close_node()<cr>" },
-    { key = { 'cd' }, cb = ":lua require('lu5je0.ext.nvimtree').cd()<cr>" },
-    { key = { 'C' }, action = 'toggle_git_clean' },
-    { key = { 'B' }, action = 'toggle_no_buffer' },
-    { key = { 't' }, cb = ":lua require('lu5je0.ext.nvimtree').terminal_cd()<cr>" },
-    { key = '=', cb = ":lua require('lu5je0.ext.nvimtree').increase_width(2)<cr>" },
-    { key = '-', cb = ":lua require('lu5je0.ext.nvimtree').reduce_width(2)<cr>" },
-    { key = '+', cb = ":lua require('lu5je0.ext.nvimtree').increase_width(1)<cr>" },
-    { key = '_', cb = ":lua require('lu5je0.ext.nvimtree').reduce_width(1)<cr>" },
-    { key = ';', action = 'preview', action_cb = M.preview },
-    { key = 'x', action = 'toggle_width', action_cb = M.toggle_width },
-    { key = 'mk', action = 'create_dir', action_cb = M.create_dir },
-    { key = 'D', action = 'delete', action_cb = M.delete_node },
-    { key = 'H', cb = ':cd ~<cr>' },
-    { key = 'd', cb = '<nop>' },
-    { key = 's', action = 'vsplit' },
-    { key = 'v', action = 'split' },
-    { key = 'S', action = 'search_node' },
-    { key = '[f', action = 'first_sibling' },
-    { key = ']f', action = 'last_sibling' },
-    { key = '<', action = 'prev_sibling' },
-    { key = '>', action = 'next_sibling' },
-    -- { key = 'f', cb = ":lua require('lu5je0.ext.nvimtree').file_info()<cr>" },
-    { key = { 'K', 'F' }, action = 'toggle_file_info' },
-    { key = 'f', action = 'live_filter' },
-    { key = '.', action = 'run_file_command' },
-    -- { key = 'P', action = 'parent_node' },
-    { key = 'I', action = 'toggle_dotfiles' },
-    { key = 'r', action = 'refresh' },
-    { key = 'ma', action = 'create' },
-    { key = 'mv', action = 'rename' },
-    { key = "dd", action = ("cut") },
-    { key = 'yy', action = 'copy' },
-    { key = 'p', action = 'paste' },
-    { key = 'yn', action = 'copy_name' },
-    { key = 'yP', action = 'copy_path' },
-    { key = 'yp', action = 'copy_absolute_path' },
-    -- { key = '[g', action = 'prev_git_item' },
-    -- { key = ']g', action = 'next_git_item' },
-    { key = '[g', action = 'prev_git_item_reveal_to_file',
-      action_cb = function()
-        M.target_git_item_reveal_to_file('prev_git_item')
-      end
-    },
-    { key = ']g', action = 'next_git_item_reveal_to_file',
-      action_cb = function()
-        M.target_git_item_reveal_to_file('next_git_item')
-      end
-    },
-    { key = 'u', action = 'dir_up' },
-    { key = 'o', action = 'system_open' },
-    { key = 'q', action = 'close' },
-    { key = 'x', action = 'toggle_mark' },
-    { key = 'g?', action = 'toggle_help' },
-    { key = '<c-o>', action = 'backward', action_cb = M.back },
-    { key = { '<tab>', '<c-i>' }, action = 'forward', action_cb = M.forward },
-  }
+  view.View.winopts.statuscolumn = ''
 
   require('nvim-tree').setup {
     disable_netrw = true,
     hijack_netrw = true,
-    open_on_setup = false,
-    ignore_ft_on_setup = {},
     open_on_tab = false,
     hijack_cursor = false,
     update_cwd = true,
+    on_attach = on_attach,
+    notify = {
+      threshold = vim.log.levels.WARN,
+    },
     filesystem_watchers = {
       enable = true,
       debounce_delay = 1000,
@@ -420,7 +497,7 @@ function M.setup()
           git = true,
         },
         glyphs = {
-          default = "",
+          default = "",
           symlink = "",
           folder = {
             arrow_closed = "",
@@ -452,7 +529,6 @@ function M.setup()
       side = 'left',
       mappings = {
         custom_only = true,
-        list = list,
       },
       signcolumn = 'auto',
     },
@@ -471,6 +547,13 @@ function M.setup()
 
   -- 关闭wsl executable检测，性能太低了
   require('nvim-tree.utils').is_wsl_windows_fs_exe = function() return false end
+  
+  -- wsl 关闭highlight overwrite, 就算没有配置highlight_override，
+  -- 也会检查每个node是否是opened和modified, wsl2下性能极差
+  ---@diagnostic disable-next-line: unused-vararg
+  require('nvim-tree.renderer.builder')._get_highlight_override = function(...)
+    return nil, nil
+  end
 end
 
 return M

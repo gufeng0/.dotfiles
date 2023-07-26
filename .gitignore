@@ -8,5 +8,4 @@ tmux/plugins
 __pycache__
 .idea/
 *.swp
-.zinit/
-typescript
+submodule/SubtitlesDownloader/.env/

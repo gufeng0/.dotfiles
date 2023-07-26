@@ -36,6 +36,10 @@ nmap <leader>ls <Action>(leetcode.editor.SubmitAction)
 
 " idea maven
 nmap <leader>mr <Action>(Maven.Reimport)
+" ReplaceWithRegister
+nmap gr  <Plug>ReplaceWithRegisterOperator
+nmap grr <Plug>ReplaceWithRegisterLine
+xmap gr  <Plug>ReplaceWithRegisterVisual
 
 " 搜索
 nmap <leader>fm :action RecentChangedFiles<CR>
@@ -49,6 +53,8 @@ nmap <leader>fe :NERDTreeFind<CR>
 
 xmap < <gv
 xmap > >gv
+
+nnoremap * *<c-o>
 
 " tab页
 nmap <silent> <leader>tn :action NewScratchFile<cr>
@@ -71,7 +77,8 @@ nmap <silent> <right> <Action>(NextTab)
 
 nmap <leader>i <Action>(ActivateStructureToolWindow)
 nmap <leader>q :action CloseContent<CR>
-nmap <leader>d :b#<cr>
+" nmap <leader>dr <Action>(Debugger.ReloadFile)
+nmap <leader>d <Action>(Debugger.ReloadFile)
 nmap <leader>n :noh<cr>
 
 nmap <leader>vs <Action>(IdeaVim.ReloadVimRc.reload)

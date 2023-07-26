@@ -8,7 +8,7 @@ local M = {
   last_ime = ABC_IM_SOURCE_CODE
 }
 
-M.get_im_switcher = function()
+function M.get_im_switcher()
   if M.im_switcher ~= nil then
     return M.im_switcher
   end
@@ -41,6 +41,7 @@ M.get_im_switcher = function()
           io.popen(('%s %s 3000 2>/dev/null'):format(path, ime)):close()
         end, std_path .. '/lib/macism', im_code)
       end,
+      -- avg: 0.0035ms
       get_ime = function()
         ---@diagnostic disable-next-line: undefined-field
         local ok, ime = pcall(xkb_switch_lib.Xkb_Switch_getXkbLayout)
@@ -54,13 +55,13 @@ M.get_im_switcher = function()
   return M.im_switcher
 end
 
-M.switch_to_en = function()
+function M.switch_to_en()
   if M.get_im_switcher().get_ime() ~= ABC_IM_SOURCE_CODE then
     M.get_im_switcher().switch_to_ime(ABC_IM_SOURCE_CODE)
   end
 end
 
-M.toggle_save_last_ime = function()
+function M.toggle_save_last_ime()
   local keeper = require('lu5je0.misc.env-keeper')
   local v = keeper.get('save_last_ime', true)
   if v then
@@ -80,13 +81,21 @@ M.switch_insert_mode = rate_limiter:wrap(function()
 end)
 
 M.switch_normal_mode = rate_limiter:wrap(function()
+  local active_ime = M.get_im_switcher().get_ime()
   if M.save_last_ime then
-    M.last_ime = M.get_im_switcher().get_ime()
+    M.last_ime = active_ime
+  end
+  if active_ime == ABC_IM_SOURCE_CODE then
+    return
   end
   M.get_im_switcher().switch_to_ime(ABC_IM_SOURCE_CODE)
 end)
 
-M.setup = function()
+-- local timer = require('lu5je0.lang.timer')
+-- M.switch_normal_mode = timer.timer_wrap(M.switch_normal_mode)
+-- M.switch_insert_mode = timer.timer_wrap(M.switch_insert_mode)
+
+function M.setup()
   M.save_last_ime = require('lu5je0.misc.env-keeper').get('save_last_ime', true)
 
   vim.api.nvim_create_autocmd('InsertLeave', {

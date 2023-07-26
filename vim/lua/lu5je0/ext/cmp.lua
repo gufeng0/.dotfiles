@@ -1,6 +1,9 @@
+---@diagnostic disable: param-type-mismatch
+
 local cmp = require('cmp')
 local keys_helper = require('lu5je0.core.keys')
 local string_utils = require('lu5je0.lang.string-utils')
+local luasnip = require('luasnip')
 
 local indent_change_items = {
   'endif',
@@ -21,30 +24,30 @@ local indent_change_items = {
 local lsp_kind_icons = {
   -- if you change or add symbol here
   -- replace corresponding line in readme
-  Text = "",
-  Method = "",
-  Function = "",
+  Text = "󰉿",
+  Method = "󰊕",
+  Function = "󰊕",
   Constructor = "",
-  Field = "ﰠ",
+  Field = "󰜢",
   Variable = "",
-  Class = "ﴯ",
+  Class = "󰠱",
   Interface = "",
   Module = "",
-  Property = "ﰠ",
-  Unit = "塞",
-  Value = "",
+  Property = "󰜢",
+  Unit = "󰑭",
+  Value = "󰎠",
   Enum = "",
-  Keyword = "",
+  Keyword = "󰌋",
   Snippet = "",
-  Color = "",
-  File = "",
-  Reference = "",
-  Folder = "",
+  Color = "󰏘",
+  File = "󰈙",
+  Reference = "󰈇",
+  Folder = "󰉋",
   EnumMember = "",
-  Constant = "",
-  Struct = "פּ",
-  Event = "",
-  Operator = "",
+  Constant = "󰏿",
+  Struct = "󰙅",
+  Event = "",
+  Operator = "󰆕",
   TypeParameter = "",
 }
 
@@ -100,8 +103,8 @@ local function comfirm(fallback)
     else
       cmp.confirm { select = true, behavior = cmp.ConfirmBehavior.Insert }
     end
-  elseif require('lu5je0.ext.luasnip').jump_next_able() then -- luasnip
-    require('luasnip').jump(1)
+  elseif luasnip.locally_jumpable(1) then -- luasnip
+    luasnip.jump(1)
   else
     fallback()
     keys_helper.feedkey('<space><bs>')
@@ -128,11 +131,16 @@ local format = function(entry, vim_item)
   vim_item.kind = ' ' .. (lsp_kind_icons[vim_item.kind] or ' ') .. ''
   vim_item.abbr = truncate(vim_item.abbr)
   vim_item.menu = ({
-    buffer = '[B]',
-    nvim_lsp = '[L]',
-    ultisnips = '[U]',
-    luasnip = '[S]',
-  })[entry.source.name]
+        buffer = '[B]',
+        nvim_lsp = '[L]',
+        ultisnips = '[U]',
+        luasnip = '[S]',
+      })[entry.source.name]
+      
+  -- 移除java方法后面的~
+  if vim_item.abbr:sub(-2, -1) == ')~' then
+    vim_item.abbr = vim_item.abbr:sub(1, -2)
+  end
 
   return vim_item
 end
@@ -170,7 +178,7 @@ cmp.setup {
     -- ghost_text = true
   },
   mapping = {
-    ['<c-u>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i' --[[ , 'c' ]] }),
+    ['<c-u>'] = cmp.mapping(cmp.mapping.scroll_docs( -4), { 'i' --[[ , 'c' ]] }),
     ['<c-d>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i' --[[ , 'c' ]] }),
     ['<c-n>'] = cmp.mapping(function()
       if cmp.visible() then
@@ -178,9 +186,9 @@ cmp.setup {
       else
         cmp.complete()
       end
-    end, { 'i', --[[ 'c' ]] }),
-    ['<down>'] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Select },
-    ['<up>'] = cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Select },
+    end, { 'i' }),
+    ['<down>'] = cmp.mapping(cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Select }, { 'i' }),
+    ['<up>'] = cmp.mapping(cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Select }, { 'i' }),
     ['<cr>'] = cmp.mapping(comfirm, { 'i', 's' }),
     ['<tab>'] = cmp.mapping(comfirm, { 'i', 's' }),
   },
@@ -199,7 +207,7 @@ cmp.setup {
     { name = 'path' },
     {
       name = 'buffer',
-      keyword_length = 2
+      option = { keyword_pattern = [[\k\+]], keyword_length = 1 }
     },
   },
 }
@@ -213,11 +221,36 @@ cmp.setup {
 
 -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
 -- cmp.setup.cmdline(':', {
---   sources = cmp.config.sources({
---     { name = 'path' }
---   }, {
---     { name = 'cmdline' }
---   })
+--   sources = cmp.config.sources({ { name = 'path' } }, { { name = 'cmdline' } }, { { name = 'cmdline_history' } } ),
+--   completion = {
+--     autocomplete = false
+--   },
+--   -- not working
+--   -- window = {
+--   --   documentation = cmp.config.disable, 
+--   -- },
+--   mapping = {
+--     ['<tab>'] = cmp.mapping(function()
+--       if cmp.visible() then
+--         cmp.confirm { select = true, behavior = cmp.ConfirmBehavior.Insert }
+--         vim.defer_fn(function()
+--           cmp.complete()
+--         end, 0)
+--       else
+--         cmp.complete()
+--       end
+--     end, { 'c' }),
+--     ['<down>'] = cmp.mapping(cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Select }, { 'c' }),
+--     ['<up>'] = cmp.mapping(cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Select }, { 'c' }),
+--     ['<cr>'] = cmp.mapping(comfirm, { 'c' }),
+--     -- ['<esc>'] = cmp.mapping(function()
+--     --   if cmp.visible() then
+--     --     cmp.abort()
+--     --   else
+--     --     keys_helper.feedkey('<c-c>')
+--     --   end
+--     -- end, { 'c' }),
+--   }
 -- })
 
 vim.cmd([[
@@ -246,3 +279,45 @@ end, {})
 vim.api.nvim_create_user_command("CmpAutocompleteEnable", function()
   require('cmp').setup.buffer { enabled = true }
 end, {})
+
+local handlers = require('nvim-autopairs.completion.handlers')
+local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+
+cmp.event:on(
+  'confirm_done',
+  cmp_autopairs.on_confirm_done({
+    filetypes = {
+      -- "*" is a alias to all filetypes
+      ["*"] = {
+        ["("] = {
+          kind = {
+            cmp.lsp.CompletionItemKind.Function,
+            cmp.lsp.CompletionItemKind.Method,
+            -- cmp.lsp.CompletionItemKind.Class,
+          },
+          handler = handlers["*"]
+        }
+      },
+      sh = false,
+      java = false
+      -- java = {
+      --   ["("] = {
+      --     kind = {
+      --       cmp.lsp.CompletionItemKind.Function,
+      --       cmp.lsp.CompletionItemKind.Method
+      --     },
+      --     ---@param char string
+      --     ---@param item table item completion
+      --     ---@param bufnr number buffer number
+      --     ---@param rules table
+      --     ---@param commit_character table<string>
+      --     handler = function(char, item, bufnr, rules, commit_character)
+      --       print(dump(item))
+      --       -- Your handler function. Inpect with print(vim.inspect{char, item, bufnr, rules, commit_character})
+      --     end
+      --   }
+      -- },
+      -- Disable for tex
+    }
+  })
+)

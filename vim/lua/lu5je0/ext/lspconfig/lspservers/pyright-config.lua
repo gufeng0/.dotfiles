@@ -11,15 +11,18 @@ return {
             local items = result.items or result
             for _, item in ipairs(items) do
               if
-                not (item.data and item.data.funcParensDisabled)
-                and (
-                  item.kind == vim.lsp.protocol.CompletionItemKind.Function
-                  or item.kind == vim.lsp.protocol.CompletionItemKind.Method
-                  or item.kind == vim.lsp.protocol.CompletionItemKind.Constructor
-                )
+                  not (item.data and item.data.funcParensDisabled)
+                  and (
+                    item.kind == vim.lsp.protocol.CompletionItemKind.Function
+                    or item.kind == vim.lsp.protocol.CompletionItemKind.Method
+                    or item.kind == vim.lsp.protocol.CompletionItemKind.Constructor
+                  )
               then
-                item.insertText = item.label .. '$1'
-                item.insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet
+                if item.label:sub(-1) ~= ')' then
+                  item.insertText = item.label
+                  item.label = item.label .. '(...)'
+                  item.insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet
+                end
               end
             end
           end
@@ -29,4 +32,14 @@ return {
       return orig_rpc_request(method, params, handler, ...)
     end
   end,
+  settings = {
+    python = {
+      analysis = {
+        diagnosticSeverityOverrides = {
+          reportOptionalSubscript = "none",
+          reportGeneralTypeIssues = "none"
+        }
+      },
+    },
+  }
 }

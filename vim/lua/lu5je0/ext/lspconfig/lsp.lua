@@ -21,13 +21,16 @@ local function diagnostic()
   end
 end
 
-M.on_attach = function(client, bufnr)
+function M.on_attach(client, bufnr)
   local opts = { noremap = true, silent = true, buffer = bufnr, desc = 'lsp.lua' }
   local keymap = vim.keymap.set
 
   -- keymap('n', 'gd', vim.lsp.buf.definition, opts)
-  -- keymap('n', 'K', vim.lsp.buf.hover, opts)
-  -- keymap('n', '<leader>cc', vim.lsp.buf.code_action, opts)
+  -- keymap('n', 'gn', vim.lsp.buf.implementation, opts)
+  -- keymap('n', 'gb', vim.lsp.buf.references, opts)
+  
+  keymap('n', 'K', vim.lsp.buf.hover, opts)
+  keymap('n', '<leader>cc', vim.lsp.buf.code_action, opts)
   -- keymap('v', '<leader>cc', vim.lsp.buf.code_action, opts)
   
   -- format
@@ -36,8 +39,6 @@ M.on_attach = function(client, bufnr)
   
   
   keymap('n', 'gy', vim.lsp.buf.type_definition, opts)
-  keymap('n', 'gn', vim.lsp.buf.implementation, opts)
-  -- keymap('n', 'gb', vim.lsp.buf.references, opts)
 
   keymap('n', 'gu', vim.lsp.buf.declaration, opts)
   keymap('i', '<c-p>', vim.lsp.buf.signature_help, opts)
@@ -55,7 +56,13 @@ M.on_attach = function(client, bufnr)
     vim.diagnostic.open_float { scope = 'line', opts }
   end)
   
+  if client.server_capabilities.documentSymbolProvider then
+    local navic = require("nvim-navic")
+    navic.attach(client, bufnr)
+  end
+  
   -- client.server_capabilities.semanticTokensProvider = nil
+  -- vim.lsp.buf.inlay_hint(bufnr, true)
 end
 
 local function config()
@@ -76,14 +83,18 @@ local function config()
       on_attach = M.on_attach,
     }
 
-    if server_name == 'sumneko_lua' then
-      local sumneko_lua_config = require('lu5je0.ext.lspconfig.lspservers.sumneke-lua-config')
-      opts.settings = sumneko_lua_config.settings
-      opts.on_attach = sumneko_lua_config.on_attach(opts.on_attach)
+    if server_name == 'lua_ls' then
+      local lua_ls_config = require('lu5je0.ext.lspconfig.lspservers.lua-ls-config')
+      opts.settings = lua_ls_config.settings
+      opts.on_attach = lua_ls_config.on_attach(opts.on_attach)
     elseif server_name == 'pyright' then
-      opts.on_init = require('lu5je0.ext.lspconfig.lspservers.pyright-config').on_init
+      local pyright_config = require('lu5je0.ext.lspconfig.lspservers.pyright-config')
+      opts.on_init = pyright_config.on_init
+      opts.settings = pyright_config.settings
+    elseif server_name == 'pylsp' then
+      opts.on_init = require('lu5je0.ext.lspconfig.lspservers.pylsp').on_init
     elseif server_name == 'jdtls' then
-      -- todo
+      opts.on_init = require('lu5je0.ext.lspconfig.lspservers.jdtls').on_init
     end
 
     server.setup(opts)
@@ -99,8 +110,8 @@ end
 
 local function semantic_token_highlight()
   vim.cmd [[
-    hi! link @lsp.type.variable.lua RedItalic
-    hi! link @lsp.typemod.variable.defaultLibrary.lua CyanItalic
+    " hi! link @lsp.type.variable.lua RedItalic
+    " hi! link @lsp.typemod.variable.defaultLibrary.lua CyanItalic
     " hi! link @lsp.mod.defaultLibrary.lua CyanItalic
   ]]
 end

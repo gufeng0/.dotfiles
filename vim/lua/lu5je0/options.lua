@@ -22,12 +22,13 @@ o.numberwidth = 3
 
 o.laststatus = 2
 o.showmode = false
--- o.cursorline = true
+o.cursorline = true
+o.cursorlineopt='number'
 o.undofile = true
 o.foldmethod = 'manual'
 o.foldlevel = 99 -- 打开文件默认不折叠
 o.hidden = true
-o.updatetime = 100
+o.updatetime = 2000
 o.signcolumn = 'yes:1'
 
 -- encodeing
@@ -50,65 +51,7 @@ o.showcmd = false
 -- colorscheme
 o.termguicolors = true
 o.bg = 'dark'
-vim.cmd.colorscheme('edge')
-vim.api.nvim_set_hl(0, "StatusLine", { fg = '#c5cdd9', bg = '#1d2024' })
--- StatusLine 左边
--- vim.api.nvim_set_hl(0, "StatusLine", { fg = '#373943' })
--- vim.api.nvim_set_hl(0, "StatusLineNC", { fg = '#373943' })
 o.statusline = " "
-
-local default_plugins = {
-  "2html_plugin",
-  "getscript",
-  "getscriptPlugin",
-  "gzip",
-  "logipat",
-  "netrw",
-  "netrwPlugin",
-  "netrwSettings",
-  "netrwFileHandlers",
-  "matchit",
-  "tar",
-  "tarPlugin",
-  "rrhelper",
-  "spellfile_plugin",
-  "vimball",
-  "vimballPlugin",
-  "zip",
-  "zipPlugin",
-}
-
-for _, plugin in pairs(default_plugins) do
-  g["loaded_" .. plugin] = 1
-end
-
-if has('wsl') then
-  g.clipboard = {
-    name = 'win32yank',
-    copy = {
-      ['+'] = { 'win32yank.exe', '-i', '--crlf' },
-      ['*'] = { 'win32yank.exe', '-i', '--crlf' },
-    },
-    paste = {
-      ['+'] = { 'win32yank.exe', '-o', '--lf' },
-      ['*'] = { 'win32yank.exe', '-o', '--lf' },
-    },
-    cache_enabled = 1,
-  }
-elseif has('mac') then
-  g.clipboard = {
-    name = 'pbcopy',
-    copy = {
-      ['+'] = { 'pbcopy' },
-      ['*'] = { 'pbcopy'},
-    },
-    paste = {
-      ['+'] = { 'pbpaste' },
-      ['*'] = { 'pbpaste' },
-    },
-    cache_enabled = 1,
-  }
-end
 
 if has('mac') then
   vim.g.python3_host_prog = '/usr/local/bin/python3'
@@ -124,8 +67,13 @@ local defer_options = {
     vim.cmd [[ silent! rsh ]]
   end,
   function()
-    -- o.clipboard = 'unnamedplus'
-    require('lu5je0.ext.clipboard').setup()
+    if has('mac') then
+      require('lu5je0.misc.clipboard.mac').setup()  
+    elseif has('wsl') then
+      require('lu5je0.misc.clipboard.wsl').setup()  
+    else
+      o.clipboard = 'unnamed'
+    end
     vim.cmd [[ packadd matchit ]]
   end
 }

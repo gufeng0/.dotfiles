@@ -3,6 +3,7 @@ require("substitute").setup {}
 vim.keymap.set("n", "cx", function()
   local backup_range = vim.highlight.range
   
+  ---@diagnostic disable-next-line: duplicate-set-field
   vim.highlight.range = function(...)
     local params = { ... }
     -- 只有再exchange的时候修改优先级

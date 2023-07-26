@@ -8,6 +8,10 @@ return {
   end,
   settings = {
     Lua = {
+      hint = {
+        -- inlay_hint
+        enable = true
+      },
       format = {
         enable = true,
         -- Put format options here
@@ -35,7 +39,7 @@ return {
         -- Get the language server to recognize the `vim` global
         globals = { 'vim' },
         neededFileStatus = {
-          ['trailing-space'] = 'None'
+          ['trailing-space'] = 'None!'
         }
       },
       telemetry = { enable = false },
