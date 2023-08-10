@@ -3,6 +3,9 @@
 	name = shuaixiaomi
 [core]
     editor = nvim
+	quotepath = off
 [github]
 	user = shuaixiaomi
 	email = 840903654@qq.com
+[pull]
+	rebase = false

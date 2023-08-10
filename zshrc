@@ -73,6 +73,13 @@ zinit snippet ~/.dotfiles/zsh/proxy.sh
 zinit snippet ~/.dotfiles/zsh/vi-mode.zsh
 zinit snippet ~/.dotfiles/zsh/vi-im-switch.zsh
 
+# zinit wait'2' lucid \
+#   atinit"source $ZHOMEDIR/rc/pluginconfig/per-directory-history.zsh" \
+#   atload"_per-directory-history-set-global-history" \
+#   light-mode for @CyberShadow/per-directory-history
+# https://github.com/jimhester/per-directory-history/issues/21
+# https://github.com/jimhester/per-directory-history/issues/27
+
 ##########################################
 # theme
 ##########################################
@@ -121,6 +128,9 @@ alias vz='vi ~/.zshrc'
 alias sz='source ~/.zshrc'
 =======
 >>>>>>> upstream/master
+
+# git
+alias gcof='git checkout `git branch | fzf`'
 
 # ls
 # alias l='ls -lah'
