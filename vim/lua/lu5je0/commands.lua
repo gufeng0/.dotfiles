@@ -25,7 +25,7 @@ end, {
     'elixir', 'go', 'har', 'http', 'httpie', 'java', 'javascript', 'json',
     'matlab', 'node', 'node-axios', 'node-request', 'php', 'php-guzzle',
     'php-requests', 'python', 'r', 'ruby', 'rust', 'wget' }),
-  nargs = 1
+  nargs = '?'
 })
 
 vim.api.nvim_create_user_command('TimeMachine', function()

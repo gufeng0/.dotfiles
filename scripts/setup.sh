@@ -84,3 +84,5 @@ if [[ ! -d ~/.config/nvim ]]; then
 fi
 
 ask "Install pip3 requirements?" && sh ~/.dotfiles/scripts/pip3-requirements.sh
+
+ask "Install npm requirements?" && sh ~/.dotfiles/scripts/npm-requirements.sh
