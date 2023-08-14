@@ -114,6 +114,7 @@ nmap <leader>rr :action RunClass<CR>
 " easymotion
 nmap <leader>jl :action JumpToLastChange<CR>
 nmap <leader>jn :action JumpToNextChange<CR>
+nmap <leader><leader>s <Plug>(easymotion-s)
 
 " 调试
 nmap <leader>bb :action ToggleLineBreakpoint<CR>
