@@ -123,8 +123,8 @@ alias sudo="sudo "
 alias crontab="cron.sh"
 # alias wgetp="wget -c -e use_proxy=yes -e http_proxy=p775.local:1080 -e https_proxy=p775.local:1080"
 alias vc='vi ~/tools/script/curl.sh'
-alias vz='vi ~/.zshrc'
-alias sz='source ~/.zshrc'
+alias vz='vi ~/.dotfiles/zshrc'
+alias sz='source ~/.dotfiles/zshrc'
 
 # git
 alias gcof='git checkout `git branch | fzf`'
@@ -165,6 +165,8 @@ alias mvnp='mvn package -Dmaven.test.skip=true'
 # docker
 alias sd='sudo docker'
 alias sdc='sudo docker-compose'
+
+alias md='mkdir -p'
 
 ##########################################
 # vi-mode
