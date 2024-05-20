@@ -23,7 +23,8 @@ if [ "$(uname)" = "Linux" ]; then
 fi
 
 if [[ -f ~/.ssh/config ]]; then
-    cp ~/.dotfiles/ssh/config ~/.ssh/config
+    mkdir -p ~/.ssh/config.d
+    ln -s ~/.dotfiles/ssh/config ~/.ssh/config
 else
     echo "~/.ssh/config existed"
 fi
@@ -71,6 +72,11 @@ ln -s ~/.dotfiles/tmux/tmux.conf ~/.tmux.conf
 # kitty
 if [[ ! -f ~/.config/kitty/kitty.conf ]]; then
     ln -s ~/.dotfiles/kitty/kitty.conf ~/.config/kitty/kitty.conf
+fi
+
+# alacritty
+if [[ ! -f ~/.config/alacritty/alacritty.conf ]]; then
+    ln -s ~/.dotfiles/alacritty/mac/alacritty.yml ~/.config/alacritty/alacritty.yml
 fi
 
 mkdir -p ~/.aria2

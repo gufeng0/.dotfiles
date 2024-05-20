@@ -153,11 +153,14 @@ function M.setup()
   scrollview.setup {
     -- excluded_filetypes = { 'nerdtree' , 'NvimTree'},
     current_only = true,
-    winblend = 88,
+    winblend = 85,
+    winblend_gui = 85,
     base = 'right',
     column = 1,
     on_startup = 1,
     signs_max_per_row = 1,
+    byte_limit = 2 * 1024 * 1024,
+    line_limit = 10000,
     -- signs_on_startup = { 'conflicts', 'search', '' },
     overflow = 'right',
   }

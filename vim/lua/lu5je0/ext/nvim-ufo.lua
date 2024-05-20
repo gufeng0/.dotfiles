@@ -2,7 +2,7 @@ local parsers = require('nvim-treesitter.parsers')
 local string_utils = require('lu5je0.lang.string-utils')
 local render = require('ufo.render')
 
-local suffix_ft_black_list = { 'norg', 'markdown', 'python', 'yaml', '' }
+local suffix_ft_white_list = { 'lua', 'java', 'json', 'xml', 'rust', 'python', 'html', 'c', 'cpp' }
 local fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate)
   local newVirtText = {}
 
@@ -37,8 +37,7 @@ local fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate
   local suffix_list = suffix:split('󰁂')
 
   local filetype = vim.bo.filetype
-  -- 不是代码文件跳过最后一行折叠
-  if not table.contain(suffix_ft_black_list, filetype) then
+  if table.contain(suffix_ft_white_list, filetype) then
     table.insert(newVirtText, { ' … ', 'TSPunctBracket' })
 
     local nss = {}
@@ -46,8 +45,7 @@ local fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate
       table.insert(nss, ns)
     end
 
-    local end_line_virt_text = render.captureVirtText(vim.api.nvim_get_current_buf(), vim.fn.getline(endLnum), endLnum,
-      nil, nss)
+    local end_line_virt_text = render.captureVirtText(vim.api.nvim_get_current_buf(), vim.fn.getline(endLnum), endLnum, nil, nss, 0)
     -- 移除前导空格
     local encounter_text = false
     for _, v in ipairs(end_line_virt_text) do
@@ -104,6 +102,16 @@ vim.keymap.set('n', 'zo', function()
   trigger_fold_opened()
 end, { noremap = true })
 
+local group = vim.api.nvim_create_augroup('nvim-ufo-patch', { clear = true })
+vim.api.nvim_create_autocmd('WinNew', {
+  group = group,
+  pattern = '*',
+  callback = function()
+    vim.cmd('UfoDetach')
+    vim.cmd('UfoAttach')
+  end,
+})
+
 require('ufo').setup({
   provider_selector = function(bufnr, filetype, buftype)
     if parsers.get_parser(bufnr) then
@@ -111,7 +119,7 @@ require('ufo').setup({
     end
     return { 'treesitter' }
   end,
-  close_fold_kinds = {},
+  close_fold_kinds_for_ft = {},
   open_fold_hl_timeout = 0,
   fold_virt_text_handler = fold_virt_text_handler
 })
@@ -124,23 +132,3 @@ require('ufo').setup({
 --     require('ufo').setup()
 --   end
 -- })
-
--- 切换virt text
-local ori_virt_text_func = require('ufo.model.foldedline').updateVirtText
-local virt_text_status = false
-local function toggle_ufo_virt_text()
-  if virt_text_status then
-    vim.cmd("set foldtext=v:lua.require('ufo.main').foldtext()")
-    require('ufo.model.foldedline').updateVirtText = ori_virt_text_func
-  else
-    vim.cmd("set foldtext=v:lua.require('pretty-fold').foldtext.global()")
-    require('ufo.model.foldedline').updateVirtText = function()
-    end
-  end
-  virt_text_status = not virt_text_status
-end
-
-vim.api.nvim_create_user_command("FoldTextToggle", function()
-  vim.cmd('Lazy load pretty-fold.nvim')
-  toggle_ufo_virt_text()
-end, {})

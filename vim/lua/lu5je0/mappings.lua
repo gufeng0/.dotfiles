@@ -56,9 +56,9 @@ vim.defer_fn(function()
   set_n_map('<leader>vn', option_toggler.new_toggle_fn({ 'set nonumber', 'set number' }))
   set_n_map('<leader>vp', option_toggler.new_toggle_fn({ 'set nopaste', 'set paste' }))
   set_n_map('<leader>vm', option_toggler.new_toggle_fn({ 'set mouse=c', 'set mouse=a' }))
-  set_n_map('<leader>vs', option_toggler.new_toggle_fn({ 'set signcolumn=no', 'set signcolumn=yes:1' }))
+  -- set_n_map('<leader>vs', option_toggler.new_toggle_fn({ 'set signcolumn=no', 'set signcolumn=yes:1' }))
   set_n_map('<leader>vl', option_toggler.new_toggle_fn({ 'set cursorline', 'set nocursorline' }))
-  set_n_map('<leader>vf', option_toggler.new_toggle_fn({ 'set foldcolumn=auto:9', 'set foldcolumn=0' }))
+  set_n_map('<leader>vf', option_toggler.new_toggle_fn({ 'set foldcolumn=auto:1', 'set foldcolumn=0' }))
   set_n_map('<leader>vd', option_toggler.new_toggle_fn({ 'windo difft', 'windo diffo' }))
   set_n_map('<leader>vh', option_toggler.new_toggle_fn({ 'call hexedit#ToggleHexEdit()' }))
   set_n_map('<leader>vc', option_toggler.new_toggle_fn({ 'set noignorecase', 'set ignorecase' }))
@@ -97,6 +97,11 @@ vim.defer_fn(function()
   
   -- selection search
   set_map('x', { '<leader>/', '<space>/' }, '<Esc>/\\%V', {})
+  
+  -- text
+  set_map('n', '<leader>xx', ":%!", {
+    nowait = true
+  })
 
   -- lsp
   set_map({ 'n', 'i' }, { '<m-cr>', '<d-cr>' }, '<leader>cc')
@@ -112,6 +117,9 @@ vim.defer_fn(function()
   " 缩进后重新选择
   xmap < <gv
   xmap > >gv
+  
+  " visual模式搜索
+  xnoremap / :/\%V
   
   nnoremap <space>< `[v`]<^
   nnoremap <space>> `[v`]>^
@@ -188,8 +196,6 @@ vim.defer_fn(function()
   "----------------------------------------------------------------------
   " leader
   "----------------------------------------------------------------------
-  nmap <leader>% <cmd>%s/
-
   nmap <leader>wo <c-w>o
 
   "----------------------------------------------------------------------
@@ -215,6 +221,9 @@ vim.defer_fn(function()
   " command line map
   "----------------------------------------------------------------------
   cmap <c-a> <c-b>
+  
+  " remove default mapppings
+  silent! vunmap crr
   ]]
 
 end, 0)

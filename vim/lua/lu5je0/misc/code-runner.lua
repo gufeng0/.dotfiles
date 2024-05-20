@@ -14,7 +14,8 @@ local function execute_in_terminal(cmd, append_cmd)
   end
   require("lu5je0.ext.terminal").send_to_terminal(cmd, { go_back = 0 })
   if vim.bo.buftype == 'terminal' and vim.api.nvim_win_get_config(0).relative == '' then
-    require('lu5je0.core.keys').feedkey('<c-q><c-w>p')
+    vim.cmd("wincmd p")
+    vim.cmd("stopinsert")
   end
 end
 
@@ -57,7 +58,7 @@ function M.run_file(debug)
   elseif filetype == 'go' then
     execute_in_terminal(build_cmd_with_file('go run'))
   elseif filetype == 'sh' then
-    execute_in_terminal(build_cmd_with_file('sh'))
+    execute_in_terminal(build_cmd_with_file('bash'))
   elseif filetype == 'markdown' then
     vim.cmd('MarkdownPreview')
   elseif filetype == 'bash' or filetype == 'zsh' then

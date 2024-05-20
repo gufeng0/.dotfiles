@@ -5,6 +5,10 @@ local keys_helper = require('lu5je0.core.keys')
 local string_utils = require('lu5je0.lang.string-utils')
 local luasnip = require('luasnip')
 
+local indent_change_filetypes = {
+  'lua'
+}
+
 local indent_change_items = {
   'endif',
   'end',
@@ -51,40 +55,26 @@ local lsp_kind_icons = {
   TypeParameter = "",
 }
 
-local origin_emit = require('cmp.utils.autocmd').emit
-local ignore_text_changed_emit = function(s)
-  if s == 'TextChanged' then
-    return
-  end
-  origin_emit(s)
-end
-
 local function fix_indent()
-  vim.schedule(function()
+  vim.defer_fn(function()
+    local cursor = vim.fn.getpos(".")
+    local indent_num = vim.fn.indent('.')
+ 
     if vim.api.nvim_get_mode().mode == 's' then
       return
     end
-
-    local cursor = vim.fn.getpos(".")
-    local indent_num = vim.fn.indent('.')
-
-    require('cmp.utils.autocmd').emit = ignore_text_changed_emit
-
-    vim.cmd("norm ==")
+    vim.cmd("norm! ==")
+    
     local sw = vim.fn.shiftwidth()
 
     if vim.fn.indent('.') < indent_num then
-      vim.api.nvim_win_set_cursor(0, { cursor[2], cursor[3] - sw })
+      vim.api.nvim_win_set_cursor(0, { cursor[2], cursor[3] - sw - 1 })
     elseif vim.fn.indent('.') > indent_num then
       vim.api.nvim_win_set_cursor(0, { cursor[2], cursor[3] + sw })
     else
       vim.api.nvim_win_set_cursor(0, { cursor[2], cursor[3] })
     end
-
-    vim.defer_fn(function()
-      require('cmp.utils.autocmd').emit = origin_emit
-    end, 10)
-  end)
+  end, 0)
 end
 
 local function comfirm(fallback)
@@ -95,16 +85,30 @@ local function comfirm(fallback)
       return
     end
 
-    local label = entry.completion_item.label
-    if table.contain(indent_change_items, label) then
-      cmp.confirm { select = true, behavior = cmp.ConfirmBehavior.Insert }
-      cmp.close()
+    cmp.confirm { select = true, behavior = cmp.ConfirmBehavior.Insert }
+    if table.contain(indent_change_filetypes, vim.bo.filetype) and table.contain(indent_change_items, entry.completion_item.label) then
       fix_indent()
-    else
-      cmp.confirm { select = true, behavior = cmp.ConfirmBehavior.Insert }
     end
+    
+  -- elseif vim.snippet.jumpable(1) then -- vim.snippet
+  --   vim.snippet.jump(1)
+  -- else
   elseif luasnip.locally_jumpable(1) then -- luasnip
     luasnip.jump(1)
+    -- 测试region_check_events能不能解决，先注释
+    -- local next_node = luasnip.jump_destination(1)
+    -- if next_node ~= nil then
+    --   local cursor = vim.api.nvim_win_get_cursor(0)
+    --   local pos = next_node:get_buf_position()
+    --   pos = { pos[1] + 1, pos[2] }
+    --   
+    --   if pos[1] > cursor[1] or (pos[1] == cursor[1] and pos[2] > cursor[2]) then
+    --     luasnip.jump(1)
+    --   else
+    --     -- print('block luasnip回退 target:' .. dump(pos) .. ', current:' .. dump(cursor))
+    --     fallback()
+    --   end
+    -- end
   else
     fallback()
     keys_helper.feedkey('<space><bs>')
@@ -135,6 +139,7 @@ local format = function(entry, vim_item)
         nvim_lsp = '[L]',
         ultisnips = '[U]',
         luasnip = '[S]',
+        snippets = '[S]',
       })[entry.source.name]
       
   -- 移除java方法后面的~
@@ -163,6 +168,7 @@ cmp.setup {
   snippet = {
     expand = function(args)
       require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+      -- vim.snippet.expand(args.body) -- For native neovim snippets (Neovim v0.10+)
       -- vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
       -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
       -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
@@ -194,6 +200,7 @@ cmp.setup {
   },
   sources = cmp.config.sources {
     { name = 'nvim_lsp', },
+    -- { name = 'snippets', },
     {
       name = 'luasnip',
       entry_filter = function(entry, ctx)

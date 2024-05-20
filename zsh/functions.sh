@@ -1,11 +1,24 @@
+function gcof
+{
+  local branch=$(git for-each-ref --sort=-committerdate refs/heads/ --format="%(refname:short)" | fzf --preview "git log --date=format:\"%Y-%m-%d %H:%M:%S\" --max-count=30 {}")
+  [ -z $branch ] && return
+  git checkout $branch
+}
+
 # get public IP
 function q-myip
 {
-  if command -v curl &> /dev/null; then
-    curl ifconfig.co
-  elif command -v wget &> /dev/null; then
-    wget -qO- ifconfig.co
-  fi
+  curl -s http://ip-api.com/json | jq
+  # if command -v curl &> /dev/null; then
+  #   curl ifconfig.co
+  # elif command -v wget &> /dev/null; then
+  #   wget -qO- ifconfig.co
+  # fi
+}
+
+function q-ip
+{
+  curl -s http://ip-api.com/json/$1 | jq
 }
 
 function q-ip-location
@@ -100,12 +113,12 @@ function q-compress
       *.tar.xz) shift && tar -cJf $FILE $* ;;
       *.tar.gz) shift && tar -czf $FILE $* ;;
       *.tgz) shift && tar -czf $FILE $* ;;
-      *.zip) shift && zip $FILE $* ;;
+      *.zip) shift && zip -r $FILE $* ;;
       *.7z) shift && 7za a $FILE $* ;;
       *.rar) shift && rar $FILE $* ;;
     esac
   else
-    echo "usage: q-compress <foo.tar.gz> ./foo ./bar"
+    echo "usage: q-compress <foobar.tar.gz> ./foo ./bar"
   fi
 }
 

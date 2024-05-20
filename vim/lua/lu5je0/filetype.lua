@@ -5,12 +5,13 @@ vim.filetype.add {
     -- zsh = 'zsh',
   },
   filename = {
-    -- ['.bashrc'] = 'bash',
-    -- ['.zshrc'] = 'bash',
-    -- ['zshrc'] = 'bash',
+    ['.bashrc'] = 'bash',
+    ['.zshrc'] = 'bash',
+    ['zshrc'] = 'bash',
     ['bashrc'] = 'bash',
     ['.ohmyenv'] = 'bash',
     ['crontab'] = 'crontab',
+    ['kitty.conf'] = 'config',
     ['aria2.conf'] = 'dosini',
     ['requirements.txt'] = function(path, bufnr)
       vim.defer_fn(function()
@@ -20,6 +21,8 @@ vim.filetype.add {
     end
   },
   pattern = {
-    ['.*%.tmux.conf'] = 'tmux',
+    ['.*.tmux.conf'] = 'tmux',
+    ['.*.zsh'] = 'bash',
+    ['.*/ssh/config'] = 'sshconfig',
   },
 }

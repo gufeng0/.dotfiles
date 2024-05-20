@@ -95,7 +95,7 @@ function M.setup()
     M.extract()
   end, { force = true })
   
-  vim.api.nvim_create_user_command('JsonPathCopy', function()
+  vim.api.nvim_create_user_command('JsonCopyPath', function()
     M.path_copy()
   end, { force = true })
 
@@ -103,6 +103,11 @@ function M.setup()
     cursor_utils.save_position()
     M.format()
     cursor_utils.goto_saved_position()
+  end, { force = true })
+  
+  vim.api.nvim_create_user_command('JsonSortByKey', function()
+    vim.cmd('set ft=json')
+    vim.cmd(':%!jq --sort-keys')
   end, { force = true })
 
   vim.api.nvim_create_user_command('Json', function()

@@ -5,11 +5,7 @@ local has_wsl = vim.fn.has('wsl') == 1
 
 local opts = {
   concurrency = (function()
-    if has_wsl or has_mac then
-      return 120
-    else
-      return 40
-    end
+    return 30
   end)(),
   performance = {
     rtp = {
@@ -18,7 +14,6 @@ local opts = {
         "editorconfig",
         "getscript",
         "getscriptPlugin",
-        "gzip",
         "logipat",
         "man",
         "matchit",
@@ -30,14 +25,15 @@ local opts = {
         "rrhelper",
         "spellfile",
         "spellfile_plugin",
-        "tar",
-        "tarPlugin",
+        -- "zip",
+        -- "zipPlugin",
+        -- "gzip",
+        -- "tar",
+        -- "tarPlugin",
         "tohtml",
         "tutor",
         "vimball",
         "vimballPlugin",
-        "zip",
-        "zipPlugin",
       },
     },
   },
@@ -56,13 +52,33 @@ require("lazy").setup({
     end,
     config = function()
       vim.cmd.colorscheme('edge')
+      
       vim.g.edge_loaded_file_types = { 'NvimTree' }
+      -- local bg = '#2c2e34'
+      -- vim.cmd(string.gsub([[
+      -- " hi NvimTreeNormal guibg=%s
+      -- " hi NvimTreeNormalNC guibg=%s
+      -- " hi NvimTreeEndOfBuffer guifg=%s
+      --
+      -- hi VertSplit guifg=#27292d guibg=bg
+      -- hi NvimTreeVertSplit guifg=bg guibg=bg
+      --
+      -- hi NvimTreeWinSeparator guibg=%s guifg=%s
+      -- ]], '%%s', bg))
+      
       vim.api.nvim_set_hl(0, "StatusLine", { fg = '#c5cdd9', bg = '#23262b' })
       vim.cmd [[
       hi! Folded guifg=#282c34 guibg=#5c6370
       hi MatchParen guifg=#ffef28
       ]]
     end,
+  },
+  {
+    'nvim-lualine/lualine.nvim',
+    config = function()
+      require('lu5je0.ext.lualine')
+    end,
+    event = 'VeryLazy',
   },
   
   -- treesiter
@@ -71,8 +87,12 @@ require("lazy").setup({
       'nvim-treesitter/nvim-treesitter',
       build = ':TSUpdate',
       config = function()
+        require("nvim-treesitter.install").prefer_git = true
         require('lu5je0.ext.treesiter')
       end,
+      dependencies = {
+        'nvim-treesitter/nvim-treesitter-textobjects'
+      },
       event = 'VeryLazy'
     },
     {
@@ -133,25 +153,25 @@ require("lazy").setup({
     end,
     event = 'VeryLazy'
   },
-  {
-    'ojroques/vim-oscyank',
-    init = function()
-      vim.g.oscyank_silent = 1
-      vim.g.oscyank_trim = 0
-    end,
-    config = function()
-      if has_wsl or has_mac then
-        return
-      end
-      vim.api.nvim_create_autocmd('TextYankPost', {
-        pattern = '*',
-        callback = function()
-          vim.cmd [[ OSCYankRegister " ]]
-        end,
-      })
-    end,
-    event = 'VeryLazy'
-  },
+  -- {
+  --   'ojroques/vim-oscyank',
+  --   init = function()
+  --     vim.g.oscyank_silent = 1
+  --     vim.g.oscyank_trim = 0
+  --   end,
+  --   config = function()
+  --     if has_wsl or has_mac then
+  --       return
+  --     end
+  --     vim.api.nvim_create_autocmd('TextYankPost', {
+  --       pattern = '*',
+  --       callback = function()
+  --         vim.cmd [[ OSCYankRegister " ]]
+  --       end,
+  --     })
+  --   end,
+  --   event = 'VeryLazy'
+  -- },
   
   {
     'tpope/vim-fugitive',
@@ -207,12 +227,13 @@ require("lazy").setup({
   
   {
     'nvim-telescope/telescope.nvim',
-    tag = '0.1.2',
+    tag = '0.1.6',
     config = function()
       require('lu5je0.ext.telescope').setup()
     end,
     dependencies = {
       'nvim-lua/plenary.nvim',
+      { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' }
     },
     keys = { ',' }
   },
@@ -227,14 +248,6 @@ require("lazy").setup({
     },
     keys = { '<leader>fp' },
   },
-  
-  {
-    'nvim-lualine/lualine.nvim',
-    config = function()
-      require('lu5je0.ext.lualine')
-    end,
-    event = 'VeryLazy'
-  },
   {
     'lu5je0/bufferline.nvim',
     config = function()
@@ -246,7 +259,7 @@ require("lazy").setup({
   {
     'kyazdani42/nvim-tree.lua',
     -- just lock，in case of break changes
-    commit = 'e0c7eb50442922920cf6727a80ae09028947ddc6',
+    commit = 'd52fdeb0a300ac42b9cfa65ae0600a299f8e8677',
     dependencies = {
       'kyazdani42/nvim-web-devicons',
     },
@@ -298,7 +311,9 @@ require("lazy").setup({
       vim.g.eregex_default_enable = 0
     end,
     cmd = 'S',
-    keys = { '<leader>/' },
+    keys = {
+      { mode = 'n', "<leader>/", "<cmd>call eregex#toggle()<cr>", desc = "EregexToggle" },
+    },
   },
   {
     'numToStr/Comment.nvim',
@@ -313,7 +328,7 @@ require("lazy").setup({
     config = function()
       require('lu5je0.ext.terminal').setup()
     end,
-    keys = { { mode = { 'i', 'n' }, '<m-i>' }, { mode = { 'i', 'n' }, '<d-i>' } }
+    keys = { { mode = { 'i', 'n' }, '<m-i>' }, { mode = { 'i', 'n' }, '<d-i>' }, { mode = { 'n' }, '<leader>go' } }
   },
   {
     'mg979/vim-visual-multi',
@@ -387,24 +402,30 @@ require("lazy").setup({
     config = function()
       require('lu5je0.ext.highstr')
     end,
-    keys = { '<f1>', '<f2>', '<f3>', '<f4>', '<f6>' }
+    keys = {
+      { mode = { 'v' }, '<leader>my' },
+      { mode = { 'v' }, '<leader>mg' },
+      { mode = { 'v' }, '<leader>mr' },
+      { mode = { 'v' }, '<leader>mb' },
+      { mode = { 'v', 'n' }, '<leader>mc' }
+    }
   },
 
-  -- {
-  --   'dstein64/nvim-scrollview',
-  --   config = function()
-  --     require('lu5je0.ext.scrollview').setup()
-  --   end,
-  --   event = { 'VeryLazy' }
-  -- },
-  
   {
-    'lewis6991/satellite.nvim',
+    'dstein64/nvim-scrollview',
     config = function()
-      require('lu5je0.ext.satellite').setup()
+      require('lu5je0.ext.scrollview').setup()
     end,
-    event = { 'WinScrolled' }
+    event = { 'VeryLazy' }
   },
+  
+  -- {
+  --   'lewis6991/satellite.nvim',
+  --   config = function()
+  --     require('lu5je0.ext.satellite').setup()
+  --   end,
+  --   event = { 'WinScrolled' }
+  -- },
 
   -- nvim-cmp
   {
@@ -426,12 +447,15 @@ require("lazy").setup({
           end
         },
         -- {
-        --   'hrsh7th/vim-vsnip',
+        --   "garymjr/nvim-snippets",
         --   config = function()
-        --     require('lu5je0.ext.vsnip').setup()
-        --   end,
-        -- },
-        -- 'hrsh7th/cmp-vsnip',
+        --     require('snippets').setup({
+        --       search_paths = { vim.fn.stdpath('config') .. '/snippets/vsnip' },
+        --       create_autocmd = true,
+        --       create_cmp_source = true
+        --     })
+        --   end
+        -- }
       },
       event = 'InsertEnter',
     },
@@ -441,16 +465,41 @@ require("lazy").setup({
     },
   },
 
+  -- {
+  --   "elihunter173/dirbuf.nvim",
+  --   config = function()
+  --     require('lu5je0.ext.dirbuf')
+  --   end,
+  --   cmd = 'Dirbuf'
+  -- },
+  
   {
-    "elihunter173/dirbuf.nvim",
+    'stevearc/oil.nvim',
     config = function()
-      require('lu5je0.ext.dirbuf')
+      require("oil").setup {
+        buf_options = {
+          buflisted = true
+        },
+        columns = {
+          -- "icon",
+          -- "size",
+          -- "mtime",
+        },
+        use_default_keymaps = false,
+        keymaps = {
+          ["g?"] = "actions.show_help",
+          ["<CR>"] = "actions.select",
+          ["gs"] = "actions.change_sort",
+          ["g."] = "actions.toggle_hidden",
+          ["-"] = "actions.parent",
+        }
+      }
     end,
-    cmd = 'Dirbuf'
+    cmd = 'Oil'
   },
+  
   {
     'MunifTanjim/nui.nvim',
-    commit = '7427f979cc0dc991d8d177028e738463f17bcfcb',
     lazy = true
   },
   
@@ -466,13 +515,15 @@ require("lazy").setup({
     -- cmd = 'FoldTextToggle',
     -- keys = { 'zf', 'zo', 'za', 'zc', 'zM', 'zR' }
   },
-  {
-    'anuvyklack/pretty-fold.nvim',
-    config = function()
-      require('pretty-fold').setup()
-    end,
-    lazy = true
-  },
+  -- {
+  --   'anuvyklack/pretty-fold.nvim',
+  --   config = function()
+  --     require('pretty-fold').setup({
+  --       fill_char = ' ',
+  --     })
+  --   end,
+  --   lazy = true
+  -- },
   
   {
     'nat-418/boole.nvim',
@@ -527,7 +578,6 @@ require("lazy").setup({
     'lukas-reineke/indent-blankline.nvim',
     config = function()
       require('lu5je0.ext.indent-blankline')
-      vim.cmd('IndentBlanklineRefresh')
     end,
     event = 'VeryLazy'
   },
@@ -597,6 +647,19 @@ require("lazy").setup({
       event = { 'LspAttach' }
     },
     {
+      "aznhe21/actions-preview.nvim",
+      keys = {
+        {
+          mode = { "v", "n" },
+          "<leader>cc",
+          function()
+            require("actions-preview").code_actions()
+          end,
+          desc = "actions-preview"
+        },
+      },
+    },
+    {
       'simrat39/symbols-outline.nvim',
       config = function()
         require('lu5je0.ext.symbols-outline').setup()
@@ -622,7 +685,7 @@ require("lazy").setup({
       event = { 'CursorHold', 'LspAttach' }
     },
     {
-      'jose-elias-alvarez/null-ls.nvim',
+      'nvimtools/none-ls.nvim',
       config = function()
         require('lu5je0.ext.null-ls.null-ls')
       end,
@@ -714,41 +777,44 @@ require("lazy").setup({
     "luukvbaal/statuscol.nvim",
     config = function()
       local builtin = require("statuscol.builtin")
+      vim.o.foldcolumn = '0'
       require("statuscol").setup({
         -- configuration goes here, for example:
         ft_ignore = { 'NvimTree', 'undotree', 'diff', 'Outline', 'dapui_scopes', 'dapui_breakpoints', 'dapui_repl' },
         bt_ignore = { 'terminal' },
         segments = {
-          -- {
-          --   text = { function(args)
-          --     return builtin.foldfunc(args):sub(1, -2)
-          --   end, " " },
-          --   click = "v:lua.ScFa",
-          --   condition = { builtin.not_empty }
-          -- },
-          { text = { "%s" }, click = "v:lua.ScSa" }, -- signs
+          { text = { builtin.foldfunc }, click = "v:lua.ScFa" },
           {
             sign = { name = { "DapBreakpoint" }, maxwidth = 2, colwidth = 2, auto = true },
             click = "v:lua.ScSa"
           },
           {
-            sign = { name = { "GitSigns.*" }, maxwidth = 1, colwidth = 1, auto = false },
+            sign = { name = { ".*" }, maxwidth = 1, colwidth = 1, auto = false, wrap = true },
             click = "v:lua.ScSa",
+            condition = { function(args)
+              return vim.wo[args.win].number
+              -- return vim.wo[args.win].signcolumn ~= 'no'
+            end }
           },
           {
             text = { function(args)
-              if args.lnum < 10 then
-                return ' ' .. builtin.lnumfunc(args)
+              if not vim.wo[args.win].number then
+                return builtin.lnumfunc(args)
               end
-              return builtin.lnumfunc(args)
-            end, " " },
+
+              local num = ''
+              if args.lnum < 10 then
+                num = ' ' .. builtin.lnumfunc(args)
+              else
+                num = builtin.lnumfunc(args)
+              end
+              return num .. ' '
+            end },
             condition = { true, builtin.not_empty },
             click = "v:lua.ScLa",
           }
         },
       })
-      -- vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
-      -- vim.o.foldcolumn = '1'
     end,
     event = 'VeryLazy'
   },
@@ -781,7 +847,7 @@ require("lazy").setup({
   {
     'stevearc/profile.nvim',
     -- 最新的版本直接报错了，先lock到这个版本
-    commit = 'd0d74adabb90830bd96e5cdfc8064829ed88b1bb',
+    -- commit = 'd0d74adabb90830bd96e5cdfc8064829ed88b1bb',
     config = function()
       local function toggle_profile()
         local prof = require("profile")
@@ -798,9 +864,9 @@ require("lazy").setup({
           prof.start("*")
         end
       end
-      vim.keymap.set("", "<f3>", toggle_profile)
+      vim.keymap.set("", "<leader>pp", toggle_profile)
     end,
-    keys = { { mode = { 'n' }, '<f3>' } }
+    keys = { { mode = { 'n' }, '<leader>pp' } }
   },
   
   {
@@ -823,14 +889,37 @@ require("lazy").setup({
   -- {
   --   '3rd/image.nvim',
   --   config = function()
-  --     package.path = package.path .. ";" .. vim.fs.normalize('~') .. '/.luarocks/share/lua/5.1/?/init.lua'
-  --     package.path = package.path .. ";" .. vim.fs.normalize('~') .. '/.luarocks/share/lua/5.1/?.lua'
+  --     package.path = package.path .. ";" .. vim.fn.expand("$HOME") .. "/.luarocks/share/lua/5.1/?/init.lua;"
+  --     package.path = package.path .. ";" .. vim.fn.expand("$HOME") .. "/.luarocks/share/lua/5.1/?.lua;"
   --     require('image').setup({
   --      -- backend = 'ueberzug',
-  --       max_width_window_percentage = 80,
+  --      backend = "kitty",
+  --      integrations = {
+  --        markdown = {
+  --          enabled = true,
+  --          clear_in_insert_mode = false,
+  --          download_remote_images = true,
+  --          only_render_image_at_cursor = false,
+  --          filetypes = { "markdown", "vimwiki" }, -- markdown extensions (ie. quarto) can go here
+  --        },
+  --        neorg = {
+  --          enabled = true,
+  --          clear_in_insert_mode = false,
+  --          download_remote_images = true,
+  --          only_render_image_at_cursor = false,
+  --          filetypes = { "norg" },
+  --        },
+  --      },
+  --      max_width = nil,
+  --      max_height = nil,
+  --      max_width_window_percentage = nil,
+  --      max_height_window_percentage = 50,
+  --      window_overlap_clear_enabled = true, -- toggles images when windows are overlapped
+  --      window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "" },
+  --      kitty_method = "normal",
   --     })
   --   end
-  -- }
+  -- },
   
   -- {
   --   'tzachar/highlight-undo.nvim',
@@ -858,5 +947,35 @@ require("lazy").setup({
     end
   },
 
+  
+  {
+    "FabijanZulj/blame.nvim",
+    cmd = "ToggleBlame",
+    config = function()
+      require('blame').setup {
+        width = 35,
+      }
+    end,
+    keys = {
+      { mode = 'n', "<leader>gb", ":ToggleBlame window<cr>", desc = "ToggleGitBlame" },
+    },
+  },
+  
+  {
+    'kevinhwang91/nvim-fundo',
+    dependencies = 'kevinhwang91/promise-async',
+    build = function() require('fundo').install() end,
+    config = function ()
+      vim.o.undofile = true
+      require('fundo').setup()
+    end
+  },
+  
+  {
+    "LunarVim/bigfile.nvim",
+    config = function()
+      require('lu5je0.ext.big-file').setup()
+    end
+  },
   
 }, opts)
