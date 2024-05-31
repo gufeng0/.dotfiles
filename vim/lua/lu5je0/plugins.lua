@@ -1,11 +1,8 @@
 local nvim_colorizer_ft = { 'vim', 'lua', 'css', 'conf', 'tmux', 'bash' }
 
-local has_mac = vim.fn.has('mac') == 1
-local has_wsl = vim.fn.has('wsl') == 1
-
 local opts = {
   concurrency = (function()
-    return 30
+    return 20
   end)(),
   performance = {
     rtp = {
@@ -95,13 +92,13 @@ require("lazy").setup({
       },
       event = 'VeryLazy'
     },
-    {
-      "ThePrimeagen/refactoring.nvim",
-      config = function()
-        require('lu5je0.ext.refactoring').setup()
-      end,
-      keys = { { mode = { 'n', 'x' }, '<leader>c' } },
-    },
+    -- {
+    --   "ThePrimeagen/refactoring.nvim",
+    --   config = function()
+    --     require('lu5je0.ext.refactoring').setup()
+    --   end,
+    --   keys = { { mode = { 'n', 'x' }, '<leader>c' } },
+    -- },
     {
       'm-demare/hlargs.nvim',
       config = function()
@@ -160,6 +157,8 @@ require("lazy").setup({
   --     vim.g.oscyank_trim = 0
   --   end,
   --   config = function()
+  --   local has_mac = vim.fn.has('mac') == 1
+  --   local has_wsl = vim.fn.has('wsl') == 1
   --     if has_wsl or has_mac then
   --       return
   --     end
@@ -196,19 +195,6 @@ require("lazy").setup({
     end
   },
   {
-    'mattn/vim-gist',
-    config = function()
-      vim.cmd("let github_user = 'lu5je0@gmail.com'")
-      vim.cmd('let g:gist_show_privates = 1')
-      vim.cmd('let g:gist_post_private = 1')
-    end,
-    dependencies = {
-      'mattn/webapi-vim'
-    },
-    cmd = 'Gist'
-  },
-  
-  {
     'kyazdani42/nvim-web-devicons',
     -- config = function()
     --   require('nvim-web-devicons').setup {
@@ -227,7 +213,7 @@ require("lazy").setup({
   
   {
     'nvim-telescope/telescope.nvim',
-    tag = '0.1.6',
+    -- tag = '0.1.7',
     config = function()
       require('lu5je0.ext.telescope').setup()
     end,
@@ -249,7 +235,7 @@ require("lazy").setup({
     keys = { '<leader>fp' },
   },
   {
-    'lu5je0/bufferline.nvim',
+    'akinsho/bufferline.nvim',
     config = function()
       vim.g.bufferline_separator = true
       require('lu5je0.ext.bufferline')
@@ -355,13 +341,13 @@ require("lazy").setup({
       { mode = 'n', '<leader>sa' } }
   },
 
-  {
-    'dstein64/vim-startuptime',
-    config = function()
-      vim.cmd("let $NEOVIM_MEASURE_STARTUP_TIME = 'TRUE'")
-    end,
-    cmd = { 'StartupTime' },
-  },
+  -- {
+  --   'dstein64/vim-startuptime',
+  --   config = function()
+  --     vim.cmd("let $NEOVIM_MEASURE_STARTUP_TIME = 'TRUE'")
+  --   end,
+  --   cmd = { 'StartupTime' },
+  -- },
 
   {
     'mbbill/undotree',
@@ -384,10 +370,6 @@ require("lazy").setup({
       vim.keymap.set('n', '<leader>u', undotree_toggle, {})
     end,
   },
-
-  -- {
-  --   'junegunn/vim-peekaboo'
-  -- },
 
   {
     'folke/which-key.nvim',
@@ -581,6 +563,18 @@ require("lazy").setup({
     end,
     event = 'VeryLazy'
   },
+  
+  -- {
+  --   'nvimdev/indentmini.nvim',
+  --   config = function()
+  --     require("indentmini").setup {
+  --       char = '▏'
+  --     }
+  --     vim.cmd.highlight('IndentLine guifg=#373C44')
+  --     vim.cmd.highlight('IndentLineCurrent guifg=#373C44')
+  --   end,
+  --   event = 'VeryLazy'
+  -- },
 
   -- lsp
   {
@@ -729,8 +723,11 @@ require("lazy").setup({
     end,
     config = function()
       vim.g.mkdp_auto_close = 0
+      vim.cmd('command MarkdownPreview call mkdp#util#open_preview_page()')
+      vim.cmd('command MarkdownPreviewStop call mkdp#util#stop_preview()')
+      vim.g.mkdp_filetypes = { "markdown", "plantuml" }
     end,
-    ft = { 'markdown' },
+    cmd = { "MarkdownPreview" },
   },
   {
     "nvim-neorg/neorg",
@@ -759,6 +756,7 @@ require("lazy").setup({
     "mfussenegger/nvim-dap",
     dependencies = {
       'rcarriga/nvim-dap-ui',
+      'nvim-neotest/nvim-nio'
     },
     config = function()
       require('lu5je0.ext.dap').setup()
@@ -790,8 +788,16 @@ require("lazy").setup({
             sign = { name = { "DapBreakpoint" }, maxwidth = 2, colwidth = 2, auto = true },
             click = "v:lua.ScSa"
           },
+          -- {
+          --   sign = { name = { ".*" }, maxwidth = 1, colwidth = 0, auto = false, wrap = true },
+          --   click = "v:lua.ScSa",
+          --   condition = { function(args)
+          --     return vim.wo[args.win].number
+          --     -- return vim.wo[args.win].signcolumn ~= 'no'
+          --   end }
+          -- },
           {
-            sign = { name = { ".*" }, maxwidth = 1, colwidth = 1, auto = false, wrap = true },
+            sign = { namespace = { "gitsigns" }, maxwidth = 1, colwidth = 1, auto = false, wrap = true },
             click = "v:lua.ScSa",
             condition = { function(args)
               return vim.wo[args.win].number
@@ -848,8 +854,7 @@ require("lazy").setup({
   
   {
     'stevearc/profile.nvim',
-    -- 最新的版本直接报错了，先lock到这个版本
-    -- commit = 'd0d74adabb90830bd96e5cdfc8064829ed88b1bb',
+    -- https://ui.perfetto.dev/
     config = function()
       local function toggle_profile()
         local prof = require("profile")
@@ -952,14 +957,14 @@ require("lazy").setup({
   
   {
     "FabijanZulj/blame.nvim",
-    cmd = "ToggleBlame",
+    cmd = "BlameToggle",
     config = function()
       require('blame').setup {
         width = 35,
       }
     end,
     keys = {
-      { mode = 'n', "<leader>gb", ":ToggleBlame window<cr>", desc = "ToggleGitBlame" },
+      { mode = 'n', "<leader>gb", ":BlameToggle window<cr>", desc = "ToggleGitBlame" },
     },
   },
   

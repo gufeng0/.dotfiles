@@ -1,8 +1,9 @@
 local M = {}
 
-local PATH = vim.fn.stdpath("state") .. '/time-machine/'
-local MAX_KEEP_LINES = 5000
-local MAX_KEEP_FILE_CNT = 300
+local TIME_MACHINE_PATH = vim.fn.stdpath("state") .. '/time-machine/'
+local TIME_MACHINE_UNDO_PATH = TIME_MACHINE_PATH .. 'undo/'
+local MAX_KEEP_LINES = 30000
+local MAX_KEEP_FILE_CNT = 100
 local MAX_KEEP_DAYS = 10
 
 local cnt = 0
@@ -23,9 +24,9 @@ local function assemble_file_name(buf_nr)
   return filename
 end
 
-local function create_dir_if_absent()
-  if vim.fn.isdirectory(PATH) == 0 then
-    vim.fn.system('mkdir -p ' .. PATH)
+local function create_dir_if_absent(dir)
+  if vim.fn.isdirectory(dir) == 0 then
+    vim.fn.system('mkdir -p ' .. dir)
   end
 end
 
@@ -41,8 +42,8 @@ local function do_save(buf_nr)
     return
   end
   
-  create_dir_if_absent()
-  local file = io.open(PATH .. filename, "w+")
+  create_dir_if_absent(TIME_MACHINE_PATH)
+  local file = io.open(TIME_MACHINE_PATH .. filename, "w+")
   if file then
     for _, line in ipairs(lines) do
       file:write(line)
@@ -51,12 +52,17 @@ local function do_save(buf_nr)
     file:flush()
     file:close()
   end
+  -- save undo
+  create_dir_if_absent(TIME_MACHINE_UNDO_PATH)
+  vim.cmd('wundo ' .. TIME_MACHINE_UNDO_PATH .. filename)
 end
 
 local function clear_old_file()
   local files = {}
-  for file in vim.fs.dir(PATH) do
-    table.insert(files, file)
+  for file, type in vim.fs.dir(TIME_MACHINE_PATH) do
+    if type == 'file' then
+      table.insert(files, file)
+    end
   end
   
   -- 最大文件数清理
@@ -64,21 +70,22 @@ local function clear_old_file()
     table.sort(files)
     local need_del_cnt = #files - MAX_KEEP_FILE_CNT 
     for i, filename in ipairs(files) do
-      if i <= need_del_cnt then
-        -- print('deleting ' .. filename)
-        vim.fn.delete(PATH .. filename)
+      if i > need_del_cnt then
+        break
       end
+      vim.fn.delete(TIME_MACHINE_PATH .. filename)
+      vim.fn.delete(TIME_MACHINE_UNDO_PATH .. filename)
     end
   end
   
-  -- 最长日期清理，每次最多清理三个
-  local max_process_cnt = 2
+  -- 最长日期清理，每次最多清理max_process_cnt个
+  local max_process_cnt = 10
   for i, filename in ipairs(files) do
     if i <= max_process_cnt then
-      local stat = vim.loop.fs_stat(PATH .. filename)
+      local stat = vim.loop.fs_stat(TIME_MACHINE_PATH .. filename)
       if stat and stat.birthtime and vim.loop.gettimeofday() - stat.birthtime.sec > MAX_KEEP_DAYS * 24 * 60 * 60 then
         -- print('clear 过期文件' .. filename)
-        vim.fn.delete(PATH .. filename)
+        vim.fn.delete(TIME_MACHINE_PATH .. filename)
       end
     end
   end
@@ -110,7 +117,20 @@ end
 
 -- 返回保存目录
 function M.get_path()
-  return PATH
+  return TIME_MACHINE_PATH
+end
+
+function M.read_undo_if_is_time_machine_file()
+  if require('lu5je0.lang.string-utils').starts_with(vim.fn.expand('%:p'), TIME_MACHINE_PATH) then
+    M.read_undo()
+  end
+end
+
+function M.read_undo()
+  local filepath = TIME_MACHINE_UNDO_PATH .. vim.fn.expand('%:t')
+  if vim.fn.filereadable(filepath) then
+    vim.cmd('sil rundo ' ..  filepath)
+  end
 end
 
 return M

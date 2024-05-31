@@ -34,6 +34,16 @@ vim.api.nvim_create_user_command('TimeMachine', function()
   })
 end, { force = true })
 
+vim.api.nvim_create_user_command('TimeMachineReadUndo', function()
+  require('lu5je0.core.filetree').open_path(require('lu5je0.misc.time-machine').get_path(), {
+    print_path = true
+  })
+end, { force = true })
+
+vim.api.nvim_create_user_command('TimeMachineReadUndo', function()
+  require('lu5je0.misc.time-machine').read_undo()
+end, { force = true })
+
 vim.api.nvim_create_user_command('Plugins', function()
   require('lu5je0.core.filetree').open_path('~/.local/share/nvim/lazy', {
     print_path = true
@@ -55,6 +65,10 @@ require('lu5je0.misc.code-runner').create_command()
 require('lu5je0.misc.base64').create_command()
 
 require('lu5je0.misc.gmt').create_command()
+
+encode_command_creater.create_encode_command('InlineToArray', function(lines)
+  return table.concat(string_util.split(lines, '\n'), ',')
+end)
 
 encode_command_creater.create_encode_command('UrlEncode', function(url)
   if url == nil then

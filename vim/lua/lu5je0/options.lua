@@ -5,8 +5,11 @@ local has = function(feature)
   return vim.fn.has(feature) == 1
 end
 
--- font: mac JetBrainsMonoNLNerdFontMono-SemiBold 
+-- mac: JetBrainsMonoNLNerdFontMono-SemiBold 
 -- https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/NoLigatures/SemiBold/JetBrainsMonoNLNerdFontMono-SemiBold.ttf
+
+-- win: JetBrainsMonoNL Nerd Font Mono
+-- https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/NoLigatures/Regular/JetBrainsMonoNLNerdFontMono-Regular.ttf
 
 -- neovide
 if g.neovide then
@@ -23,6 +26,7 @@ o.splitbelow = true -- 默认在下侧分屏
 o.splitright = true -- 默认在右侧分屏
 o.shadafile = 'NONE'
 o.wrap = false
+o.mousemoveevent=true
 
 o.completeopt = 'menu,menuone,noselect'
 o.pumheight = 13
@@ -61,7 +65,7 @@ o.autoindent = true
 
 -- 不显示启动界面
 o.shortmess = o.shortmess .. 'I'
--- o.showcmd = false
+o.showcmd = false
 
 -- colorscheme
 o.termguicolors = true
@@ -87,27 +91,27 @@ local defer_options = {
     elseif has('wsl') then
       require('lu5je0.misc.clipboard.wsl').setup()
     else
-      -- if has('clipboard') == 1 then
-      --   o.clipboard = 'unnamed'
-      -- else
-        local function no_paste(reg)
-          return function(lines)
-            -- Do nothing! We can't paste with OSC52
-          end
+      local function no_paste(reg)
+        return function(lines)
+          -- Do nothing! We can't paste with OSC52
+          return vim.fn.getreg('"')
         end
-        o.clipboard = 'unnamed'
-        vim.g.clipboard = {
-          name = "OSC 52",
-          copy = {
-            ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
-            ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
-          },
-          paste = {
-            ["+"] = no_paste("+"), -- Pasting disabled
-            ["*"] = no_paste("*"), -- Pasting disabled
-          }
-        }
       end
+      o.clipboard = 'unnamedplus'
+      vim.g.clipboard = {
+        name = 'OSC 52',
+        copy = {
+          ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+          ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+        },
+        paste = {
+          -- ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+          -- ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+          ["+"] = no_paste("+"), -- Pasting disabled
+          ["*"] = no_paste("*"), -- Pasting disabled
+        }
+      }
+    end
     -- end
     vim.cmd [[ packadd matchit ]]
   end
