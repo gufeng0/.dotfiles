@@ -49,7 +49,7 @@ require("lazy").setup({
     end,
     config = function()
       vim.cmd.colorscheme('edge')
-      
+
       vim.g.edge_loaded_file_types = { 'NvimTree' }
       -- local bg = '#2c2e34'
       -- vim.cmd(string.gsub([[
@@ -62,7 +62,7 @@ require("lazy").setup({
       --
       -- hi NvimTreeWinSeparator guibg=%s guifg=%s
       -- ]], '%%s', bg))
-      
+
       vim.api.nvim_set_hl(0, "StatusLine", { fg = '#c5cdd9', bg = '#23262b' })
       vim.cmd [[
       hi! Folded guifg=#282c34 guibg=#5c6370
@@ -77,7 +77,7 @@ require("lazy").setup({
     end,
     event = 'VeryLazy',
   },
-  
+
   -- treesiter
   {
     {
@@ -110,7 +110,7 @@ require("lazy").setup({
       dependencies = {
         'nvim-treesitter/nvim-treesitter'
       },
-      event = 'VeryLazy'
+      event = 'LspAttach'
     },
     {
       'phelipetls/jsonpath.nvim',
@@ -124,7 +124,7 @@ require("lazy").setup({
     --   cmd = { 'AerialToggle' }
     -- },
   },
-  
+
   {
     'tpope/vim-repeat',
     event = 'VeryLazy',
@@ -136,12 +136,7 @@ require("lazy").setup({
     'aklt/plantuml-syntax',
     ft = 'plantuml',
     keys = '<leader>fn',
-    dependencies = {
-      {
-        'weirongxu/plantuml-previewer.vim',
-        'tyru/open-browser.vim'
-      }
-    }
+    lazy = true
   },
   {
     'lewis6991/gitsigns.nvim',
@@ -171,7 +166,7 @@ require("lazy").setup({
   --   end,
   --   event = 'VeryLazy'
   -- },
-  
+
   {
     'tpope/vim-fugitive',
     cmd = { 'Git', 'Gvdiffsplit', 'Gstatus', 'Gclog', 'Gread' },
@@ -210,7 +205,7 @@ require("lazy").setup({
     -- end,
     lazy = true
   },
-  
+
   {
     'nvim-telescope/telescope.nvim',
     -- tag = '0.1.7',
@@ -223,7 +218,7 @@ require("lazy").setup({
     },
     keys = { ',' }
   },
-  
+
   {
     'ahmedkhalf/project.nvim',
     config = function()
@@ -237,7 +232,6 @@ require("lazy").setup({
   {
     'akinsho/bufferline.nvim',
     config = function()
-      vim.g.bufferline_separator = true
       require('lu5je0.ext.bufferline')
     end,
     dependencies = { 'kyazdani42/nvim-web-devicons' },
@@ -245,7 +239,7 @@ require("lazy").setup({
   {
     'kyazdani42/nvim-tree.lua',
     -- just lock，in case of break changes
-    commit = 'd52fdeb0a300ac42b9cfa65ae0600a299f8e8677',
+    -- commit = 'd52fdeb0a300ac42b9cfa65ae0600a299f8e8677',
     dependencies = {
       'kyazdani42/nvim-web-devicons',
     },
@@ -257,7 +251,7 @@ require("lazy").setup({
   },
   {
     'theniceboy/vim-calc',
-    config = function ()
+    config = function()
       vim.keymap.set('n', '<leader>a', vim.fn.Calc)
     end,
     keys = { '<leader>a' }
@@ -291,16 +285,16 @@ require("lazy").setup({
     end,
     keys = { { mode = 'n', 'cs' }, { mode = 'n', 'cS' }, { mode = 'n', 'ys' }, { mode = 'n', 'ds' }, { mode = 'x', 'S' } }
   },
-  {
-    'othree/eregex.vim',
-    init = function()
-      vim.g.eregex_default_enable = 0
-    end,
-    cmd = 'S',
-    keys = {
-      { mode = 'n', "<leader>/", "<cmd>call eregex#toggle()<cr>", desc = "EregexToggle" },
-    },
-  },
+  -- {
+  --   'othree/eregex.vim',
+  --   init = function()
+  --     vim.g.eregex_default_enable = 0
+  --   end,
+  --   cmd = 'S',
+  --   keys = {
+  --     { mode = 'n', "<leader>/", "<cmd>call eregex#toggle()<cr>", desc = "EregexToggle" },
+  --   },
+  -- },
   {
     'numToStr/Comment.nvim',
     config = function()
@@ -385,10 +379,10 @@ require("lazy").setup({
       require('lu5je0.ext.highstr')
     end,
     keys = {
-      { mode = { 'v' }, '<leader>my' },
-      { mode = { 'v' }, '<leader>mg' },
-      { mode = { 'v' }, '<leader>mr' },
-      { mode = { 'v' }, '<leader>mb' },
+      { mode = { 'v' },      '<leader>my' },
+      { mode = { 'v' },      '<leader>mg' },
+      { mode = { 'v' },      '<leader>mr' },
+      { mode = { 'v' },      '<leader>mb' },
       { mode = { 'v', 'n' }, '<leader>mc' }
     }
   },
@@ -400,7 +394,7 @@ require("lazy").setup({
     end,
     event = { 'VeryLazy' }
   },
-  
+
   -- {
   --   'lewis6991/satellite.nvim',
   --   config = function()
@@ -454,7 +448,7 @@ require("lazy").setup({
   --   end,
   --   cmd = 'Dirbuf'
   -- },
-  
+
   {
     'stevearc/oil.nvim',
     config = function()
@@ -479,12 +473,12 @@ require("lazy").setup({
     end,
     cmd = 'Oil'
   },
-  
+
   {
     'MunifTanjim/nui.nvim',
     lazy = true
   },
-  
+
   {
     'kevinhwang91/nvim-ufo',
     dependencies = {
@@ -506,7 +500,7 @@ require("lazy").setup({
   --   end,
   --   lazy = true
   -- },
-  
+
   {
     'nat-418/boole.nvim',
     config = function()
@@ -555,7 +549,7 @@ require("lazy").setup({
     end,
     cmd = 'Messages',
   },
-  
+
   {
     'lukas-reineke/indent-blankline.nvim',
     config = function()
@@ -563,7 +557,7 @@ require("lazy").setup({
     end,
     event = 'VeryLazy'
   },
-  
+
   -- {
   --   'nvimdev/indentmini.nvim',
   --   config = function()
@@ -597,37 +591,28 @@ require("lazy").setup({
         'williamboman/mason.nvim',
         {
           'neovim/nvim-lspconfig',
-          dependencies = {
-            {
-              'folke/neodev.nvim',
-              config = function()
-                require("neodev").setup {
-                  library = {
-                    enabled = true, -- when not enabled, neodev will not change any settings to the LSP server
-                    -- these settings will be used for your Neovim config directory
-                    runtime = true, -- runtime path
-                    types = true,   -- full signature, docs and completion of vim.api, vim.treesitter, vim.lsp and others
-                    plugins = false,
-                    -- plugins = { 'nui.nvim', 'nvim-tree.lua', "nvim-treesitter", "plenary.nvim", "telescope.nvim" },
-                  },
-                }
-              end
-            },
-          },
           config = function()
             require('lu5je0.ext.lspconfig.lsp').setup()
           end,
         },
-        -- {
-        --   "lu5je0/lspsaga.nvim",
-        --   branch = "main",
-        --   config = function()
-        --     require('lu5je0.ext.lspconfig.lspsaga')
-        --   end,
-        --   dependencies = {
-        --     'neovim/nvim-lspconfig'
-        --   }
-        -- },
+      }
+    },
+    {
+      "folke/lazydev.nvim",
+      ft = "lua", -- only load on lua files
+      opts = {
+        library = {
+          -- Library items can be absolute paths
+          -- "~/projects/my-awesome-lib",
+          -- Or relative, which means they will be resolved as a plugin
+          -- "LazyVim",
+          -- When relative, you can also provide a path to the library in the plugin dir
+          "luvit-meta/library", -- see below
+        },
+      },
+      lazy = true,
+      dependencies = {
+        { "Bilal2453/luvit-meta", lazy = true }, -- optional `vim.uv` typings
       }
     },
     {
@@ -729,29 +714,29 @@ require("lazy").setup({
     end,
     cmd = { "MarkdownPreview" },
   },
-  {
-    "nvim-neorg/neorg",
-    build = ":Neorg sync-parsers",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    commit = '086891d396ac9fccd91faf1520f563b6eb9eb942',
-    ft = { 'norg' },
-    config = function()
-      require("neorg").setup {
-        load = {
-          ["core.defaults"] = {}, -- Loads default behaviour
-          ["core.concealer"] = {}, -- Adds pretty icons to your documents
-          ["core.dirman"] = { -- Manages Neorg workspaces
-          config = {
-            workspaces = {
-              notes = "~/notes",
-            },
-          },
-        },
-      },
-    }
-    end,
-  },
-  
+  -- {
+  --   "nvim-neorg/neorg",
+  --   build = ":Neorg sync-parsers",
+  --   dependencies = { "nvim-lua/plenary.nvim" },
+  --   commit = '086891d396ac9fccd91faf1520f563b6eb9eb942',
+  --   ft = { 'norg' },
+  --   config = function()
+  --     require("neorg").setup {
+  --       load = {
+  --         ["core.defaults"] = {}, -- Loads default behaviour
+  --         ["core.concealer"] = {}, -- Adds pretty icons to your documents
+  --         ["core.dirman"] = { -- Manages Neorg workspaces
+  --         config = {
+  --           workspaces = {
+  --             notes = "~/notes",
+  --           },
+  --         },
+  --       },
+  --     },
+  --   }
+  --   end,
+  -- },
+
   {
     "mfussenegger/nvim-dap",
     dependencies = {
@@ -772,7 +757,7 @@ require("lazy").setup({
     end,
     cmd = 'LuaDebug'
   },
-  
+
   {
     "luukvbaal/statuscol.nvim",
     config = function()
@@ -826,7 +811,7 @@ require("lazy").setup({
     end,
     event = 'VeryLazy'
   },
-  
+
   {
     "folke/edgy.nvim",
     event = "VeryLazy",
@@ -834,14 +819,14 @@ require("lazy").setup({
       require("lu5je0.ext.edgy").setup()
     end
   },
-  
+
   -- {
   --   'akinsho/git-conflict.nvim',
   --   version = "*",
   --   config = true,
   --   event = 'VeryLazy'
   -- },
-  
+
   {
     'nvim-pack/nvim-spectre',
     config = function()
@@ -851,7 +836,7 @@ require("lazy").setup({
     -- event = 'VeryLazy'
     keys = { { mode = { 'x' }, '<leader>xr' }, { mode = 'n', '<leader>xf' } },
   },
-  
+
   {
     'stevearc/profile.nvim',
     -- https://ui.perfetto.dev/
@@ -875,7 +860,7 @@ require("lazy").setup({
     end,
     keys = { { mode = { 'n' }, '<leader>pp' } }
   },
-  
+
   {
     "folke/flash.nvim",
     keys = { { mode = { 'n', 'x' }, 't' }, { mode = { 'n' }, 'S' }, { mode = { 'o' }, 'r' } },
@@ -892,7 +877,7 @@ require("lazy").setup({
       vim.api.nvim_create_user_command('FlashSearchToggle', function() require("flash").toggle() end, {})
     end
   },
-  
+
   -- {
   --   '3rd/image.nvim',
   --   config = function()
@@ -927,7 +912,7 @@ require("lazy").setup({
   --     })
   --   end
   -- },
-  
+
   -- {
   --   'tzachar/highlight-undo.nvim',
   --   config = function()
@@ -954,7 +939,6 @@ require("lazy").setup({
     end
   },
 
-  
   {
     "FabijanZulj/blame.nvim",
     cmd = "BlameToggle",
@@ -967,22 +951,49 @@ require("lazy").setup({
       { mode = 'n', "<leader>gb", ":BlameToggle window<cr>", desc = "ToggleGitBlame" },
     },
   },
-  
+
   {
     'kevinhwang91/nvim-fundo',
     dependencies = 'kevinhwang91/promise-async',
     build = function() require('fundo').install() end,
-    config = function ()
+    config = function()
       vim.o.undofile = true
       require('fundo').setup()
     end
   },
-  
+
   {
     "LunarVim/bigfile.nvim",
     config = function()
       require('lu5je0.ext.big-file').setup()
     end
   },
-  
+
+  {
+    "ray-x/lsp_signature.nvim",
+    event = "VeryLazy",
+    config = function()
+      require('lsp_signature').setup {
+        hint_enable = false,
+        floating_window = false,
+        toggle_key = '<c-p>',
+        max_height = 10,
+        max_width = 70,
+        toggle_key_flip_floatwin_setting = true,
+        -- auto_close_after = 3
+        handler_opts = {
+          border = "single"
+        }
+      }
+      
+      vim.api.nvim_create_autocmd({ 'InsertLeave' }, {
+        group = vim.api.nvim_create_augroup('lsp_signature.nvim', { clear = true }),
+        pattern = '*',
+        callback = function(_)
+          _LSP_SIG_CFG.floating_window=false
+        end,
+      })
+    end
+  }
+
 }, opts)

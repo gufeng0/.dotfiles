@@ -1,4 +1,5 @@
 local M = {}
+local string_util = require('lu5je0.lang.string-utils')
 
 local STD_PATH = vim.fn.stdpath('config')
 
@@ -32,25 +33,26 @@ end
 
 function M.setup()
   vim.o.clipboard = 'unnamed'
-  vim.cmd[[
-  function s:copy(contents, regtype)
-    call luaeval('require("lu5je0.misc.clipboard.mac").set_clipboard_ffi(_A[1], _A[2])', [a:contents, a:regtype])
-  endfunction
-  function s:get_active()
-    return luaeval('require("lu5je0.misc.clipboard.mac").read_clipboard_ffi()')
-  endfunction
-  let g:clipboard = {
-        \   'name': 'pbcopy',
-        \   'copy': {
-        \      '+': {lines, regtype -> s:copy(lines, regtype)},
-        \      '*': {lines, regtype -> s:copy(lines, regtype)},
-        \    },
-        \   'paste': {
-        \      '+': {-> s:get_active()},
-        \      '*': {-> s:get_active()},
-        \   },
-        \ }
-  ]]
+  
+  local set_fn = function(lines, regtype)
+    M.set_clipboard_ffi(lines, regtype)
+  end
+  
+  local get_fn = function()
+    return M.read_clipboard_ffi()
+  end
+  
+  vim.g.clipboard = {
+    name = 'mac-clipboard',
+    copy = {
+      ["+"] = set_fn,
+      ['*'] = set_fn
+    },
+    paste = {
+      ["+"] = get_fn,
+      ["*"] = get_fn
+    }
+  }
 end
 
 return M
