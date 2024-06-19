@@ -387,21 +387,21 @@ require("lazy").setup({
     }
   },
 
-  {
-    'dstein64/nvim-scrollview',
-    config = function()
-      require('lu5je0.ext.scrollview').setup()
-    end,
-    event = { 'VeryLazy' }
-  },
-
   -- {
-  --   'lewis6991/satellite.nvim',
+  --   'dstein64/nvim-scrollview',
   --   config = function()
-  --     require('lu5je0.ext.satellite').setup()
+  --     require('lu5je0.ext.scrollview').setup()
   --   end,
-  --   event = { 'WinScrolled' }
+  --   event = { 'VeryLazy' }
   -- },
+
+  {
+    'lewis6991/satellite.nvim',
+    config = function()
+      require('lu5je0.ext.satellite').setup()
+    end,
+    event = { 'WinScrolled' }
+  },
 
   -- nvim-cmp
   {
@@ -663,18 +663,18 @@ require("lazy").setup({
       },
       event = { 'CursorHold', 'LspAttach' }
     },
-    {
-      'nvimtools/none-ls.nvim',
-      config = function()
-        require('lu5je0.ext.null-ls.null-ls')
-      end,
-      commit = 'c10b7be7751aee820a02f2d1fafe76bc316fe223',
-      dependencies = {
-        'neovim/nvim-lspconfig'
-      },
-      event = 'VeryLazy'
-      -- cmd = 'NullLsEnable',
-    },
+    -- {
+    --   'nvimtools/none-ls.nvim',
+    --   config = function()
+    --     require('lu5je0.ext.null-ls.null-ls')
+    --   end,
+    --   commit = 'c10b7be7751aee820a02f2d1fafe76bc316fe223',
+    --   dependencies = {
+    --     'neovim/nvim-lspconfig'
+    --   },
+    --   event = 'VeryLazy'
+    --   -- cmd = 'NullLsEnable',
+    -- },
   },
 
   {
@@ -959,7 +959,8 @@ require("lazy").setup({
     config = function()
       vim.o.undofile = true
       require('fundo').setup()
-    end
+    end,
+    event = 'BufReadPre'
   },
 
   {

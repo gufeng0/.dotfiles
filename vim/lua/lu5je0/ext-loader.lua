@@ -36,7 +36,7 @@ formatter.setup {
   external_formatter = {
     json = {
       format = function()
-        vim.cmd(':%!prettier --parser json')
+        vim.cmd [[ JsonFormat ]]
       end,
       range_format = function()
       end,
@@ -83,6 +83,14 @@ formatter.setup {
       end,
       range_format = function()
         vim.cmd(":'<,'>%!prettier --parser markdown")
+      end,
+    },
+    [{ 'javascript' }] = {
+      format = function()
+        vim.cmd(':%!prettier --parser babel')
+      end,
+      range_format = function()
+        vim.cmd(":'<,'>%!prettier --parser babel")
       end,
     }
   }

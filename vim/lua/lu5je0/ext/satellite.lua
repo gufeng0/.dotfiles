@@ -81,8 +81,13 @@ function M.setup()
       },
       diagnostic = {
         enable = true,
-        signs = { '-', '=', '≡' },
+        signs = {'-', '=', '≡'},
         min_severity = vim.diagnostic.severity.HINT,
+        -- Highlights:
+        -- - SatelliteDiagnosticError (default links to DiagnosticError)
+        -- - SatelliteDiagnosticWarn (default links to DiagnosticWarn)
+        -- - SatelliteDiagnosticInfo (default links to DiagnosticInfo)
+        -- - SatelliteDiagnosticHint (default links to DiagnosticHint)
       },
       gitsigns = {
         enable = true,
@@ -90,14 +95,14 @@ function M.setup()
           -- can only be a single character (multibyte is okay)
           add = "▕",
           change = "▕",
-          delete = "╶",
+          delete = "▕",
           -- add = "│",
           -- change = "│",
           -- delete = "╶",
         },
       },
       marks = {
-        enable = false,
+        enable = true,
         show_builtins = false, -- shows the builtin marks like [ ] < >
       },
     },
@@ -110,9 +115,9 @@ function M.setup()
   end, 100)
 
 
-  local enable_cmd = 'SatelliteEnable'
-  local disable_cmd = 'SatelliteDisable'
-  local refresh_cmd = 'SatelliteRefresh'
+  local enable_cmd = 'silent! SatelliteEnable'
+  local disable_cmd = 'silent! SatelliteDisable'
+  local refresh_cmd = 'silent! SatelliteRefresh'
   M.begin_timer(enable_cmd, disable_cmd, refresh_cmd)
 
   -- workaroud for builtin keymap

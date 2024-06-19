@@ -31,7 +31,7 @@ function M.begin_timer(enable_cmd, disable_cmd, refresh_cmd)
       timer:stop()
     end
     
-    vim.cmd(enable_cmd)
+    vim.cmd('silent! ' .. enable_cmd)
     
     -- 搜索时不自动隐藏
     if vim.v.hlsearch == 1 then
@@ -43,7 +43,7 @@ function M.begin_timer(enable_cmd, disable_cmd, refresh_cmd)
         return
       end
       ---@diagnostic disable-next-line: param-type-mismatch
-      local ok, err = pcall(vim.cmd, disable_cmd)
+      local ok, err = pcall(vim.cmd, 'silent!' .. disable_cmd)
       if not ok then
         print(err)
       end
