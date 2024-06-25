@@ -227,6 +227,9 @@ function M.setup()
       L = { function() require('lu5je0.ext.fugitive').current_file_logs() end, 'show changs on current file' },
       i = { '<cmd>Gist -l<cr>', 'gist' },
     },
+    d = {
+      n = {":lua require('lu5je0.misc.delete').deleteNullLines()<cr>","delete null lines"}
+    }
   }
 
   local n_opts = {
@@ -265,7 +268,6 @@ function M.setup()
       },
     },
     d = {
-      n = {":lua require('lu5je0.misc.delete').deleteNullLines()<cr>","delete null lines"},
       l = {":lua require('lu5je0.misc.delete').deleteLines()<cr>","delete lines"},
       a = {":lua require('lu5je0.misc.delete').deleteAll()<cr>","delete all"},
       i = {":lua require('lu5je0.misc.delete').deleteImg()<cr>","delete img"}
