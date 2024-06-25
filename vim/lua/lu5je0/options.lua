@@ -14,7 +14,22 @@ end
 
 -- neovide
 if g.neovide then
-  -- o.guifont = "JetBrainsMono:h14" -- text below applies for VimScript
+  if has('wsl') then
+    o.guifont="JetBrainsMonoNL\\ Nerd\\ Font\\ Mono:h11"
+  else
+    o.guifont="JetBrainsMonoNL\\ Nerd\\ Font\\ Mono:h14"
+  end
+  
+  g.neovide_input_ime = false
+  vim.cmd [[
+  augroup ime_input
+  autocmd!
+  autocmd InsertLeave * execute "let g:neovide_input_ime=v:false"
+  autocmd InsertEnter * execute "let g:neovide_input_ime=v:true"
+  autocmd CmdlineLeave [/\?] execute "let g:neovide_input_ime=v:false"
+  autocmd CmdlineEnter [/\?] execute "let g:neovide_input_ime=v:true"
+  augroup END
+  ]]
   g.neovide_remember_window_size = true
   g.neovide_hide_mouse_when_typing = true
 end
