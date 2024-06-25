@@ -1,7 +1,7 @@
 local M = {}
 
 function M.deleteNullLines()
-  vim.cmd(":g/^\s*$/d")
+  vim.cmd(":g/^\\s*$/d")
 end
 
 function M.deleteLines()
