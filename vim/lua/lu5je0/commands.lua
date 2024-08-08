@@ -34,6 +34,7 @@ vim.api.nvim_create_user_command('CurlConvert', function(t)
   require('lu5je0.misc.curlconverter').convert(t.fargs[1])
 end, {
   force = true,
+  nargs = '?',
   complete = starts_with_complete({ 'ansible', 'cfml', 'clojure', 'csharp', 'dart',
     'elixir', 'go', 'har', 'http', 'httpie', 'java', 'javascript', 'json',
     'matlab', 'node', 'node-axios', 'node-request', 'php', 'php-guzzle',
