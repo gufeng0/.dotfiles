@@ -1,7 +1,5 @@
 local M = {}
 
-local string_utils = require('lu5je0.lang.string-utils')
-
 local encode_command_creater = require('lu5je0.misc.encode-command-creater')
 
 local function is_number(str)
@@ -36,11 +34,11 @@ function M.encode(str)
 end
 
 function M.toggle(data)
-  local lines = string_utils.split(data, '\n')
+  local lines = vim.split(data, '\n')
   
   local results = {}
   for _, line in pairs(lines) do
-    if string_utils.contains(line, ':') then
+    if line:find(':') then
       table.insert(results, M.encode(line))
     else
       table.insert(results, timestamp_to_date(line))

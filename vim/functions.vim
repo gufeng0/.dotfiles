@@ -14,20 +14,11 @@ import vim
 python_root_dir = vim.eval('s:plugin_root_dir') + "/python"
 sys.path.insert(0, python_root_dir)
 import functions
-import lang_detector
 import importlib
 importlib.reload(functions)
 EOF
 let g:py_func_init = 1
 endfunction
-
-function! GuessLang(...)
-call PyFuncInit()
-python3 << EOF
-lang_detector.detect_filetype()
-EOF
-endfunction
-command! -nargs=* GuessLang call GuessLang(<f-args>)
 
 function! SetOperation(...)
 call PyFuncInit()

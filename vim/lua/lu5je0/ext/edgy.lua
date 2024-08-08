@@ -33,16 +33,11 @@ function M.setup()
         -- },
       },
       left = {
-        {
-          title = "nvimtree",
-          ft = "NvimTree",
-          size = { height = 0.5 },
-        },
-        {
-          ft = "Outline",
-          -- pinned = true,
-          open = "SymbolsOutline",
-        },
+        -- {
+        --   title = "nvimtree",
+        --   ft = "NvimTree",
+        --   size = { height = 0.5 },
+        -- },
         {
           ft = "dapui_scopes",
         },
@@ -63,12 +58,17 @@ function M.setup()
         --   -- size = { height = 0.5 },
         -- },
       },
-      -- right = {
-      --   {
-      --     ft = "spectre_panel",
-      --     size = { width = 0.5 },
-      --   },
-      -- }
+      right = {
+        -- {
+        --   ft = "spectre_panel",
+        --   size = { width = 0.5 },
+        -- },
+        -- {
+        --   ft = "Outline",
+        --   -- pinned = true,
+        --   open = "SymbolsOutline",
+        -- },
+      }
     }
 end
 

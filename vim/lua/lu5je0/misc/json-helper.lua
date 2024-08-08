@@ -1,5 +1,4 @@
 local M = {}
-local string_utils = require('lu5je0.lang.string-utils')
 local cursor_utils = require('lu5je0.core.cursor')
 
 function M.compress()
@@ -79,7 +78,7 @@ local function jq_complete(text)
   -- match
   local words = {}
   for _, json_key in ipairs(json_keys) do
-    if string_utils.starts_with(json_key, complete_text) then
+    if vim.startswith(json_key, complete_text) then
       table.insert(words, text .. json_key:sub(#complete_text + 1, -1))
     end
   end
@@ -111,8 +110,10 @@ function M.setup()
   end, { force = true })
 
   vim.api.nvim_create_user_command('Json', function()
-    vim.cmd('set ft=json')
     M.format()
+    if vim.fn.line("$") < 10000 then
+      vim.cmd('set ft=json')
+    end
   end, { force = true })
 
   vim.api.nvim_create_user_command('Jq', function(args)

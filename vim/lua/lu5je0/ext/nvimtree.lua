@@ -4,7 +4,6 @@ local M = {}
 local lib = require('nvim-tree.lib')
 local keys_helper = require('lu5je0.core.keys')
 local api = require('nvim-tree.api')
-local string_utils = require('lu5je0.lang.string-utils')
 local ui = require('lu5je0.core.ui')
 
 M.pwd_stack = require('lu5je0.lang.stack'):create()
@@ -31,7 +30,7 @@ function M.locate_file()
     turn_on_hidden_filter()
   end
 
-  if not string_utils.starts_with(cur_file_dir_path, cwd) then
+  if not vim.startswith(cur_file_dir_path, cwd) then
     vim.cmd(':cd ' .. cur_file_dir_path)
   else
     -- check if file in dotdir
@@ -202,7 +201,7 @@ end
 
 function M.toggle_width()
   local cur_width = vim.api.nvim_win_get_width(0)
-  local after_width = math.floor(vim.api.nvim_eval('&co') * 2 / 5)
+  local after_width = math.floor(vim.api.nvim_eval('&co') * (1 / 2))
 
   if M.last_width == nil or cur_width ~= after_width then
     vim.cmd('NvimTreeResize ' .. after_width)
@@ -248,6 +247,16 @@ function M.copy_relative_path()
   api.fs.copy.relative_path()
 end
 
+function M.copy_node_name()
+  local node = require('nvim-tree.lib').get_node_at_cursor()
+  if not node then
+    return
+  end
+  
+  set_clipboard(node.name)
+  print('copied node name')
+end
+
 function M.copy_absolute_path()
   local node = require('nvim-tree.lib').get_node_at_cursor()
   if not node then
@@ -290,10 +299,12 @@ local function on_attach(bufnr)
   set('n', 'C', api.tree.toggle_git_clean_filter, opts('Toggle Git Clean'))
   set('n', 'cd', M.cd, opts('cd'))
   set('n', 'B', api.tree.toggle_no_buffer_filter, opts('Toggle No Buffer'))
-  set('n', 'x', M.toggle_width, opts('toggle_width'))
   -- set('n', 'x', api.marks.toggle, opts('Toggle Bookmark'))
   set('n', 'mk', M.create_dir, opts('create_dir'))
   set('n', 't', M.terminal_cd, opts('terminal cd'))
+  
+  set('n', 'z', M.toggle_width, opts('toggle nvimtree width'))
+  
   set('n', 'D', function()
     M.delete_node()
     api.tree.reload()
@@ -314,6 +325,13 @@ local function on_attach(bufnr)
   set('n', 'F', api.node.show_info_popup, opts('Info'))
   set('n', 'f', api.live_filter.start, opts('Filter'))
   set('n', '.', api.node.run.cmd, opts('Run Command'))
+  set('n', 'o', function()
+    local path = vim.fn.fnamemodify(require('nvim-tree.lib').get_node_at_cursor().absolute_path, ':p:h')
+    keys_helper.feedkey('<c-w>l')
+    vim.schedule(function()
+      vim.cmd('Oil' .. path)
+    end)
+  end, opts('Oil'))
   set('n', 'I', api.tree.toggle_hidden_filter, opts('Toggle Dotfiles'))
   set('n', 'r', api.tree.reload, opts('Refresh'))
   set('n', 'ma', api.fs.create, opts('Create'))
@@ -321,7 +339,7 @@ local function on_attach(bufnr)
   set('n', 'dd', api.fs.cut, opts('Cut'))
   set('n', 'yy', api.fs.copy.node, opts('Copy'))
   set('n', 'p', api.fs.paste, opts('Paste'))
-  set('n', 'yn', api.fs.copy.filename, opts('Copy Name'))
+  set('n', 'yn', M.copy_node_name, opts('Copy Name'))
   set('n', 'yP', M.copy_relative_path, opts('Copy Relative Path'))
   set('n', 'yp', M.copy_absolute_path, opts('Copy Absolute Path'))
 

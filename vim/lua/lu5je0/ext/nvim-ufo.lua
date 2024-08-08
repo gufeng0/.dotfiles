@@ -1,4 +1,4 @@
-local parsers = require('nvim-treesitter.parsers')
+-- local parsers = require('nvim-treesitter.parsers')
 local string_utils = require('lu5je0.lang.string-utils')
 
 local suffix_ft_white_list = { 'lua', 'java', 'json', 'xml', 'rust', 'python', 'html', 'c', 'cpp' }
@@ -28,7 +28,7 @@ local fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate
     curWidth = curWidth + chunkWidth
   end
   
-  if table.contain(suffix_ft_white_list, vim.bo.filetype) then
+  if vim.tbl_contains(suffix_ft_white_list, vim.bo.filetype) then
     table.insert(newVirtText, { ' … ', 'TSPunctBracket' })
 
     -- 移除前导空格
@@ -100,10 +100,11 @@ vim.api.nvim_create_autocmd('WinNew', {
 
 require('ufo').setup({
   provider_selector = function(bufnr, filetype, buftype)
-    if parsers.get_parser(bufnr) then
-      return { 'treesitter' }
-    end
-    return { 'treesitter' }
+    return { 'treesitter', 'indent' }
+    -- if parsers.get_parser(bufnr) then
+    --   return { 'treesitter' }
+    -- end
+    -- return { 'treesitter' }
   end,
   close_fold_kinds_for_ft = {},
   open_fold_hl_timeout = 0,

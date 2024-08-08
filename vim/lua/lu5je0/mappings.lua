@@ -39,7 +39,7 @@ local cmd_and_print = function(...)
 end
 
 ---@diagnostic disable-next-line: param-type-mismatch
-vim.defer_fn(function()
+vim.schedule(function()
   -- movement
   set_map({ 'x', 'n', 'o' }, 'H', '^')
   set_map({ 'x', 'n', 'o' }, 'L', '$')
@@ -92,11 +92,16 @@ vim.defer_fn(function()
 
   -- dir
   -- set_n_map('<leader>fp', function() cmd_and_print('cd ~/.local/share/nvim/lazy') end)
-  set_n_map('<leader>fd', function() cmd_and_print('cd ~/.dotfiles') end)
+  set_n_map('<leader>fs', function() cmd_and_print('cd ~/.dotfiles') end)
   set_n_map('<leader>ft', function() cmd_and_print('cd ~/test') end)
   
   -- selection search
   set_map('x', { '<leader>/', '<space>/' }, '<Esc>/\\%V', {})
+  
+  
+  set_map('n', '<leader>m', function()
+    require('lu5je0.ext.language-detect').delect_and_set_filetype()
+  end)
   
   -- text
   set_map('n', '<leader>xx', ":%!", {
@@ -108,6 +113,29 @@ vim.defer_fn(function()
 
   -- ctrl-c 复制
   set_x_map('<C-c>', 'y')
+  
+  set_map('n', '<space><space>', function()
+    -- 保存当前视图状态
+    local save = vim.fn.winsaveview()
+    -- 选择最后插入的文本
+    vim.cmd('normal! `[v`]')
+    -- 重新缩进选定文本
+    vim.cmd('silent! normal =')
+    -- 恢复视图状态
+    vim.fn.winrestview(save)
+    keys_helper.feedkey('^')
+  end)
+  
+  -- neovim
+  -- 修复按u之后，光标闪烁问题
+  set_n_map('u', function()
+    vim.cmd("redir => output")
+    vim.cmd('silent!' .. 'undo')
+    vim.cmd('redir END')
+    vim.defer_fn(function()
+      print(vim.g.output)
+    end, 10)
+  end)
 
   vim.cmd [[
   nmap Q <cmd>execute 'normal @' .. reg_recorded()<CR>
@@ -128,8 +156,6 @@ vim.defer_fn(function()
   nnoremap <space>h H
   nnoremap <space>L L
   nnoremap <space>l L
-  
-  nnoremap <space><space> %
   
   " xmap : :<c-u>
 
@@ -226,4 +252,4 @@ vim.defer_fn(function()
   silent! vunmap crr
   ]]
 
-end, 0)
+end)

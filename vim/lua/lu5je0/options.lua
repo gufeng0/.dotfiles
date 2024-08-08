@@ -1,25 +1,54 @@
 local o = vim.o
 local g = vim.g
-local string_util = require('lu5je0.lang.string-utils')
+
+local original_has = vim.fn.has
+---@diagnostic disable-next-line: duplicate-set-field
+vim.fn.has = function(feature)
+  local has = original_has(feature) == 1
+  if has then
+    return 1
+  end
+
+  if feature == 'gui' then
+    has = vim.g.gonvim_running ~= nil or vim.g.neovide
+  elseif feature == 'wsl' then
+    has = os.getenv('WSLENV') ~= nil
+  elseif feature == 'ssh_client' then
+    has = os.getenv('SSH_CLIENT') ~= nil
+  end
+
+  return has and 1 or 0
+end
 
 local has = function(feature)
   return vim.fn.has(feature) == 1
 end
 
+-- 100 - Thin
+-- 200 - Extra Light (Ultra Light)
+-- 300 - Light
+-- 400 - Regular (Normal、Book、Roman)
+-- 500 - Medium
+-- 600 - Semi Bold (Demi Bold)
+-- 700 - Bold
+-- 800 - Extra Bold (Ultra Bold)
+-- 900 - Black (Heavy)
 -- mac: JetBrainsMonoNLNerdFontMono-SemiBold
 -- https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/NoLigatures/Regular/JetBrainsMonoNLNerdFontMono-Regular.ttf
 
 -- win: JetBrainsMonoNL Nerd Font Mono
--- https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/NoLigatures/Regular/JetBrainsMonoNLNerdFontMono-Regular.ttf
+-- https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/NoLigatures/Medium/JetBrainsMonoNLNerdFontMono-Medium.ttf
 
 -- neovide
 if g.neovide then
+  -- wsl config path: config.toml
+  -- $HOME\AppData\Roaming\neovide
   if has('wsl') then
-    o.guifont="JetBrainsMonoNL\\ Nerd\\ Font\\ Mono:h11"
+    o.guifont = "JetBrainsMonoNL\\ Nerd\\ Font\\ Mono:h11"
   else
-    o.guifont="JetBrainsMonoNL\\ Nerd\\ Font\\ Mono:h14"
+    o.guifont = "JetBrainsMonoNL\\ Nerd\\ Font\\ Mono:h14"
   end
-  
+
   g.neovide_input_ime = false
   vim.cmd [[
   augroup ime_input
@@ -43,6 +72,8 @@ o.splitright = true -- 默认在右侧分屏
 o.shadafile = 'NONE'
 o.wrap = false
 o.mousemoveevent = true
+-- peding模式下，关闭不变为hor20
+o.guicursor = 'n-v-c-sm:block,i-ci-ve:ver25,r-cr:hor20'
 
 o.completeopt = 'menu,menuone,noselect'
 o.pumheight = 13
@@ -76,12 +107,18 @@ o.shiftwidth = 4
 o.softtabstop = 4
 o.expandtab = true
 o.autoindent = true
--- o.smartindent = true
+o.smartindent = true
 -- o.cmdheight = 0
 
 -- 不显示启动界面
 o.shortmess = o.shortmess .. 'I'
 o.showcmd = false
+
+-- disable some default providers
+-- g.loaded_python3_provider = 0
+g.loaded_node_provider = 0
+g.loaded_perl_provider = 0
+g.loaded_ruby_provider = 0
 
 -- colorscheme
 o.termguicolors = true
@@ -90,10 +127,6 @@ o.statusline = " "
 
 if has('mac') then
   vim.g.python3_host_prog = '/usr/local/bin/python3'
-end
-
-if has('gui') then
-  vim.o.guifontwide = 'Microsoft YaHei UI'
 end
 
 local defer_options = {
@@ -105,16 +138,11 @@ local defer_options = {
     -- windows和macos中regtype * 和 + 相同，都是系统剪切板
     -- linux中 * 是selection clipboard，+ 是system clipboard，
     -- 如果设置了unamedplus，所有的操作都会自动被粘贴进system clipboard
-
-    if has('mac') then
-      require('lu5je0.misc.clipboard.mac').setup()
-    elseif has('wsl') then
-      require('lu5je0.misc.clipboard.wsl').setup()
-    else
-      local function no_paste(reg)
+    if has('ssh_client') then
+      local function no_paste(_)
         return function()
           -- Do nothing! We can't paste with OSC52
-          return { string_util.split(vim.fn.getreg('"'), '\n'), vim.fn.getregtype('"') }
+          return { vim.split(vim.fn.getreg('"'), '\n'), vim.fn.getregtype('"') }
         end
       end
       o.clipboard = 'unnamedplus'
@@ -127,10 +155,14 @@ local defer_options = {
         paste = {
           -- ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
           -- ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
-          ["+"] = no_paste("+"), -- Pasting disabled
-          ["*"] = no_paste("*"), -- Pasting disabled
+          ["+"] = no_paste("+"),   -- Pasting disabled
+          ["*"] = no_paste("*"),   -- Pasting disabled
         }
       }
+    elseif has('mac') then
+      require('lu5je0.misc.clipboard.mac').setup()
+    elseif has('wsl') then
+      require('lu5je0.misc.clipboard.wsl').setup()
     end
     -- end
     vim.cmd [[ packadd matchit ]]

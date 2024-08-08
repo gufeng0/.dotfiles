@@ -2,7 +2,6 @@
 
 local cmp = require('cmp')
 local keys_helper = require('lu5je0.core.keys')
-local string_utils = require('lu5je0.lang.string-utils')
 local luasnip = require('luasnip')
 
 local indent_change_filetypes = {
@@ -59,21 +58,24 @@ local function fix_indent()
   vim.defer_fn(function()
     local cursor = vim.fn.getpos(".")
     local indent_num = vim.fn.indent('.')
- 
+
     if vim.api.nvim_get_mode().mode == 's' then
       return
     end
-    vim.cmd("norm! ==")
     
-    local sw = vim.fn.shiftwidth()
+    require('lu5je0.core.cursor').wapper_fn_for_solid_guicursor(function()
+      vim.cmd("norm ==")
 
-    if vim.fn.indent('.') < indent_num then
-      vim.api.nvim_win_set_cursor(0, { cursor[2], cursor[3] - sw - 1 })
-    elseif vim.fn.indent('.') > indent_num then
-      vim.api.nvim_win_set_cursor(0, { cursor[2], cursor[3] + sw })
-    else
-      vim.api.nvim_win_set_cursor(0, { cursor[2], cursor[3] })
-    end
+      local sw = vim.fn.shiftwidth()
+
+      if vim.fn.indent('.') < indent_num then
+        vim.api.nvim_win_set_cursor(0, { cursor[2], cursor[3] - sw - 1 })
+      elseif vim.fn.indent('.') > indent_num then
+        vim.api.nvim_win_set_cursor(0, { cursor[2], cursor[3] + sw })
+      else
+        vim.api.nvim_win_set_cursor(0, { cursor[2], cursor[3] })
+      end
+    end)()
   end, 0)
 end
 
@@ -86,7 +88,7 @@ local function comfirm(fallback)
     end
 
     cmp.confirm { select = true, behavior = cmp.ConfirmBehavior.Insert }
-    if table.contain(indent_change_filetypes, vim.bo.filetype) and table.contain(indent_change_items, entry.completion_item.label) then
+    if vim.tbl_contains(indent_change_filetypes, vim.bo.filetype) and vim.tbl_contains(indent_change_items, entry.completion_item.label) then
       fix_indent()
     end
     
@@ -132,7 +134,7 @@ local function truncate(label)
 end
 
 local format = function(entry, vim_item)
-  vim_item.kind = ' ' .. (lsp_kind_icons[vim_item.kind] or ' ') .. ''
+  vim_item.kind = ' ' .. (lsp_kind_icons[vim_item.kind] or ' ')
   vim_item.abbr = truncate(vim_item.abbr)
   vim_item.menu = ({
         buffer = '[B]',
@@ -143,7 +145,7 @@ local format = function(entry, vim_item)
         lazydev = '[N]',
       })[entry.source.name]
       
-  -- 移除java方法后面的~
+  -- 移除方法后面的~
   if vim_item.abbr:sub(-2, -1) == ')~' then
     vim_item.abbr = vim_item.abbr:sub(1, -2)
   end
@@ -187,6 +189,16 @@ cmp.setup {
   mapping = {
     ['<c-u>'] = cmp.mapping(cmp.mapping.scroll_docs( -4), { 'i' --[[ , 'c' ]] }),
     ['<c-d>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i' --[[ , 'c' ]] }),
+    ['<c-g>'] = cmp.mapping(function()
+      if cmp.visible_docs() then
+        cmp.close_docs()
+      else
+        cmp.open_docs()
+      end
+    end, { 'i' }),
+    ['<c-s>'] = cmp.mapping(function()
+      cmp.complete({ config = { sources = { { name = 'luasnip' } } } })
+    end, { 'i' }),
     ['<c-n>'] = cmp.mapping(function()
       if cmp.visible() then
         cmp.abort()
@@ -206,9 +218,10 @@ cmp.setup {
     {
       name = 'luasnip',
       entry_filter = function(entry, ctx)
-        if string_utils.starts_with(entry.completion_item.label, '.') then
-          return string_utils.contains(ctx.cursor_before_line, '%.')
-        end
+        -- TODO 作用?
+        -- if vim.startswith(entry.completion_item.label, '.') then
+        --   return vim.list_contains(ctx.cursor_before_line, '%.')
+        -- end
         return true
       end,
       keyword_length = 2
@@ -220,6 +233,14 @@ cmp.setup {
     },
   },
 }
+
+cmp.setup.filetype({ 'java' }, {
+  view = {
+    docs = {
+      auto_open = false
+    }
+  }
+})
 
 -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
 -- cmp.setup.cmdline('/', {
@@ -282,11 +303,11 @@ hi! CmpItemKindUnit guibg=NONE guifg=#D4D4D4
 ]])
 
 vim.api.nvim_create_user_command("CmpAutocompleteDisable", function()
-  require('cmp').setup.buffer { enabled = false }
+  require('cmp').setup.buffer { completion = { autocomplete = false } }
 end, {})
 
 vim.api.nvim_create_user_command("CmpAutocompleteEnable", function()
-  require('cmp').setup.buffer { enabled = true }
+  require('cmp').setup.buffer { completion = { autocomplete = true } }
 end, {})
 
 local handlers = require('nvim-autopairs.completion.handlers')
@@ -330,3 +351,7 @@ cmp.event:on(
     }
   })
 )
+
+cmp.event:on('menu_closed', function()
+  vim.cmd('doautocmd User CmpMenuClosed')
+end)

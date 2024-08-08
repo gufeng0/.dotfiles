@@ -124,7 +124,6 @@ export LC_ALL=en_US.UTF-8
 alias pc="proxychains4 -q"
 # alias sftp="sftp -C"
 alias wd="~/.dotfiles/submodule/wd/wd.py"
-alias fpp="~/.dotfiles/submodule/PathPicker/fpp"
 alias fetch-subs="~/.dotfiles/submodule/SubtitlesDownloader/fetch_subs.py"
 alias crontab="cron.sh"
 # alias wgetp="wget -c -e use_proxy=yes -e http_proxy=p775.local:1080 -e https_proxy=p775.local:1080"

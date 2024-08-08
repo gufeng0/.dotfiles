@@ -1,5 +1,4 @@
 local M = {}
-local string_utils = require('lu5je0.lang.string-utils')
 
 function M.format_bytes(bytes)
   local units = {'B', 'K', 'M', 'G', 'T'}
@@ -17,7 +16,7 @@ function M.format_bytes(bytes)
 end
 
 function M.hunman_readable_file_size(filepath)
-  return M.format_bytes(vim.loop.fs_stat(filepath).size)
+  return M.format_bytes(vim.uv.fs_stat(filepath).size)
 end
 
 local function print_with_red(msg)
@@ -30,7 +29,7 @@ end
 
 function M.save_buffer()
   local bufname = vim.api.nvim_buf_get_name(0)
-  if string_utils.starts_with(bufname, 'oil') or string_utils.starts_with(bufname, 'zipfile') then
+  if vim.startswith(bufname, 'oil') or vim.startswith(bufname, 'zipfile') then
     vim.cmd(':w')
     return
   end
@@ -41,10 +40,11 @@ function M.save_buffer()
   end
   
   ---@diagnostic disable-next-line: param-type-mismatch
+  vim.cmd("redir => output")
   local ok, err = pcall(vim.cmd, ':silent write')
-  
+  vim.cmd("redir END")
   if ok then
-    print(('"%s" %sL, %s written'):format(vim.fn.expand('%:t'), vim.api.nvim_buf_line_count(0), M.hunman_readable_file_size(bufname)))
+    print(vim.g.output)
   else
     print_with_red(string.gsub(err, '^vim.+write%)%:', '', 1))
   end

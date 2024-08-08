@@ -1,4 +1,5 @@
-local timer = require('lu5je0.lang.timer')
+-- local timer = require('lu5je0.lang.timer')
+local function_utils = require('lu5je0.lang.function-utils')
 local string_utils = require('lu5je0.lang.string-utils')
 local lualine = require('lualine')
 local file_util = require('lu5je0.core.file')
@@ -27,8 +28,8 @@ local conditions = {
   buffer_not_empty = function()
     return vim.fn.empty(expand('%:t')) ~= 1
   end,
-  hide_in_width = function()
-    return vim.fn.winwidth(0) > 80
+  hide_in_width = function(max)
+    return vim.fn.winwidth(0) > (max or 80)
   end,
   check_git_workspace = function()
     local filepath = expand('%:p:h')
@@ -171,6 +172,7 @@ end
 
 local mode_mappings = {
   n = 'NOR',      -- Normal 模式
+  no = 'NOP',      -- Normal 模式
   i = 'INS',      -- Insert 模式
   c = 'COM',      -- Command-line 模式
   v = 'VIS',      -- Visual 模式
@@ -255,6 +257,7 @@ ins_left {
   cond = function()
     return conditions.hide_in_width()
   end,
+  inactive = false,
   setup = function()
     vim.api.nvim_create_autocmd('BufWritePost', {
       group = require('lu5je0.autocmds').default_group,
@@ -279,13 +282,24 @@ ins_left {
   padding = { left = 1, right = 0 },
 }
 
+local refresh_gps_text = function_utils.debounce(function(bufnr)
+  local path = require('lu5je0.misc.gps-path').path()
+  local max_len = 40
+  if #path > max_len then
+    path = string.sub(path, 1, max_len) .. '…'
+  end
+  vim.b[bufnr].gps_text = path
+end, 40)
 ins_left {
   function()
-    return string.sub(require('lu5je0.misc.gps-path').path(), 1, 60)
+    local bufnr = vim.api.nvim_get_current_buf()
+    refresh_gps_text(bufnr)
+    local text = vim.b[bufnr].gps_text
+    return text == nil and "" or text
   end,
-  inactive = true,
+  inactive = false,
   cond = function()
-    return not big_file.is_big_file(0) and require('lu5je0.misc.gps-path').is_available() and conditions.hide_in_width()
+    return not big_file.is_big_file(0) and conditions.hide_in_width(80) and require('lu5je0.misc.gps-path').is_available()
   end,
   color = { fg = colors.white },
   padding = { left = 1, right = 0 },

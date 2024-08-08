@@ -1,37 +1,51 @@
 local nvim_colorizer_ft = { 'vim', 'lua', 'css', 'conf', 'tmux', 'bash' }
+local has_mac = vim.fn.has('mac') == 1
+local has_wsl = vim.fn.has('wsl') == 1
+local has_ssh_client = vim.fn.has('ssh_client') == 1
+
+local disabled_plugins = {
+  "2html_plugin",
+  "editorconfig",
+  "getscript",
+  "getscriptPlugin",
+  "logipat",
+  "man",
+  "matchit",
+  "netrw",
+  "netrwFileHandlers",
+  "netrwPlugin",
+  "netrwSettings",
+  "rplugin",
+  "rrhelper",
+  "spellfile",
+  "spellfile_plugin",
+  -- "zip",
+  -- "zipPlugin",
+  -- "gzip",
+  -- "tar",
+  -- "tarPlugin",
+  "tohtml",
+  "tutor",
+  "vimball",
+  "vimballPlugin",
+}
+
+if not has_ssh_client then
+  table.insert(disabled_plugins, 'osc52')
+end
 
 local opts = {
-  concurrency = (function()
-    return 20
-  end)(),
+  concurrency = 20,
   performance = {
+    profiling = {
+      -- Enables extra stats on the debug tab related to the loader cache.
+      -- Additionally gathers stats about all package.loaders
+      loader = true,
+      -- Track each new require in the Lazy profiling tab
+      require = true,
+    },
     rtp = {
-      disabled_plugins = {
-        "2html_plugin",
-        "editorconfig",
-        "getscript",
-        "getscriptPlugin",
-        "logipat",
-        "man",
-        "matchit",
-        "netrw",
-        "netrwFileHandlers",
-        "netrwPlugin",
-        "netrwSettings",
-        "rplugin",
-        "rrhelper",
-        "spellfile",
-        "spellfile_plugin",
-        -- "zip",
-        -- "zipPlugin",
-        -- "gzip",
-        -- "tar",
-        -- "tarPlugin",
-        "tohtml",
-        "tutor",
-        "vimball",
-        "vimballPlugin",
-      },
+      disabled_plugins = disabled_plugins,
     },
   },
 }
@@ -39,18 +53,18 @@ local opts = {
 require("lazy").setup({
   {
     'sainnhe/edge',
+    lazy = true,
     init = function()
       vim.g.edge_better_performance = 1
       vim.g.edge_enable_italic = 0
       vim.g.edge_disable_italic_comment = 1
-      -- StatusLine 左边
-      -- vim.api.nvim_set_hl(0, "StatusLine", { fg = '#373943' })
-      -- vim.api.nvim_set_hl(0, "StatusLineNC", { fg = '#373943' })
-    end,
-    config = function()
       vim.cmd.colorscheme('edge')
-
+      vim.api.nvim_set_hl(0, "StatusLine", { fg = '#c5cdd9', bg = '#23262b' })
+      vim.api.nvim_set_hl(0, "Folded", { fg = '#282c34', bg = '#5c6370' })
+      vim.api.nvim_set_hl(0, "MatchParen", { fg = '#ffef28', bg = '#414550'})
+      
       vim.g.edge_loaded_file_types = { 'NvimTree' }
+      
       -- local bg = '#2c2e34'
       -- vim.cmd(string.gsub([[
       -- " hi NvimTreeNormal guibg=%s
@@ -62,21 +76,14 @@ require("lazy").setup({
       --
       -- hi NvimTreeWinSeparator guibg=%s guifg=%s
       -- ]], '%%s', bg))
-
-      vim.api.nvim_set_hl(0, "StatusLine", { fg = '#c5cdd9', bg = '#23262b' })
-      vim.cmd [[
-      hi! Folded guifg=#282c34 guibg=#5c6370
-      hi MatchParen guifg=#ffef28
-      ]]
-    end,
+    end
   },
   {
     'nvim-lualine/lualine.nvim',
     config = function()
       require('lu5je0.ext.lualine')
     end,
-    event = 'VimEnter',
-    priority = 999
+    event = 'VeryLazy',
   },
 
   -- treesiter
@@ -135,9 +142,7 @@ require("lazy").setup({
   },
   {
     'aklt/plantuml-syntax',
-    ft = 'plantuml',
-    keys = '<leader>fn',
-    lazy = true
+    ft = 'plantuml'
   },
   {
     'lewis6991/gitsigns.nvim',
@@ -191,7 +196,7 @@ require("lazy").setup({
     end
   },
   {
-    'kyazdani42/nvim-web-devicons',
+    'nvim-tree/nvim-web-devicons',
     -- config = function()
     --   require('nvim-web-devicons').setup {
     --     override = {
@@ -235,14 +240,16 @@ require("lazy").setup({
     config = function()
       require('lu5je0.ext.bufferline')
     end,
-    dependencies = { 'kyazdani42/nvim-web-devicons' },
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    -- priority = 9999,
+    -- event = 'VeryLazy'
   },
   {
-    'kyazdani42/nvim-tree.lua',
+    'nvim-tree/nvim-tree.lua',
     -- just lock，in case of break changes
     -- commit = 'd52fdeb0a300ac42b9cfa65ae0600a299f8e8677',
     dependencies = {
-      'kyazdani42/nvim-web-devicons',
+      'nvim-tree/nvim-web-devicons',
     },
     config = function()
       require('lu5je0.ext.nvimtree').setup()
@@ -336,13 +343,16 @@ require("lazy").setup({
       { mode = 'n', '<leader>sa' } }
   },
 
-  -- {
-  --   'dstein64/vim-startuptime',
-  --   config = function()
-  --     vim.cmd("let $NEOVIM_MEASURE_STARTUP_TIME = 'TRUE'")
-  --   end,
-  --   cmd = { 'StartupTime' },
-  -- },
+  {
+    'dstein64/vim-startuptime',
+    init = function()
+      vim.g.startuptime_tries = 20
+    end,
+    config = function()
+      vim.cmd("let $NEOVIM_MEASURE_STARTUP_TIME = 'TRUE'")
+    end,
+    cmd = { 'StartupTime' },
+  },
 
   {
     'mbbill/undotree',
@@ -371,7 +381,8 @@ require("lazy").setup({
     config = function()
       require('lu5je0.ext.whichkey').setup()
     end,
-    keys = { ',' },
+    commit = 'af4ded85542d40e190014c732fa051bdbf88be3d',
+    keys = { '<leader>', '<space>' },
   },
 
   {
@@ -488,7 +499,8 @@ require("lazy").setup({
     config = function()
       require('lu5je0.ext.nvim-ufo')
     end,
-    event = 'VeryLazy'
+    lazy = true
+    -- event = 'VeryLazy'
     -- cmd = 'FoldTextToggle',
     -- keys = { 'zf', 'zo', 'za', 'zc', 'zM', 'zR' }
   },
@@ -506,10 +518,7 @@ require("lazy").setup({
     'nat-418/boole.nvim',
     config = function()
       require('boole').setup {
-        mappings = {
-          increment = '<c-a>',
-          decrement = '<c-x>'
-        },
+        mappings = { },
         -- User defined loops
         additions = {
           -- {'Foo', 'Bar'},
@@ -521,35 +530,42 @@ require("lazy").setup({
           { 'enable', 'disable' },
         }
       }
+      vim.keymap.set('n', '<c-a>', require('lu5je0.core.cursor').wapper_fn_for_solid_guicursor(function()
+        vim.cmd('Boole increment')
+      end))
+        
+      vim.keymap.set('n', '<c-x>', require('lu5je0.core.cursor').wapper_fn_for_solid_guicursor(function()
+        vim.cmd('Boole decrement')
+      end))
     end,
     keys = { '<c-a>', '<c-x>' }
   },
-  {
-    "smjonas/live-command.nvim",
-    config = function()
-      require("live-command").setup {
-        commands = {
-          Norm = { cmd = "norm" },
-        },
-      }
-    end,
-    event = { 'CmdlineEnter' }
-  },
-  {
-    'AckslD/messages.nvim',
-    config = function()
-      require("messages").setup {
-        post_open_float = function(_)
-          vim.cmd [[
-          au! BufLeave * ++once lua vim.cmd(":q")
-          set number
-          ]]
-          vim.fn.cursor { 99999, 0 }
-        end
-      }
-    end,
-    cmd = 'Messages',
-  },
+  -- {
+  --   "smjonas/live-command.nvim",
+  --   config = function()
+  --     require("live-command").setup {
+  --       commands = {
+  --         Norm = { cmd = "norm" },
+  --       },
+  --     }
+  --   end,
+  --   event = { 'CmdlineEnter' }
+  -- },
+  -- {
+  --   'AckslD/messages.nvim',
+  --   config = function()
+  --     require("messages").setup {
+  --       post_open_float = function(_)
+  --         vim.cmd [[
+  --         au! BufLeave * ++once lua vim.cmd(":q")
+  --         set number
+  --         ]]
+  --         vim.fn.cursor { 99999, 0 }
+  --       end
+  --     }
+  --   end,
+  --   cmd = 'Messages',
+  -- },
 
   {
     'lukas-reineke/indent-blankline.nvim',
@@ -620,8 +636,8 @@ require("lazy").setup({
       'SmiteshP/nvim-navic',
       config = function()
         require('nvim-navic').setup {
-          depth_limit = 4,
-          depth_limit_indicator = "..",
+          -- depth_limit = 10,
+          -- depth_limit_indicator = "..",
         }
       end,
       event = { 'LspAttach' }
@@ -640,12 +656,12 @@ require("lazy").setup({
       },
     },
     {
-      'simrat39/symbols-outline.nvim',
+      'hedyhli/outline.nvim',
       config = function()
         require('lu5je0.ext.symbols-outline').setup()
       end,
-      cmd = { 'SymbolsOutline' },
-      keys = { { mode = { 'n' }, '<leader>i' }, { mode = { 'n' }, '<leader>I' } }
+      cmd = { 'Outline' },
+      keys = { { mode = { 'n' }, '<leader>d' }, { mode = { 'n' }, '<leader>fd' } }
     },
     {
       "dnlhc/glance.nvim",
@@ -994,7 +1010,20 @@ require("lazy").setup({
     "LunarVim/bigfile.nvim",
     config = function()
       require('lu5je0.ext.big-file').setup()
-    end
+    end,
+    event = 'BufReadPre'
   },
+  
+  {
+    'MeanderingProgrammer/markdown.nvim',
+    name = 'render-markdown', -- Only needed if you have another plugin named markdown.nvim
+    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' }, -- if you use the mini.nvim suite
+    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
+    config = function()
+      require('render-markdown').setup({})
+    end,
+    ft = 'markdown'
+  }
 
 }, opts)
