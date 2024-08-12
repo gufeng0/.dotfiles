@@ -5,8 +5,10 @@ vim/parser/
 vim/parser-info/
 vim/plugin/packer_compiled.lua
 tmux/plugins
+tmux/*.log
 __pycache__
 .idea/
 *.swp
 submodule/SubtitlesDownloader/.env/
 node_modules/
+
