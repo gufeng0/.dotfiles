@@ -8,47 +8,54 @@ local ui = require('lu5je0.core.ui')
 
 M.pwd_stack = require('lu5je0.lang.stack'):create()
 M.pwd_forward_stack = require('lu5je0.lang.stack'):create()
-M.pwd_back_state = 0
 
+-- 修复第一次定位问题
+local locate_file_loaded = false
 function M.locate_file()
   local cur_filepath = vim.fn.expand('%:p')
   local cur_file_dir_path = vim.fs.dirname(cur_filepath)
   local cwd = vim.fn.getcwd()
-
-  if cur_file_dir_path == '' then
-    return
+  
+  if not locate_file_loaded then
+    api.tree.open({ focus = false })
   end
-
-  local function turn_on_hidden_filter()
-    if require("nvim-tree.explorer.filters").config.filter_dotfiles then
-      api.tree.toggle_hidden_filter()
+  vim.defer_fn(function()
+    if cur_file_dir_path == '' then
+      return
     end
-  end
 
-  local is_dotfile = vim.fs.basename(cur_filepath):sub(1, 1) == '.'
-  if is_dotfile then
-    turn_on_hidden_filter()
-  end
+    local function turn_on_hidden_filter()
+      if require("nvim-tree.core").get_explorer() == nil or require("nvim-tree.core").get_explorer().filters.config.filter_dotfiles then
+        api.tree.toggle_hidden_filter()
+      end
+    end
 
-  if not vim.startswith(cur_file_dir_path, cwd) then
-    vim.cmd(':cd ' .. cur_file_dir_path)
-  else
-    -- check if file in dotdir
-    if not is_dotfile then
-      for dir in vim.fs.parents(cur_filepath) do
-        if dir == vim.fn.getcwd() then
-          -- 如果和当前目录一样，就直接跳过吧
-          break
-        end
-        if vim.fs.basename(dir):sub(1, 1) == '.' then
-          turn_on_hidden_filter()
-          break
+    local is_dotfile = vim.fs.basename(cur_filepath):sub(1, 1) == '.'
+    if is_dotfile then
+      turn_on_hidden_filter()
+    end
+
+    if not vim.startswith(cur_file_dir_path, cwd) then
+      vim.cmd(':cd ' .. cur_file_dir_path)
+    else
+      -- check if file in dotdir
+      if not is_dotfile then
+        for dir in vim.fs.parents(cur_filepath) do
+          if dir == vim.fn.getcwd() then
+            -- 如果和当前目录一样，就直接跳过吧
+            break
+          end
+          if vim.fs.basename(dir):sub(1, 1) == '.' then
+            turn_on_hidden_filter()
+            break
+          end
         end
       end
     end
-  end
 
-  vim.cmd('NvimTreeFindFile')
+    vim.cmd('NvimTreeFindFile')
+  end, locate_file_loaded and 0 or 100)
+  locate_file_loaded = true
 end
 
 function M.terminal_cd()
@@ -131,10 +138,8 @@ end
 
 function M.back()
   if M.pwd_stack:count() >= 2 then
-    M.pwd_back_state = 1
     M.pwd_forward_stack:push(M.pwd_stack:pop())
     vim.cmd(':cd ' .. M.pwd_stack:pop())
-    M.pwd_back_state = 0
   end
 end
 
@@ -303,7 +308,7 @@ local function on_attach(bufnr)
   set('n', 'mk', M.create_dir, opts('create_dir'))
   set('n', 't', M.terminal_cd, opts('terminal cd'))
   
-  set('n', 'z', M.toggle_width, opts('toggle nvimtree width'))
+  set('n', 'x', M.toggle_width, opts('toggle nvimtree width'))
   
   set('n', 'D', function()
     M.delete_node()
@@ -324,6 +329,8 @@ local function on_attach(bufnr)
   set('n', 'K', api.node.show_info_popup, opts('Info'))
   set('n', 'F', api.node.show_info_popup, opts('Info'))
   set('n', 'f', api.live_filter.start, opts('Filter'))
+  set('n', 'H', function() vim.cmd('cd ~') end, opts('Filter'))
+  set('n', '?', api.tree.toggle_help, opts('Filter'))
   set('n', '.', api.node.run.cmd, opts('Run Command'))
   set('n', 'o', function()
     local path = vim.fn.fnamemodify(require('nvim-tree.lib').get_node_at_cursor().absolute_path, ':p:h')
@@ -349,11 +356,9 @@ local function on_attach(bufnr)
   set('n', 'u', api.tree.change_root_to_parent, opts('Up'))
   -- set('n', 'o', api.node.run.system, opts('Run System'))
   set('n', 'q', api.tree.close, opts('Close'))
-  set('n', '?', api.tree.toggle_help, opts('Help'))
-  set('n', '<c-o>', M.back, opts('backward'))
 
-  set('n', '<tab>', M.forward, opts('forward'))
   set('n', '<c-i>', M.forward, opts('forward'))
+  set('n', '<c-o>', M.back, opts('back'))
 end
 
 function M.setup()
@@ -368,13 +373,6 @@ function M.setup()
     hi NvimTreeGitNew guifg=#c678dd
 
     autocmd DirChanged * lua require('lu5je0.ext.nvimtree').pwd_stack_push()
-
-    function! NvimLocateFile()
-      PackerLoad nvim-tree.lua
-      lua require("lu5je0.ext.nvimtree").locate_file()
-    endfunction
-
-    lua vim.api.nvim_set_keymap('n', '<leader>fe', ':call NvimLocateFile()<cr>', { noremap = true, silent = true })
   ]])
 
   local opts = {
@@ -458,6 +456,7 @@ function M.setup()
     },
     renderer = {
       full_name = true,
+      hidden_display = "all",
       indent_markers = {
         enable = true,
       },

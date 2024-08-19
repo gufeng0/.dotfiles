@@ -33,7 +33,7 @@ if [[ $UNAME_INFO =~ "Darwin" ]]; then
   echo -en "\033]6;1;bg;red;brightness;44\a"
   echo -en "\033]6;1;bg;green;brightness;46\a"
   echo -en "\033]6;1;bg;blue;brightness;51\a"
-elif [ -z $WSLENV ]; then
+elif [[ $UNAME_INFO =~ "WSL" ]]; then
   # function __git_prompt_git() {
   #   if [[ "$PWD" =~ '^/mnt/[cdefgh]/' ]]; then
   #     command git.exe "$@"
@@ -41,8 +41,6 @@ elif [ -z $WSLENV ]; then
   #     command git "$@"
   #   fi
   # }
-  export WSL_IP=$(hostname -I | awk '{print $1}')
-  export WSL_HOST_IP=$(cat /etc/resolv.conf | grep nameserver | awk '{ print $2 }')
   alias gst='__git_prompt_git status'
   alias gaa='__git_prompt_git add -A'
   alias gc='__git_prompt_git commit'

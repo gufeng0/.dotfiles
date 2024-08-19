@@ -226,16 +226,6 @@ require("lazy").setup({
   },
 
   {
-    'ahmedkhalf/project.nvim',
-    config = function()
-      require('lu5je0.ext.projects').setup()
-    end,
-    dependencies = {
-      'nvim-telescope/telescope.nvim',
-    },
-    keys = { '<leader>fp' },
-  },
-  {
     'akinsho/bufferline.nvim',
     config = function()
       require('lu5je0.ext.bufferline')
@@ -643,6 +633,13 @@ require("lazy").setup({
       event = { 'LspAttach' }
     },
     {
+      "saecki/live-rename.nvim",
+      event = { 'LspAttach' },
+      config = function()
+        vim.keymap.set("n", "<leader>cr", require("live-rename").rename)
+      end
+    },
+    {
       "aznhe21/actions-preview.nvim",
       keys = {
         {
@@ -754,6 +751,16 @@ require("lazy").setup({
       vim.cmd('command MarkdownPreview call mkdp#util#open_preview_page()')
       vim.cmd('command MarkdownPreviewStop call mkdp#util#stop_preview()')
       vim.g.mkdp_filetypes = { "markdown", "plantuml" }
+      
+      if os.getenv('KITTY_LISTEN_ON') ~= nil then
+        vim.g.mkdp_browserfunc='OpenMarkdownPreview'
+        vim.cmd [[
+        function OpenMarkdownPreview(url)
+          execute "silent ! kitty @ launch --location=split --cwd=current awrit " . a:url
+          execute "silent ! kitten @ action --match id:1 next_window"
+        endfunction
+        ]]
+      end
     end,
     cmd = { "MarkdownPreview" },
   },
@@ -1024,6 +1031,6 @@ require("lazy").setup({
       require('render-markdown').setup({})
     end,
     ft = 'markdown'
-  }
+  },
 
 }, opts)
