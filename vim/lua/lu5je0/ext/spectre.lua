@@ -17,6 +17,16 @@ end
 
 function M.setup()
   require('spectre').setup({
+    replace_engine = {
+        ["sed"] = {
+          cmd = "sed",
+          args = {
+            "-i",
+        "",
+        "-E",
+          },
+        },
+      },
     highlight = {
       ui = "String",
       search = "DiffChange",
