@@ -92,33 +92,29 @@ lazy_load({
       elseif vim.fn.has('mac') == 1 then
         require('lu5je0.misc.im.mac.im').setup()
       end
+      
+      -- require('lu5je0.misc.im.im_keeper').setup({
+      --   mac = {
+      --     keep = true,
+      --   },
+      --   win = {
+      --     keep = false,
+      --   }
+      -- })
     end
   end,
-  event = { 'InsertEnter' },
+  event = { 'InsertEnter', 'CursorHold' },
   keys = {
     { mode = { 'n' }, '<leader>vi' },
   }
 })
-
--- require('lu5je0.misc.im.im_keeper').setup({
---   mac = {
---     keep = false,
---     interval = 1000,
---     focus_gained = true,
---   },
---   win = {
---     keep = false,
---     interval = 1000,
---     focus_gained = true,
---   }
--- })
 
 -- json-helper
 lazy_load({
   config = function()
     require('lu5je0.misc.json-helper').setup()
   end,
-  cmd = { 'Json', 'JsonCompress', 'JsonExtract', 'JsonCopyPath', 'JsonFormat', 'JsonSortByKey', 'Jq' }
+  cmd = { 'Json', 'JsonCompress', 'JsonExtract', 'JsonCopyPath', 'JsonFormat', 'JsonSortByKey', 'Jq', 'JsonFixNonStringKey' }
 })
 
 -- junkfile
@@ -215,6 +211,7 @@ lazy_load({
   end,
   keys = {
     { mode = { 'n', 'x' }, '<leader>cf' },
+    { mode = { 'n', 'x' }, '<leader>cF' },
   },
 })
 
@@ -242,11 +239,13 @@ lazy_load({
 lazy_load({
   config = function()
     require('lu5je0.misc.code-runner').key_mapping()
+    require('lu5je0.misc.code-runner').create_command()
   end,
   keys = {
     { mode = { 'n' }, '<leader>rr' },
     { mode = { 'n' }, '<leader>rd' },
   },
+  cmd = { 'LuaDevOn', 'LuaDevOff' }
 })
 
 -- quit-prompt
@@ -304,7 +303,8 @@ lazy_load({
     { mode = { 'n' }, 'zM' },
     { mode = { 'n' }, 'zR' },
     defer = 60,
-  }
+  },
+  event = { 'CursorHold' }
 })
 
 return M

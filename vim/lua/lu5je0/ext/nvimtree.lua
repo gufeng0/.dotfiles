@@ -13,11 +13,15 @@ M.pwd_forward_stack = require('lu5je0.lang.stack'):create()
 local locate_file_loaded = false
 function M.locate_file()
   local cur_filepath = vim.fn.expand('%:p')
+  if vim.fn.filereadable(cur_filepath) == 0 then
+    return
+  end
   local cur_file_dir_path = vim.fs.dirname(cur_filepath)
   local cwd = vim.fn.getcwd()
   
   if not locate_file_loaded then
-    api.tree.open({ focus = false })
+    api.tree.toggle({ focus = false })
+    locate_file_loaded = true
   end
   vim.defer_fn(function()
     if cur_file_dir_path == '' then
@@ -53,9 +57,12 @@ function M.locate_file()
       end
     end
 
-    vim.cmd('NvimTreeFindFile')
-  end, locate_file_loaded and 0 or 100)
-  locate_file_loaded = true
+    api.tree.find_file({
+      open = true,
+      buf = cur_filepath,
+      focus = true,
+    })
+  end, 0)
 end
 
 function M.terminal_cd()
@@ -409,6 +416,10 @@ function M.setup()
     filesystem_watchers = {
       enable = true,
       debounce_delay = 1000,
+      ignore_dirs = {
+        -- neovim 退出时卡顿
+        "node_modules"
+      },
     },
     diagnostics = {
       enable = false,
