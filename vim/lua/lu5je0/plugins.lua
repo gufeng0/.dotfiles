@@ -914,7 +914,7 @@ require("lazy").setup({
 
   {
     "folke/flash.nvim",
-    keys = { { mode = { 'n', 'x' }, 't' }, { mode = { 'n' }, 'S' }, { mode = { 'o' }, 'r' } },
+    keys = { { mode = { 'n', 'x' }, 's' }, { mode = { 'n' }, 'S' }, { mode = { 'o' }, 'r' } },
     config = function()
       require('flash').setup {
         search = { multi_window = false },
@@ -922,7 +922,7 @@ require("lazy").setup({
         prompt = { enabled = false },
         highlight = { priority = 9999 }
       }
-      vim.keymap.set({ 'n', 'x' }, 't', require("flash").jump)
+      vim.keymap.set({ 'n', 'x' }, 's', require("flash").jump)
       vim.keymap.set('n', 'S', require("flash").treesitter)
       vim.keymap.set('o', 'r', require("flash").remote)
       vim.api.nvim_create_user_command('FlashSearchToggle', function() require("flash").toggle() end, {})
