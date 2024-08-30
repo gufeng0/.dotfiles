@@ -27,7 +27,7 @@ set easymotion
 Plug 'easymotion/vim-easymotion'
 let g:EasyMotion_do_mapping=0
 set easymotion
-nmap s <Plug>(easymotion-s)
+nmap t <Plug>(easymotion-s)
 xmap t <Plug>(easymotion-s)
 
 let mapleader=","
