@@ -328,6 +328,7 @@ require("lazy").setup({
   {
     'lu5je0/vim-translator',
     config = function()
+      vim.g.translator_proxy_url = 'http://127.0.0.1:1080'
       require('lu5je0.ext.vim-translator')
     end,
     keys = { { mode = 'x', '<leader>sa' }, { mode = 'x', '<leader>ss' }, { mode = 'n', '<leader>ss' },
