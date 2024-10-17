@@ -26,9 +26,31 @@ vim.api.nvim_create_user_command('CronParser', function(t)
   require('lu5je0.misc.cron-parser').parse_line(t.fargs[1])
 end, { force = true, nargs = '*', range = true })
 
-vim.api.nvim_create_user_command('QrCode', function()
+vim.api.nvim_create_user_command('QrCodeEncode', function()
   vim.cmd('%!qrencode -t utf8 -m 2')
 end, { force = true, nargs = '*', range = true })
+
+vim.api.nvim_create_user_command('RemoveOldfiles', function(opts)
+  local oldfiles = vim.v.oldfiles
+  local new_oldfiles = {}
+
+  -- 遍历 oldfiles，将不匹配的文件保留
+  for _, file in ipairs(oldfiles) do
+    -- 检查文件路径是否以给定前缀开头
+    if not vim.startswith(file, opts.args) then
+      table.insert(new_oldfiles, file)
+    end
+  end
+
+  -- 更新 oldfiles
+  vim.v.oldfiles = new_oldfiles
+  -- vim.cmd('wshada!')  -- 确保将修改后的 oldfiles 写入 shada 文件
+end, {
+  nargs = 1,
+  complete = function(arg_lead, cmd_line, cursor_pos)
+    return vim.fn.glob(arg_lead .. '*', false, true)
+  end
+})
 
 vim.api.nvim_create_user_command('CurlConvert', function(t)
   require('lu5je0.misc.curlconverter').convert(t.fargs[1])
@@ -79,6 +101,35 @@ encode_command_creater.create_encode_command('InlineToArray', function(lines)
   return table.concat(vim.split(lines, '\n'), ',')
 end)
 
+-- -- 将字符串转换为Unicode转义序列
+-- function string_to_unicode(str)
+-- end
+--
+-- -- 将Unicode转义序列转换回原始字符串
+-- function unicode_to_string(str)
+-- end
+
+encode_command_creater.create_encode_command('UnicodeEncode', function(str)
+  local result = {}
+  for i = 1, vim.fn.strchars(str) do
+    local char = vim.fn.strcharpart(str, i - 1, 1)
+    local code = vim.fn.char2nr(char)
+    if code < 128 then
+      table.insert(result, string.format("\\u%04X", code))
+    else
+      table.insert(result, string.format("\\U%08X", code))
+    end
+  end
+  return table.concat(result)
+end)
+
+encode_command_creater.create_encode_command('UnicodeDecode', function(str)
+  return (str:gsub("\\[uU](%x+)", function(code)
+    local n = tonumber(code, 16)
+    return vim.fn.nr2char(n)
+  end))
+end)
+
 encode_command_creater.create_encode_command('UrlEncode', function(url)
   if url == nil then
     return
@@ -87,6 +138,41 @@ encode_command_creater.create_encode_command('UrlEncode', function(url)
   url = url:gsub("([^%w _ %- . ~])", function(c) return string.format("%%%02X", string.byte(c)) end)
   url = url:gsub(" ", "+")
   return url
+end)
+
+encode_command_creater.create_encode_command('HtmlEncode', function(str)
+  local entities = {
+    ['&'] = '&amp;',
+    ['<'] = '&lt;',
+    ['>'] = '&gt;',
+    ['"'] = '&quot;',
+    ["'"] = '&#39;'
+  }
+  return (str:gsub("[&<>\"']", function(c)
+    return entities[c]
+  end))
+end)
+
+encode_command_creater.create_encode_command('HtmlDecode', function(str)
+  local entities = {
+    ['&amp;'] = '&',
+    ['&lt;'] = '<',
+    ['&gt;'] = '>',
+    ['&quot;'] = '"',
+    ['&#39;'] = "'"
+  }
+  return (str:gsub('&#?%w+;', function(entity)
+    if entities[entity] then
+      return entities[entity]
+    else
+      local num = entity:match("^&#(%d+);$")
+      if num then
+        return string.char(tonumber(num))
+      else
+        return entity
+      end
+    end
+  end))
 end)
 
 encode_command_creater.create_encode_command('UrlDecode', function(url)

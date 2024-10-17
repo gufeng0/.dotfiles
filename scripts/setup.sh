@@ -23,17 +23,20 @@ if [ "$(uname)" = "Linux" ]; then
 fi
 
 if [[ -f ~/.ssh/config ]]; then
-    mkdir -p ~/.ssh/config.d
-    ln -s ~/.dotfiles/ssh/config ~/.ssh/config
+    mkdir -p ~/.ssh/config
 else
-    echo "~/.ssh/config existed"
+    ln -s ~/.dotfiles/ssh/config ~/.ssh/config
 fi
 
-ask "Download stardict?" && sh ~/.dotfiles/scripts/download-stardict.sh
+ask "download stardict?" && sh ~/.dotfiles/scripts/download-stardict.sh
 
-ask "Git config?" && cp ~/.dotfiles/.gitconfig ~/.gitconfig
+ask "cp ~/.dotfiles/.gitconfig ~/.gitconfig?" && cp ~/.dotfiles/.gitconfig ~/.gitconfig
 
-ask "Copy maven config?" && if [[ ! -d ~/.m2 ]]; then mkdir ~/.m2; fi && cp -i ~/.dotfiles/m2/settings.xml ~/.m2/settings.xml
+ask "ln -s ~/.dotfiles/.hammerspoon ~/.hammerspoon?" && ln -s ~/.dotfiles/.hammerspoon ~/.hammerspoon
+
+ask "ln -s ~/.dotfiles/termux/termux.properties ~/.termux/termux.properties?" && ln -s ~/.dotfiles/termux/termux.properties ~/.termux/termux.properties
+
+ask "copy maven config?" && if [[ ! -d ~/.m2 ]]; then mkdir ~/.m2; fi && cp -i ~/.dotfiles/m2/settings.xml ~/.m2/settings.xml
 
 ln -s ~/.dotfiles/ideavimrc ~/.ideavimrc
 ln -s ~/.dotfiles/zshrc ~/.zshrc

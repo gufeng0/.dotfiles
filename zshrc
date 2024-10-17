@@ -14,6 +14,8 @@ fi
 source ~/.local/share/zinit/zinit.git/zinit.zsh
 
 export UNAME_INFO=$(uname -a)
+
+fpath=(~/.dotfiles/zsh/completions $fpath)
 autoload -Uz compinit && compinit
 
 setopt AUTO_CD
@@ -64,7 +66,8 @@ zinit light zsh-users/zsh-completions
 # 本地sh文件
 ##########################################
 
-zinit snippet ~/.dotfiles/zsh/z/z.sh
+zinit ice lucid wait='0'
+zinit snippet ~/.dotfiles/zsh/zoxide.sh
 
 # zinit ice lucid wait='1'
 zinit snippet ~/.dotfiles/zsh/platform.sh
@@ -123,8 +126,6 @@ export LC_ALL=en_US.UTF-8
 ##########################################
 alias pc="proxychains4 -q"
 # alias sftp="sftp -C"
-alias wd="~/.dotfiles/submodule/wd/wd.py"
-alias fetch-subs="~/.dotfiles/submodule/SubtitlesDownloader/fetch_subs.py"
 alias crontab="cron.sh"
 # alias wgetp="wget -c -e use_proxy=yes -e http_proxy=p775.local:1080 -e https_proxy=p775.local:1080"
 alias vc='vi ~/tools/script/curl.sh'
@@ -147,11 +148,13 @@ alias speedtest-js='speedtest -s 5396'
 # alias l='ls -lah'
 # alias ll='ls -lh'
 
-alias ll='exa -laF'
-alias l='exa -lF'
+alias ll='eza -laF'
+alias l='eza -lF'
+
+alias rz='trz'
+alias sz='tsz'
 
 alias grep='grep --color'
-alias bat='batcat'
 
 alias ntpdate-aliyun='sudo ntpdate -u time1.aliyun.com'
 

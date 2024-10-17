@@ -105,7 +105,7 @@ vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
 -- encodeing
 o.fileformat = 'unix'
 o.fileencoding = 'utf-8'
-o.fileencodings = 'ucs-bom,utf-8,gb18030,big5,ISO-8859,latin1,utf-16'
+o.fileencodings = 'ucs-bom,utf-8,gb18030,big5,latin1,utf-16'
 
 -- indent
 o.tabstop = 4
@@ -137,6 +137,7 @@ end
 
 local defer_options = {
   function()
+    -- ~/.local/share/nvim/shada/main.shada
     o.shadafile = vim.fn.stdpath('data') .. "/shada/main.shada"
     vim.cmd [[ silent! rsh ]]
   end,

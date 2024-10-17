@@ -188,6 +188,9 @@ require("lazy").setup({
       'tpope/vim-fugitive',
     },
     config = function()
+      if vim.fn.has('kitty') == 1 then
+        vim.g.flog_enable_extended_chars = true
+      end
       vim.cmd [[
       augroup flog
       autocmd FileType floggraph nmap <buffer> <leader>q ZZ
@@ -391,29 +394,30 @@ require("lazy").setup({
     }
   },
 
-  -- {
-  --   'dstein64/nvim-scrollview',
-  --   config = function()
-  --     require('lu5je0.ext.scrollview').setup()
-  --   end,
-  --   event = { 'VeryLazy' }
-  -- },
-
   {
-    'lewis6991/satellite.nvim',
+    'dstein64/nvim-scrollview',
     config = function()
-      require('lu5je0.ext.satellite').setup()
+      require('lu5je0.ext.scrollview').setup()
     end,
-    event = { 'WinScrolled' }
+    event = { 'VeryLazy' }
   },
+
+  -- {
+  --   'lewis6991/satellite.nvim',
+  --   config = function()
+  --     require('lu5je0.ext.satellite').setup()
+  --   end,
+  --   event = { 'WinScrolled' }
+  -- },
 
   -- nvim-cmp
   {
     {
-      'hrsh7th/nvim-cmp',
+      'yioneko/nvim-cmp',
       config = function()
         require('lu5je0.ext.cmp')
       end,
+      branch = 'perf',
       dependencies = {
         -- 'hrsh7th/cmp-cmdline',
         'windwp/nvim-autopairs',

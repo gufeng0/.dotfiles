@@ -7,7 +7,6 @@ import sys
 import requests
 import getpass
 import socket
-import qrcode
 import console_color
 from requests.auth import HTTPBasicAuth
 
@@ -27,17 +26,29 @@ class HostType:
             return 'https://transfer.sh/'
 
 
-# class Cache:
-#     def __init__(self):
-#         self.token = None
-#
-#     def get_token(self):
-#         if self.token == None:
-#             self.token = os.getenv('TRANSFER_PRIVATE_TOKEN')
-#             if self.token == None:
-#                 self.token = getpass.getpass('token: ')
-#         return self.token
+class TokenHolder:
+    def __init__(self):
+        self.token = "" # type: str
+    
+    def get_token_file_path(self):
+        transfer_config_path = os.path.expanduser("~") + '/.config/transfer/'
+        if not os.path.exists(transfer_config_path):
+            os.makedirs(transfer_config_path, exist_ok=True)
+        return transfer_config_path
 
+    def get_token(self):
+        with open(self.get_token_file_path() + 'token', 'a+') as f:
+            f.seek(0)
+            self.token = f.readline()
+        if self.token.strip() == "":
+            self.token = getpass.getpass('token: ')
+        return self.token
+    
+    def save_token(self):
+        if self.token == "":
+            return
+        with open(self.get_token_file_path() + 'token', 'w+') as f:
+            f.write(self.token)
 
 class FileHelper:
 
@@ -57,11 +68,12 @@ class FileHelper:
 
 class Uploader:
 
-    # def __init__(self):
-    #     self.cache = Cache()
+    def __init__(self):
+        self.token_holder = TokenHolder()
         
     @staticmethod
     def print_qr_code_ascii(url):
+        import qrcode
         qr = qrcode.QRCode(version=2, box_size=10, border=2)
         qr.add_data(url)
         qr.make(fit=True)
@@ -86,7 +98,7 @@ class Uploader:
 
     def put(self, host_type):
         if host_type == HostType.PRIVATE:
-            # token = self.cache.get_token()
+            token = self.token_holder.get_token()
 
             def func(filename, data=None):
                 return requests.put(HostType.get_host(host_type) + filename, data=data )# , auth=HTTPBasicAuth(token, token))
@@ -115,11 +127,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--private', '-p', help='private', action='store_true')
     parser.add_argument('--yes', '-y', help='yes', action='store_true')
-    parser.add_argument('--qrcode', '-q', help='qr-code', action='store_true')
     parser.add_argument('files', metavar='file', type=str,
                         nargs='*', help='files', default=[])
 
     args = parser.parse_args()
+    
+    # TODO transfer.sh已经关闭
+    args.private = True
 
     if len(args.files) == 0:
         print('files required')
@@ -140,8 +154,9 @@ def main():
 
     uploader = Uploader()
     for f in args.files:
-        uploader.upload(host_type, f, args.qrcode)
-
+        uploader.upload(host_type, f, True)
+    if args.private:
+        uploader.token_holder.save_token()
 
 if __name__ == "__main__":
     try:

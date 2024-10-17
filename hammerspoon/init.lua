@@ -1,54 +1,50 @@
 ---@diagnostic disable: undefined-global
 
-local win_win = require('win_win')
-
 hs.hotkey.bind({ "ctrl", "option" }, "R", function()
   hs.reload()
 end)
 
 local window_special_cases = {
-  kitty = {
-    center = function(max)
-      return {
-        x = max.x,
-        y = max.y,
-        w = 1021,
-        h = 843
-      }
-    end,
-    ["43_center"] = function(max)
-      return {
-        x = max.x,
-        y = max.y,
-        w = max.w * (3 / 4) - 20,
-        h = max.h - 8
-      }
-    end
-  },
   WezTerm = {
     center = function(max)
-      return {
-        x = 190,
-        y = -960,
-        w = 1021,
-        h = 843
-      }
+      local screen_id = hs.window.focusedWindow():screen():id()
+      if screen_id == 1 then
+        return {
+          x = max.x,
+          y = max.y,
+          w = 952,
+          h = 804
+        }
+      else
+        return {
+          x = max.x,
+          y = max.y,
+          w = 1021,
+          h = 843
+        }
+      end
     end,
     ["43_center"] = function(max)
-      return {
-        x = max.x,
-        y = max.y,
-        w = max.w * (3 / 4) - 20,
-        h = max.h - 8
-      }
+      local screen_id = hs.window.focusedWindow():screen():id()
+      if screen_id == 1 then
+        return {
+          x = max.x,
+          y = max.y,
+          w = 1105,
+          h = 863
+        }
+      else
+        return {
+          x = max.x,
+          y = max.y,
+          w = max.w * (3 / 4) - 20,
+          h = max.h - 16
+        }
+      end
     end
   },
-  -- 你可以在这里添加其他应用程序的特殊处理逻辑
-  -- exampleApp = {
-  --   center = function(max) return { x = 100, y = 100, w = 800, h = 600 } end,
-  --   ["43_center"] = function(max) return { x = max.x, y = max.y, w = max.w * 0.75, h = max.h } end
-  -- }
 }
+window_special_cases.kitty = window_special_cases.WezTerm
 
 local function size_focused_window(mode)
   return function()
@@ -67,8 +63,9 @@ local function size_focused_window(mode)
       else
         f = case
       end
+      f.x = max.x + (screen:frame().w - f.w) / 2
+      f.y = max.y + (screen:frame().h - f.h) / 2
       win:setFrame(f, 0)
-      hs.window.focusedWindow():centerOnScreen(0)
       return
     end
 
@@ -80,17 +77,18 @@ local function size_focused_window(mode)
     elseif mode == "center" then
       f.w = max.w / 1.4
       f.h = max.h / 1.1
-      hs.window.focusedWindow():centerOnScreen(0)
-      win:setFrame(f, 0)   -- 0 取消动画
-      hs.window.focusedWindow():centerOnScreen(0)
+      f.x = max.x + (screen:frame().w - f.w) / 2
+      f.y = max.y + (screen:frame().h - f.h) / 2
+      win:setFrame(f, 0)
       return
     elseif mode == "43_center" then
       f.x = max.x
       f.y = max.y
       f.w = max.w * (3 / 4)
       f.h = max.h
+      f.x = max.x + (screen:frame().w - f.w) / 2
+      f.y = max.y + (screen:frame().h - f.h) / 2
       win:setFrame(f, 0)
-      hs.window.focusedWindow():centerOnScreen(0)
       return
     elseif mode == "halfleft" then
       f.x = max.x
@@ -116,6 +114,7 @@ hs.hotkey.bind({ "ctrl", "option" }, "L", size_focused_window('halfright'))
 hs.hotkey.bind({ "ctrl", "option" }, "I", size_focused_window('43_center'))
 hs.hotkey.bind({ "ctrl", "option" }, "K", size_focused_window('maximize'))
 hs.hotkey.bind({ "ctrl", "option" }, 'N', function()
+  local win_win = require('win_win')
   local win = hs.window.focusedWindow()
   local f = win:frame()
   local screen = win:screen()
