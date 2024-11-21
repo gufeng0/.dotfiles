@@ -46,9 +46,6 @@ zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
 # plugins
 ##########################################
 
-zinit ice depth=1 lucid wait='1'
-zinit light paulirish/git-open
-
 zinit ice depth=1 lucid wait='0'
 zinit light zsh-users/zsh-syntax-highlighting
 
@@ -57,6 +54,7 @@ zinit light hlissner/zsh-autopair
 
 # zinit ice lucid wait='0' atload='_zsh_autosuggest_start'
 # zinit light zsh-users/zsh-autosuggestions
+# bindkey '^K' autosuggest-accept
 
 # 额外补全
 zinit ice depth=1 lucid wait='0'
@@ -141,6 +139,7 @@ alias sudo-default-path='\sudo'
 alias awk-map-count="awk '{a[\$1]++} END {for (i in a) print i,a[i]}'"
 
 alias speedtest-hz='speedtest -s 54312'
+alias speedtest-jp='speedtest -s 60324'
 alias speedtest-hk='speedtest -s 1536'
 alias speedtest-js='speedtest -s 5396'
 
@@ -204,6 +203,8 @@ alias sd='sudo docker'
 alias sdc='sudo docker-compose'
 
 alias md='mkdir -p'
+
+export HOMEBREW_NO_AUTO_UPDATE=1
 
 ##########################################
 # vi-mode
