@@ -130,6 +130,8 @@ alias vc='vi ~/tools/script/curl.sh'
 alias vz='vi ~/.dotfiles/zshrc'
 alias sz='source ~/.dotfiles/zshrc'
 
+alias rm="trash"
+
 alias sudo='sudo env PATH=/sbin:$PATH'
 alias sudo-default-path='\sudo'
 
