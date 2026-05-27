@@ -1,71 +1,77 @@
 #!/bin/bash
 
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+
 ask() {
-    echo -n $1
+    echo -n "$1"
     echo -n $' (y/n) \n# '
     read choice
     case $choice in
         Y | y)
         return 0
     esac
-    return -1
+    return 1
+}
+
+link_path() {
+    local src="$1"
+    local dest="$2"
+
+    mkdir -p "$(dirname "$dest")"
+
+    if [[ -L "$dest" && ! -e "$dest" ]]; then
+        rm "$dest"
+    elif [[ -e "$dest" || -L "$dest" ]]; then
+        return 0
+    fi
+
+    ln -s "$src" "$dest"
 }
 
 ask "Enable http proxy(http://127.0.0.1:1080)?" && export http_proxy=http://${HTTP_PROXY:-127.0.0.1:1080} && export https_proxy=http://${HTTP_PROXY:-127.0.0.1:1080}
 
 if [ "$(uname)" = "Linux" ]; then
     if [ -f /etc/lsb-release ]; then
-        # ask "Add add-apt-repository?" && sh ~/.dotfiles/scripts/apt-ppa.sh
-        ask "Install requires(apt)?" && sh ~/.dotfiles/scripts/apt-requirements.sh
+        # ask "Add add-apt-repository?" && sh "$DOTFILES_DIR/scripts/apt-ppa.sh"
+        ask "Install requires(apt)?" && sh "$DOTFILES_DIR/scripts/apt-requirements.sh"
         # ask "Update nodejs?" && curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && sudo apt install -y nodejs
     fi
-    ask "Config pip3 ali index-url?" && sh ~/.dotfiles/scripts/pip3-ali.sh
+    ask "Config pip3 ali index-url?" && sh "$DOTFILES_DIR/scripts/pip3-ali.sh"
 fi
 
-if [[ -f ~/.ssh/config ]]; then
-    mkdir -p ~/.ssh/config
-else
-    ln -s ~/.dotfiles/ssh/config ~/.ssh/config
-fi
+link_path "$DOTFILES_DIR/ssh/config" "$HOME/.ssh/config"
 
-ask "download stardict?" && sh ~/.dotfiles/scripts/download-stardict.sh
+ask "download stardict?" && sh "$DOTFILES_DIR/scripts/download-stardict.sh"
 
-ask "cp ~/.dotfiles/.gitconfig ~/.gitconfig?" && cp ~/.dotfiles/.gitconfig ~/.gitconfig
+ask "cp ~/.dotfiles/.gitconfig ~/.gitconfig?" && cp "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
 
-ask "ln -s ~/.dotfiles/.hammerspoon ~/.hammerspoon?" && ln -s ~/.dotfiles/.hammerspoon ~/.hammerspoon
+ask "ln -s ~/.dotfiles/hammerspoon ~/.hammerspoon?" && link_path "$DOTFILES_DIR/hammerspoon" "$HOME/.hammerspoon"
 
-ask "ln -s ~/.dotfiles/termux/termux.properties ~/.termux/termux.properties?" && ln -s ~/.dotfiles/termux/termux.properties ~/.termux/termux.properties
+ask "ln -s ~/.dotfiles/termux/termux.properties ~/.termux/termux.properties?" && link_path "$DOTFILES_DIR/termux/termux.properties" "$HOME/.termux/termux.properties"
 
-ask "copy maven config?" && if [[ ! -d ~/.m2 ]]; then mkdir ~/.m2; fi && cp -i ~/.dotfiles/m2/settings.xml ~/.m2/settings.xml
+ask "copy maven config?" && if [[ ! -d "$HOME/.m2" ]]; then mkdir "$HOME/.m2"; fi && cp -i "$DOTFILES_DIR/m2/settings.xml" "$HOME/.m2/settings.xml"
 
-ln -s ~/.dotfiles/ideavimrc ~/.ideavimrc
-ln -s ~/.dotfiles/zshrc ~/.zshrc
+link_path "$DOTFILES_DIR/ideavimrc" "$HOME/.ideavimrc"
+link_path "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
 
-if [[ ! -d ~/.cheat ]]; then
-    ln -s ~/.dotfiles/cheat ~/.cheat
-fi
+link_path "$DOTFILES_DIR/cheat" "$HOME/.cheat"
 
 if [ "$(uname)" = "Darwin" ]; then
-    if [[ -f ~/.mac ]]; then
-        touch ~/.mac
+    if [[ ! -f "$HOME/.mac" ]]; then
+        touch "$HOME/.mac"
     fi
 fi
 
-if [[ ! -d ~/.local/bin ]]; then
-    mkdir -p ~/.local/bin
-fi
-if [[ ! -f ~/.local/bin/solid ]]; then
-    ln -s ~/.dotfiles/bin ~/.local/bin/solid
-fi
+link_path "$DOTFILES_DIR/bin" "$HOME/.local/bin/solid"
 
-mkdir -p ~/.pip
-ln -s ~/.dotfiles/pip/pip.conf ~/.pip/pip.conf
+link_path "$DOTFILES_DIR/pip/pip.conf" "$HOME/.pip/pip.conf"
 
 # tmux
-if [[ ! -d ~/.tmux/plugins/tpm ]]; then
-    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
+    mkdir -p "$HOME/.tmux/plugins"
+    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
 fi
-ln -s ~/.dotfiles/tmux/tmux.conf ~/.tmux.conf
+link_path "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
 
 # wezterm
 # if [[ ! -d ~/.config/wezterm ]]; then
@@ -73,25 +79,20 @@ ln -s ~/.dotfiles/tmux/tmux.conf ~/.tmux.conf
 # fi
 
 # kitty
-if [[ ! -f ~/.config/kitty/kitty.conf ]]; then
-    ln -s ~/.dotfiles/kitty/kitty.conf ~/.config/kitty/kitty.conf
-fi
+link_path "$DOTFILES_DIR/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
 
 # alacritty
-if [[ ! -f ~/.config/alacritty/alacritty.conf ]]; then
-    ln -s ~/.dotfiles/alacritty/mac/alacritty.yml ~/.config/alacritty/alacritty.yml
-fi
+link_path "$DOTFILES_DIR/alacritty/mac/alacritty.yml" "$HOME/.config/alacritty/alacritty.yml"
 
-mkdir -p ~/.aria2
-ln -s ~/.dotfiles/aria2/aria2.conf ~/.aria2/aria2.conf
+link_path "$DOTFILES_DIR/aria2/aria2.conf" "$HOME/.aria2/aria2.conf"
 
 # nvim
-mkdir -p ~/.config
+link_path "$DOTFILES_DIR/vim" "$HOME/.config/nvim"
 
-if [[ ! -d ~/.config/nvim ]]; then
-    ln -s ~/.dotfiles/vim ~/.config/nvim
+if ask "Install pip3 requirements?"; then
+    sh "$DOTFILES_DIR/scripts/pip3-requirements.sh"
 fi
 
-ask "Install pip3 requirements?" && sh ~/.dotfiles/scripts/pip3-requirements.sh
-
-ask "Install npm requirements?" && sh ~/.dotfiles/scripts/npm-requirements.sh
+if ask "Install npm requirements?"; then
+    sh "$DOTFILES_DIR/scripts/npm-requirements.sh"
+fi
