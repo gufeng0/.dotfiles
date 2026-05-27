@@ -40,9 +40,6 @@ zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 setopt multios prompt_subst
 alias diff='diff --color'
 
-zinit ice lucid wait='1'
-zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
-
 ##########################################
 # plugins
 ##########################################
