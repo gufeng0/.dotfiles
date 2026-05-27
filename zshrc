@@ -35,13 +35,10 @@ export ZLE_REMOVE_SUFFIX_CHARS=''
 zinit snippet OMZ::lib/completion.zsh
 zinit snippet OMZ::lib/history.zsh
 zinit snippet OMZ::lib/key-bindings.zsh
-zinit snippet OMZ::lib/git.zsh
-# 注释后没有文件颜色
-zinit snippet OMZ::lib/theme-and-appearance.zsh
-
-# zinit ice lucid wait='0'
-zinit snippet OMZ::plugins/git/git.plugin.zsh
-unalias gcp
+autoload -U colors && colors
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+setopt multios prompt_subst
+alias diff='diff --color'
 
 zinit ice lucid wait='1'
 zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
@@ -308,6 +305,8 @@ zinit cdreplay -q
 
 # fnm
 export PATH="$HOME/.fnm:$PATH"
-if command -v fnm >/dev/null 2>&1; then
-  eval "$(fnm env --use-on-cd)"
+if [[ -x /usr/local/bin/fnm ]]; then
+  eval "$(/usr/local/bin/fnm env --use-on-cd)"
+elif [[ -x "$HOME/.fnm/fnm" ]]; then
+  eval "$("$HOME/.fnm/fnm" env --use-on-cd)"
 fi
