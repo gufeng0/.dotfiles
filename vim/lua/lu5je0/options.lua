@@ -15,6 +15,8 @@ vim.fn.has = function(feature)
     has = os.getenv('WSLENV') ~= nil
   elseif feature == 'ssh_client' then
     has = os.getenv('SSH_CLIENT') ~= nil
+      or os.getenv('SSH_CONNECTION') ~= nil
+      or os.getenv('SSH_TTY') ~= nil
   elseif feature == 'kitty' then
     has = os.getenv('TERM') == 'xterm-kitty'
   end
@@ -146,30 +148,7 @@ local defer_options = {
     -- linux中 * 是selection clipboard，+ 是system clipboard，
     -- 如果设置了unamedplus，所有的操作都会自动被粘贴进system clipboard
     if has('ssh_client') then
-      if has('kitty') then
-        o.clipboard = 'unnamedplus'
-        vim.g.clipboard = {
-          name = 'OSC 52',
-          copy = {
-            ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
-            ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
-          },
-          paste = {
-            ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
-            ['*'] = require('vim.ui.clipboard.osc52').paste('*')
-          }
-        }
-      else
-        vim.g.loaded_clipboard_provider = 1
-        local copy = require("vim.ui.clipboard.osc52").copy('\"')
-        vim.api.nvim_create_autocmd('TextYankPost', {
-          group = vim.api.nvim_create_augroup('osc52_autocmd_group', { clear = true }),
-          pattern = '*',
-          callback = function()
-            copy(vim.split(vim.fn.getreg('"'), '\n'))
-          end
-        })
-      end
+      require('lu5je0.misc.clipboard.osc52').setup()
     elseif has('mac') then
       require('lu5je0.misc.clipboard.mac').setup()
     elseif has('wsl') then

@@ -74,6 +74,9 @@ zinit snippet ~/.dotfiles/zsh/functions.sh
 zinit ice lucid wait='1'
 zinit snippet ~/.dotfiles/zsh/proxy.sh
 
+zinit ice lucid wait='1'
+zinit snippet ~/.dotfiles/zsh/git.sh
+
 zinit snippet ~/.dotfiles/zsh/vi-mode.zsh
 zinit snippet ~/.dotfiles/zsh/vi-im-switch.zsh
 

@@ -865,7 +865,7 @@
   typeset -g POWERLEVEL9K_CONTEXT_FOREGROUND=70
 
   # Default context format (no privileges, no SSH): user@hostname.
-  typeset -g POWERLEVEL9K_CONTEXT_TEMPLATE='%F{#689D6A}%n %F{#A89984}@ %F{#98971A}%m'
+  typeset -g POWERLEVEL9K_CONTEXT_TEMPLATE='%F{#689D6A}%n %F{#A89984}@ %F{#69A972}%m'
   # Context format when running with privileges: bold user@hostname.
   typeset -g POWERLEVEL9K_CONTEXT_ROOT_TEMPLATE=$POWERLEVEL9K_CONTEXT_TEMPLATE
   # Context format when in SSH without privileges: user@hostname.

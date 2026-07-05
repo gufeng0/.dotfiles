@@ -1,5 +1,5 @@
-export USER_HTTP_PROXY=${USER_HTTP_PROXY:-'http://172.0.0.1:1080'}
-export USER_SOCKS_PROXY=${USER_SOCKS_PROXY:-'socks5://172.0.0.1:1080'}
+export USER_HTTP_PROXY=${USER_HTTP_PROXY:-'http://127.0.0.1:1080'}
+export USER_SOCKS_PROXY=${USER_SOCKS_PROXY:-'socks5://127.0.0.1:1080'}
 
 proxy() {
   export http_proxy=$USER_HTTP_PROXY
