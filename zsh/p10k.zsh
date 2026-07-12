@@ -28,6 +28,11 @@
   # Zsh >= 5.1 is required.
   [[ $ZSH_VERSION == (5.<1->*|<6->.*) ]] || return
 
+  local p10k_in_ghostty=0
+  if [[ ${TERM_PROGRAM:l} == ghostty || -n ${GHOSTTY_RESOURCES_DIR:-} || -n ${GHOSTTY_BIN_DIR:-} || -n ${GHOSTTY_SHELL_INTEGRATION:-} ]]; then
+    p10k_in_ghostty=1
+  fi
+
   # The list of segments shown on the left. Fill it with the most important segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
     # =========================[ Line #1 ]=========================
@@ -103,15 +108,15 @@
     proxy                 # system-wide http/https/ftp proxy
     vcs                     # git status
     time                    # current time
-    # =========================[ Line #2 ]=========================
-    newline
-    set_title # lu5je0
     # ip                    # ip address and bandwidth usage for a specified network interface
     # public_ip             # public IP address
     # battery               # internal battery
     # wifi                  # wifi speed
     # example               # example user-defined segment (see prompt_example function below)
   )
+
+  # Keep the command input on the second line and update the terminal title there.
+  POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS+=(newline set_title)
 
   # Defines character set used by powerlevel10k. It's best to let `p10k configure` set it for you.
   typeset -g POWERLEVEL9K_MODE=ascii
@@ -140,7 +145,11 @@
   typeset -g POWERLEVEL9K_ICON_BEFORE_CONTENT=true
 
   # Add an empty line before each prompt.
-  typeset -g POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
+  if (( p10k_in_ghostty )); then
+    typeset -g POWERLEVEL9K_PROMPT_ADD_NEWLINE=false
+  else
+    typeset -g POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
+  fi
 
   # Connect left prompt lines with these symbols.
   typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=
@@ -169,7 +178,11 @@
   # the number of prompt lines. You'll probably want to set POWERLEVEL9K_SHOW_RULER=false
   # if using this. You might also like POWERLEVEL9K_PROMPT_ADD_NEWLINE=false for more compact
   # prompt.
-  typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_GAP_CHAR='.'
+  if (( p10k_in_ghostty )); then
+    typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_GAP_CHAR=' '
+  else
+    typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_GAP_CHAR='.'
+  fi
   if [[ $POWERLEVEL9K_MULTILINE_FIRST_PROMPT_GAP_CHAR != ' ' ]]; then
     # The color of the filler.
     typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_GAP_FOREGROUND=240

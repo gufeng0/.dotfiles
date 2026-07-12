@@ -10,6 +10,12 @@ if [[ "${TERMINAL_EMULATOR:-}" != JetBrains-JediTerm* && -r "${XDG_CACHE_HOME:-$
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# Keep Ghostty's prompt markers available after `exec zsh` as well as on the
+# shell process started directly by Ghostty.
+if [[ -n ${GHOSTTY_RESOURCES_DIR:-} && -r $GHOSTTY_RESOURCES_DIR/shell-integration/zsh/ghostty-integration ]]; then
+  source "$GHOSTTY_RESOURCES_DIR/shell-integration/zsh/ghostty-integration"
+fi
+
 ##########################################
 # zinit
 ##########################################
@@ -129,7 +135,7 @@ alias crontab="cron.sh"
 # alias wgetp="wget -c -e use_proxy=yes -e http_proxy=p775.local:1080 -e https_proxy=p775.local:1080"
 alias vc='vi ~/tools/script/curl.sh'
 alias vz='vi ~/.dotfiles/zshrc'
-alias sz='source ~/.dotfiles/zshrc'
+alias sz='exec zsh'
 
 alias rm="trash"
 
