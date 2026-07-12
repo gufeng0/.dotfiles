@@ -239,7 +239,9 @@ zle -N begin-of-buffer
 bindkey -a gg begin-of-buffer
 bindkey -a G end-of-buffer
 
-export KEYTIMEOUT=1
+# Give multi-byte terminal sequences (including bracketed-paste markers) enough
+# time to arrive before interpreting a leading Escape as a vi-mode command.
+export KEYTIMEOUT=10
 
 # surround
 autoload -Uz surround
