@@ -231,6 +231,8 @@ bindkey -a j down-line
 bindkey -a k up-line
 bindkey -a K history-beginning-search-backward
 bindkey -a J history-beginning-search-forward
+# Disable ZLE's `execute-named-cmd` prompt (`execute:`) on `:`.
+bindkey -M vicmd ':' undefined-key
 
 end-of-buffer() {
   CURSOR=9999999
