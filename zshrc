@@ -166,15 +166,6 @@ alias grep='grep --color'
 
 alias ntpdate-aliyun='sudo ntpdate -u time1.aliyun.com'
 
-# git
-alias gmc='sh ~/tools/script/gmc.sh'
-alias gck='git checkout'
-alias glc='python3 ~/tools/script/xhyd/deploy.py'
-alias gp='git push'
-alias gl='git pull'
-alias gst='git status'
-alias gca='git commit -a'
-alias gm='git merge'
 alias qrencode-ansi='qrencode -t ansiutf8'
 
 alias time-204='time curl "https://www.gstatic.com/generate_204"'
@@ -215,6 +206,7 @@ alias mvnp='mvn package -Dmaven.test.skip=true'
 # docker
 alias sd='sudo docker'
 alias sdc='sudo docker-compose'
+alias dc='docker-compose'
 
 alias md='mkdir -p'
 
