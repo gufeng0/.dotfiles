@@ -1,6 +1,6 @@
 # OPENSPEC:START
 # OpenSpec shell completions configuration
-fpath=("/Users/zm/.zsh/completions" $fpath)
+fpath=("$HOME/.zsh/completions" $fpath)
 # OPENSPEC:END
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
@@ -26,7 +26,7 @@ source ~/.local/share/zinit/zinit.git/zinit.zsh
 
 export UNAME_INFO=$(uname -a)
 
-fpath=(~/.dotfiles/zsh/completions /Users/zm/.docker/completions $fpath)
+fpath=(~/.dotfiles/zsh/completions $HOME/.docker/completions $fpath)
 
 setopt AUTO_CD
 
@@ -111,7 +111,6 @@ bindkey "^[[5~" history-beginning-search-backward
 bindkey "^[[6~" history-beginning-search-forward
 # bindkey "^n" autosuggest-accept
 
-
 ##########################################
 # ENV
 ##########################################
@@ -124,7 +123,6 @@ export LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;
 export NODE_NO_WARNINGS=1
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-
 
 ##########################################
 # alias
@@ -305,7 +303,7 @@ export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 # Added by Windsurf
-export PATH="/Users/zm/.codeium/windsurf/bin:$PATH"
+export PATH="$HOME/.codeium/windsurf/bin:$PATH"
 autoload -Uz compinit
 compinit -C
 zinit cdreplay -q
@@ -317,3 +315,10 @@ if [[ -x /usr/local/bin/fnm ]]; then
 elif [[ -x "$HOME/.fnm/fnm" ]]; then
   eval "$("$HOME/.fnm/fnm" env --use-on-cd)"
 fi
+
+
+# >>> grok installer >>>
+export PATH="$HOME/.grok/bin:$PATH"
+fpath=(~/.grok/completions/zsh $fpath)
+autoload -Uz compinit && compinit -C
+# <<< grok installer <<<

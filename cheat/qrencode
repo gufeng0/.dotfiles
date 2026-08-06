@@ -1,1 +1,0 @@
- qrencode -t ansiutf8 < 1.txt

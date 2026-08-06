@@ -6,7 +6,7 @@ if not vim.uv.fs_stat(lazypath) then
     "clone",
     "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
+    "--branch=stable",
     lazypath,
   })
 end
@@ -30,3 +30,8 @@ for _, module in ipairs(core_modules) do
 end
 
 vim.cmd('runtime functions.vim')
+
+-- Fix E37 / E162 (unnamed buffers when quitting)
+vim.cmd [[
+  autocmd QuitPre * if &filetype != 'qf' | if empty(&buftype) | bd 2 | else | bd | endif | endif
+]]

@@ -37,13 +37,6 @@ end
 local opts = {
   concurrency = 20,
   performance = {
-    profiling = {
-      -- Enables extra stats on the debug tab related to the loader cache.
-      -- Additionally gathers stats about all package.loaders
-      loader = true,
-      -- Track each new require in the Lazy profiling tab
-      require = true,
-    },
     rtp = {
       disabled_plugins = disabled_plugins,
     },
@@ -124,13 +117,6 @@ require("lazy").setup({
       'phelipetls/jsonpath.nvim',
       ft = { 'json', 'jsonc' }
     },
-    -- {
-    --   'stevearc/aerial.nvim',
-    --   config = function()
-    --     require('lu5je0.ext.aerial')
-    --   end,
-    --   cmd = { 'AerialToggle' }
-    -- },
   },
 
   {
@@ -144,35 +130,6 @@ require("lazy").setup({
     'aklt/plantuml-syntax',
     ft = 'plantuml'
   },
-  {
-    'lewis6991/gitsigns.nvim',
-    config = function()
-      require('lu5je0.ext.gitsigns').setup()
-    end,
-    event = 'VeryLazy'
-  },
-  -- {
-  --   'ojroques/vim-oscyank',
-  --   init = function()
-  --     vim.g.oscyank_silent = 1
-  --     vim.g.oscyank_trim = 0
-  --   end,
-  --   config = function()
-  --   local has_mac = vim.fn.has('mac') == 1
-  --   local has_wsl = vim.fn.has('wsl') == 1
-  --     if has_wsl or has_mac then
-  --       return
-  --     end
-  --     vim.api.nvim_create_autocmd('TextYankPost', {
-  --       pattern = '*',
-  --       callback = function()
-  --         vim.cmd [[ OSCYankRegister " ]]
-  --       end,
-  --     })
-  --   end,
-  --   event = 'VeryLazy'
-  -- },
-
   {
     'tpope/vim-fugitive',
     cmd = { 'Git', 'Gvdiffsplit', 'Gstatus', 'Gclog', 'Gread' },
@@ -411,56 +368,10 @@ require("lazy").setup({
   -- },
 
   -- nvim-cmp
-  -- {
-  --   {
-  --     'hrsh7th/nvim-cmp',
-  --     config = function()
-  --       require('lu5je0.ext.cmp')
-  --     end,
-  --     dependencies = {
-  --       -- 'hrsh7th/cmp-cmdline',
-  --       'windwp/nvim-autopairs',
-  --       'saadparwaiz1/cmp_luasnip',
-  --       'hrsh7th/cmp-buffer',
-  --       'hrsh7th/cmp-path',
-  --       {
-  --         'L3MON4D3/LuaSnip',
-  --         config = function()
-  --           require('lu5je0.ext.luasnip').setup()
-  --         end
-  --       },
-  --       -- {
-  --       --   "garymjr/nvim-snippets",
-  --       --   config = function()
-  --       --     require('snippets').setup({
-  --       --       search_paths = { vim.fn.stdpath('config') .. '/snippets/vsnip' },
-  --       --       create_autocmd = true,
-  --       --       create_cmp_source = true
-  --       --     })
-  --       --   end
-  --       -- }
-  --     },
-  --     event = 'InsertEnter',
-  --   },
-  --   {
-  --     'hrsh7th/cmp-nvim-lsp',
-  --     event = 'LspAttach'
-  --   },
-  -- },
-
-  -- {
-  --   "elihunter173/dirbuf.nvim",
-  --   config = function()
-  --     require('lu5je0.ext.dirbuf')
-  --   end,
-  --   cmd = 'Dirbuf'
-  -- },
-
   {
     'saghen/blink.cmp',
     -- optional: provides snippets for the snippet source
     dependencies = {
-      -- 'rafamadriz/friendly-snippets',
       'windwp/nvim-autopairs',
       {
         'L3MON4D3/LuaSnip',
@@ -528,15 +439,6 @@ require("lazy").setup({
     -- cmd = 'FoldTextToggle',
     -- keys = { 'zf', 'zo', 'za', 'zc', 'zM', 'zR' }
   },
-  -- {
-  --   'anuvyklack/pretty-fold.nvim',
-  --   config = function()
-  --     require('pretty-fold').setup({
-  --       fill_char = ' ',
-  --     })
-  --   end,
-  --   lazy = true
-  -- },
 
   {
     'nat-418/boole.nvim',
@@ -643,12 +545,7 @@ require("lazy").setup({
       ft = "lua", -- only load on lua files
       opts = {
         library = {
-          -- Library items can be absolute paths
-          -- "~/projects/my-awesome-lib",
-          -- Or relative, which means they will be resolved as a plugin
-          -- "LazyVim",
-          -- When relative, you can also provide a path to the library in the plugin dir
-          "luvit-meta/library", -- see below
+          "luvit-meta/library",
         },
       },
       lazy = true,
@@ -660,8 +557,8 @@ require("lazy").setup({
       'SmiteshP/nvim-navic',
       config = function()
         require('nvim-navic').setup {
-          -- depth_limit = 10,
-          -- depth_limit_indicator = "..",
+          depth_limit = 10,
+          depth_limit_indicator = "..",
         }
       end,
       event = { 'LspAttach' }
@@ -722,7 +619,6 @@ require("lazy").setup({
           max_height = 10,
           max_width = 70,
           toggle_key_flip_floatwin_setting = true,
-          -- auto_close_after = 3
           handler_opts = {
             border = "single"
           }
@@ -737,18 +633,6 @@ require("lazy").setup({
         })
       end
     },
-    -- {
-    --   'nvimtools/none-ls.nvim',
-    --   config = function()
-    --     require('lu5je0.ext.null-ls.null-ls')
-    --   end,
-    --   commit = 'c10b7be7751aee820a02f2d1fafe76bc316fe223',
-    --   dependencies = {
-    --     'neovim/nvim-lspconfig'
-    --   },
-    --   event = 'VeryLazy'
-    --   -- cmd = 'NullLsEnable',
-    -- },
   },
 
   {
@@ -798,28 +682,6 @@ require("lazy").setup({
     end,
     cmd = { "MarkdownPreview" },
   },
-  -- {
-  --   "nvim-neorg/neorg",
-  --   build = ":Neorg sync-parsers",
-  --   dependencies = { "nvim-lua/plenary.nvim" },
-  --   commit = '086891d396ac9fccd91faf1520f563b6eb9eb942',
-  --   ft = { 'norg' },
-  --   config = function()
-  --     require("neorg").setup {
-  --       load = {
-  --         ["core.defaults"] = {}, -- Loads default behaviour
-  --         ["core.concealer"] = {}, -- Adds pretty icons to your documents
-  --         ["core.dirman"] = { -- Manages Neorg workspaces
-  --         config = {
-  --           workspaces = {
-  --             notes = "~/notes",
-  --           },
-  --         },
-  --       },
-  --     },
-  --   }
-  --   end,
-  -- },
 
   {
     "mfussenegger/nvim-dap",
@@ -964,65 +826,28 @@ require("lazy").setup({
     end
   },
 
-  -- {
-  --   '3rd/image.nvim',
-  --   config = function()
-  --     package.path = package.path .. ";" .. vim.fn.expand("$HOME") .. "/.luarocks/share/lua/5.1/?/init.lua;"
-  --     package.path = package.path .. ";" .. vim.fn.expand("$HOME") .. "/.luarocks/share/lua/5.1/?.lua;"
-  --     require('image').setup({
-  --      -- backend = 'ueberzug',
-  --      backend = "kitty",
-  --      integrations = {
-  --        markdown = {
-  --          enabled = true,
-  --          clear_in_insert_mode = false,
-  --          download_remote_images = true,
-  --          only_render_image_at_cursor = false,
-  --          filetypes = { "markdown", "vimwiki" }, -- markdown extensions (ie. quarto) can go here
-  --        },
-  --        neorg = {
-  --          enabled = true,
-  --          clear_in_insert_mode = false,
-  --          download_remote_images = true,
-  --          only_render_image_at_cursor = false,
-  --          filetypes = { "norg" },
-  --        },
-  --      },
-  --      max_width = nil,
-  --      max_height = nil,
-  --      max_width_window_percentage = nil,
-  --      max_height_window_percentage = 50,
-  --      window_overlap_clear_enabled = true, -- toggles images when windows are overlapped
-  --      window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "" },
-  --      kitty_method = "normal",
-  --     })
-  --   end
-  -- },
-
-  -- {
-  --   'tzachar/highlight-undo.nvim',
-  --   config = function()
-  --     require('highlight-undo').setup({
-  --       hlgroup = 'Visual',
-  --       duration = 300,
-  --       keymaps = {
-  --         {'n', 'u', 'undo', {}},
-  --         {'n', '<C-r>', 'redo', {}},
-  --       }
-  --     })
-  --   end,
-  --   event = 'VeryLazy'
-  -- },
   {
-    'shuaixiaomi/md-img-paste.vim',
-    config = function ()
-      vim.cmd([[
-      autocmd FileType markdown nmap <buffer><silent> <leader>pd :call mdip#MarkdownClipboardImage("d")<CR>
-      autocmd FileType markdown nmap <buffer><silent> <leader>pc :call mdip#MarkdownClipboardImage("c")<CR>
-      let g:mdip_imgdir = 'image'
-      " let g:mdip_imgname = 'image'
-      ]])
-    end
+    "FabijanZulj/blame.nvim",
+    cmd = "BlameToggle",
+    config = function()
+      require('blame').setup {
+        width = 35,
+      }
+    end,
+    keys = {
+      { mode = 'n', "<leader>gb", ":BlameToggle window<cr>", desc = "ToggleGitBlame" },
+    },
+  },
+
+  {
+    'kevinhwang91/nvim-fundo',
+    dependencies = 'kevinhwang91/promise-async',
+    build = function() require('fundo').install() end,
+    config = function()
+      vim.o.undofile = true
+      require('fundo').setup()
+    end,
+    event = 'BufReadPre'
   },
 
   {
@@ -1130,7 +955,25 @@ require("lazy").setup({
         }
       }
     end,
-    ft = 'markdown'
   },
 
+  {
+    'shuaixiaomi/md-img-paste.vim',
+    config = function ()
+      vim.cmd([[
+      autocmd FileType markdown nmap <buffer><silent> <leader>pd :call mdip#MarkdownClipboardImage("d")<CR>
+      autocmd FileType markdown nmap <buffer><silent> <leader>pc :call mdip#MarkdownClipboardImage("c")<CR>
+      let g:mdip_imgdir = 'image'
+      " let g:mdip_imgname = 'image'
+      ]])
+    end
+  },
+
+  {
+    "LunarVim/bigfile.nvim",
+    config = function()
+      require('lu5je0.ext.big-file').setup()
+    end,
+    event = 'BufReadPre'
+  },
 }, opts)

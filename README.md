@@ -149,9 +149,6 @@
 
 项目中还包含几类配套脚本：
 
-- `scripts/install-debian-base-packages.sh`
-  安装 Linux 下的基础开发工具，如 `neovim`、`zsh`、`ripgrep`、`tmux`、`nodejs`、`python3` 等。
-
 - `scripts/apt-requirements.sh`
   安装一批作者常用系统工具，例如 `fzf`、`docker`、`docker-compose`。
 
@@ -480,6 +477,8 @@ Neovim 的入口是 `vim/init.lua`。
 - GUI/Neovide 下插入模式与命令行模式的输入法开关
 - macOS / WSL 场景下的输入法保持或切换
 
+此外，`zsh/platform.sh` 会在新终端启动时自动切换到英文输入法（`com.apple.keylayout.ABC`）。第一次运行时请在「系统设置 → 隐私与安全性 → 自动化」里给「AppleScript Editor」授予「系统事件」权限，否则会出现授权错误。
+
 这类细节说明该项目服务的是长期高频编辑使用，而不是一次性配置。
 
 ---
@@ -567,7 +566,6 @@ Neovim 的入口是 `vim/init.lua`。
 - pane 切换与窗口切换做了快捷键优化
 - 支持当前目录分屏
 - 接入 TPM 插件管理器
-- 使用 `tmux/tmuxline/` 中的主题配置
 
 这说明 tmux 在作者的工作流里是核心工具之一。
 

@@ -32,9 +32,7 @@ ask "Enable http proxy(http://127.0.0.1:1080)?" && export http_proxy=http://${HT
 
 if [ "$(uname)" = "Linux" ]; then
     if [ -f /etc/lsb-release ]; then
-        # ask "Add add-apt-repository?" && sh "$DOTFILES_DIR/scripts/apt-ppa.sh"
         ask "Install requires(apt)?" && sh "$DOTFILES_DIR/scripts/apt-requirements.sh"
-        # ask "Update nodejs?" && curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && sudo apt install -y nodejs
     fi
     ask "Config pip3 ali index-url?" && sh "$DOTFILES_DIR/scripts/pip3-ali.sh"
 fi
@@ -53,8 +51,6 @@ ask "copy maven config?" && if [[ ! -d "$HOME/.m2" ]]; then mkdir "$HOME/.m2"; f
 
 link_path "$DOTFILES_DIR/ideavimrc" "$HOME/.ideavimrc"
 link_path "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
-
-link_path "$DOTFILES_DIR/cheat" "$HOME/.cheat"
 
 if [ "$(uname)" = "Darwin" ]; then
     if [[ ! -f "$HOME/.mac" ]]; then
@@ -91,6 +87,10 @@ link_path "$DOTFILES_DIR/vim" "$HOME/.config/nvim"
 
 if ask "Install pip3 requirements?"; then
     sh "$DOTFILES_DIR/scripts/pip3-requirements.sh"
+fi
+
+if ask "Install npm requirements?"; then
+    sh "$DOTFILES_DIR/scripts/npm-requirements.sh"
 fi
 
 if ask "Install npm requirements?"; then

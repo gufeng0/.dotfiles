@@ -1,7 +1,7 @@
 # git aliases
 alias gmc='sh ~/tools/script/gmc.sh'
 alias gck='git checkout'
-alias glc='python3 ~/tools/script/xhyd/deploy.py'
+alias glc='python3 ~/tools/script/souche/sc_deploy.py'
 alias gl='git pull'
 alias gst='git status'
 alias gca='git commit -a'

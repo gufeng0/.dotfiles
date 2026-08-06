@@ -1,1 +1,0 @@
-vim-startuptime -vimpath nvim -warmup 3 --count 10 | less
