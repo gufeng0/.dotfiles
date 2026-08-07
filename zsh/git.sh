@@ -15,34 +15,29 @@ _g_current_branch() {
   echo "$current"
 }
 
-# 更新当前分支：有上游则 git pull，无上游则跳过
-# $1: 当前分支名
+# 更新当前分支（gl / gp / gm / gcb 共用）
+# 有上游 → pull；无上游但远端有 → pull 并设上游；远端没有 → 跳过
+# $1: 当前分支名；其余参数传给 git pull
 _g_update_current() {
   local current="$1"
+  shift
   echo ">> 更新当前分支: $current"
   if git rev-parse --abbrev-ref @{upstream} >/dev/null 2>&1; then
-    git pull
-  else
-    echo ">> 跳过: 当前分支无上游"
-    return 0
-  fi
-}
-
-# gl => 远端有同名分支则 pull；没有则提示用 gp
-gl() {
-  local current
-  current=$(_g_current_branch gl) || return 1
-
-  if git rev-parse --abbrev-ref @{upstream} >/dev/null 2>&1; then
-    echo ">> 拉取 $current"
     git pull "$@"
   elif git ls-remote --exit-code --heads origin "$current" >/dev/null 2>&1; then
     echo ">> 拉取 origin/$current 并设置上游"
     git pull --set-upstream origin "$current" "$@"
   else
-    echo "gl: 远端不存在 origin/$current，请用 gp 创建并推送"
-    return 1
+    echo ">> 跳过: 远端不存在 origin/$current"
+    return 0
   fi
+}
+
+# gl => 更新当前分支（逻辑全在 _g_update_current）
+gl() {
+  local current
+  current=$(_g_current_branch gl) || return 1
+  _g_update_current "$current" "$@"
 }
 
 # gp => 先更新当前分支再推送；无上游则创建远端并设置跟踪
