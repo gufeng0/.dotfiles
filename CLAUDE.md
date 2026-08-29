@@ -5,7 +5,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Common commands
 
 - Initial bootstrap: `bash ~/.dotfiles/scripts/setup.sh`
-- Debian/Ubuntu base packages: `bash ~/.dotfiles/scripts/install-debian-base-packages.sh`
 - Additional apt packages: `bash ~/.dotfiles/scripts/apt-requirements.sh`
 - Python dependencies used by editor/helpers: `bash ~/.dotfiles/scripts/pip3-requirements.sh`
 - npm global tools used by editor/helpers: `bash ~/.dotfiles/scripts/npm-requirements.sh`
@@ -14,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Validation
 
-- There is no repo-wide build, lint, or test script in the root `package.json`.
+- Repo-wide aggregated checks: `bash ~/.dotfiles/scripts/check.sh` (shell syntax grouped by dialect, Lua parse, JSON/JS validation, Neovim headless smoke test).
 - No dedicated automated test suite was found.
 - For Neovim plugin/config changes, the closest in-repo validation path is `bash ~/.dotfiles/lazy-restore.sh`.
 - For setup changes, validate by reviewing or re-running `bash ~/.dotfiles/scripts/setup.sh` carefully, since it creates symlinks and copies files into the home directory.

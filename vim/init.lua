@@ -32,6 +32,7 @@ end
 vim.cmd('runtime functions.vim')
 
 -- Fix E37 / E162 (unnamed buffers when quitting)
+-- silent! avoids E516 (no buffers deleted) noise in headless smoke runs
 vim.cmd [[
-  autocmd QuitPre * if &filetype != 'qf' | if empty(&buftype) | bd 2 | else | bd | endif | endif
+  autocmd QuitPre * if &filetype != 'qf' | if empty(&buftype) | silent! bd 2 | else | silent! bd | endif | endif
 ]]

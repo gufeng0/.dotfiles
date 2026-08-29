@@ -39,8 +39,6 @@ fi
 
 link_path "$DOTFILES_DIR/ssh/config" "$HOME/.ssh/config"
 
-ask "download stardict?" && sh "$DOTFILES_DIR/scripts/download-stardict.sh"
-
 ask "cp ~/.dotfiles/.gitconfig ~/.gitconfig?" && cp "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
 
 ask "ln -s ~/.dotfiles/hammerspoon ~/.hammerspoon?" && link_path "$DOTFILES_DIR/hammerspoon" "$HOME/.hammerspoon"
@@ -87,10 +85,6 @@ link_path "$DOTFILES_DIR/vim" "$HOME/.config/nvim"
 
 if ask "Install pip3 requirements?"; then
     sh "$DOTFILES_DIR/scripts/pip3-requirements.sh"
-fi
-
-if ask "Install npm requirements?"; then
-    sh "$DOTFILES_DIR/scripts/npm-requirements.sh"
 fi
 
 if ask "Install npm requirements?"; then
