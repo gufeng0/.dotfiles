@@ -17,10 +17,18 @@ local function diagnostic()
     update_in_insert = true,
   }
   local signs = { Error = '  ', Warn = '  ', Hint = '  ', Info = '  ' }
+  local sign_text, sign_numhl = {}, {}
   for type, icon in pairs(signs) do
-    local hl = 'DiagnosticSign' .. type
-    vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+    local severity = vim.diagnostic.severity[type:upper()]
+    sign_text[severity] = icon
+    sign_numhl[severity] = 'DiagnosticSign' .. type
   end
+  vim.diagnostic.config {
+    signs = {
+      text = sign_text,
+      numhl = sign_numhl,
+    },
+  }
   -- vim.cmd('highlight DiagnosticSignWarn guibg=NONE guifg=#9D806F')
 end
 
