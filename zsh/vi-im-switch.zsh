@@ -1,18 +1,13 @@
 if [[ $UNAME_INFO =~ "microsoft" ]]; then
+  : "${WINDOWS_IME_TOOLS_DIR:?WINDOWS_IME_TOOLS_DIR must be set}"
   function disable_ime_cmd {
-    "/mnt/d/bin/toDisableIME.exe"
+    "$WINDOWS_IME_TOOLS_DIR/toDisableIME.exe"
   }
   function enable_ime_cmd {
-    "/mnt/d/bin/toDisableIME.exe"
+    "$WINDOWS_IME_TOOLS_DIR/toDisableIME.exe"
   }
 elif [[ $UNAME_INFO =~ "Darwin" ]]; then
-  # if [[ ! -f /tmp/im-fifo ]]; then
-  #     mkfifo /tmp/im-fifo
-  # fi
   function disable_ime_cmd {
-    # echo 1 > /tmp/im-fifo
-    # nohup luajit /Users/lu5je0/1.lua > /dev/null 2>&1
-    # /usr/local/bin/im-select 'com.apple.keylayout.ABC'
   }
 else
   return 1

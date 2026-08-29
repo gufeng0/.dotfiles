@@ -1,8 +1,5 @@
 # mac
 if [[ $UNAME_INFO =~ "Darwin" ]]; then
-  # intel
-  PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-  
   # arm
   export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
   export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
@@ -25,7 +22,7 @@ if [[ $UNAME_INFO =~ "Darwin" ]]; then
   # echo -en "\033]6;1;bg;green;brightness;46\a"
   # echo -en "\033]6;1;bg;blue;brightness;51\a"
   
-  export PATH=$HOME/.dotfiles/bin/mac_arm64/:$PATH
+  export PATH=$DOTFILES_DIR/bin/mac_arm64/:$PATH
 
 elif [[ $UNAME_INFO =~ "WSL" ]]; then
   
@@ -44,14 +41,14 @@ elif [[ $UNAME_INFO =~ "WSL" ]]; then
   alias yy='win32yank.exe -i'
   alias p='win32yank.exe -o'
   alias cmd='/mnt/c/Windows/System32/cmd.exe /c'
-  alias scoop='PATH=$PATH:/mnt/c/Windows/SysWOW64/WindowsPowerShell/v1.0/ /mnt/c/Users/lu5je0/scoop/shims/scoop'
+  alias scoop='PATH=$PATH:/mnt/c/Windows/SysWOW64/WindowsPowerShell/v1.0/ /mnt/c/Users/$WIN_USER/scoop/shims/scoop'
   alias powershell='/mnt/c/Windows/SysWOW64/WindowsPowerShell/v1.0/powershell.exe'
-  alias tssh='/mnt/c/Users/lu5je0/scoop/shims/tssh.exe'
+  alias tssh='/mnt/c/Users/$WIN_USER/scoop/shims/tssh.exe'
   clippaste() {
     powershell.exe -noprofile -command Get-Clipboard | tr -d '\r'
   }
-  export PATH=/mnt/c/Users/lu5je0/scoop/shims:$PATH
-  . $HOME'/.dotfiles/win/wsl2/wezterm.sh'
+  export PATH=/mnt/c/Users/$WIN_USER/scoop/shims:$PATH
+  . "$DOTFILES_DIR/win/wsl2/wezterm.sh"
 elif [[ $UNAME_INFO =~ "Android" ]]; then
   alias apk-install='termux-open --view --content-type "application/vnd.android.package-archive" '
 fi
@@ -59,8 +56,6 @@ fi
 if [[ $UNAME_INFO =~ "GNU/Linux" ]]; then
   arch=`arch`
   if [[ $arch =~ 'x86_64' ]]; then
-    export PATH=$HOME/.dotfiles/bin/linux_x86_64:$PATH
-  elif [[ $arch =~ 'aarch64' ]]; then
-    export PATH=$HOME/.dotfiles/bin/linux_aarch64:$PATH
+    export PATH=$DOTFILES_DIR/bin/linux_x86_64:$PATH
   fi
 fi

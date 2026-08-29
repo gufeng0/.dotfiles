@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 ask() {
     echo -n "$1"
@@ -39,22 +39,20 @@ fi
 
 link_path "$DOTFILES_DIR/ssh/config" "$HOME/.ssh/config"
 
-ask "cp ~/.dotfiles/.gitconfig ~/.gitconfig?" && cp "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
+ask "cp $DOTFILES_DIR/.gitconfig ~/.gitconfig?" && cp "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
 
-ask "ln -s ~/.dotfiles/hammerspoon ~/.hammerspoon?" && link_path "$DOTFILES_DIR/hammerspoon" "$HOME/.hammerspoon"
+if [ "$(uname)" = "Darwin" ]; then
+    ask "ln -s $DOTFILES_DIR/hammerspoon ~/.hammerspoon?" && link_path "$DOTFILES_DIR/hammerspoon" "$HOME/.hammerspoon"
+fi
 
-ask "ln -s ~/.dotfiles/termux/termux.properties ~/.termux/termux.properties?" && link_path "$DOTFILES_DIR/termux/termux.properties" "$HOME/.termux/termux.properties"
+if [[ "$(uname -a)" == *"Android"* ]]; then
+    ask "ln -s $DOTFILES_DIR/termux/termux.properties ~/.termux/termux.properties?" && link_path "$DOTFILES_DIR/termux/termux.properties" "$HOME/.termux/termux.properties"
+fi
 
 ask "copy maven config?" && if [[ ! -d "$HOME/.m2" ]]; then mkdir "$HOME/.m2"; fi && cp -i "$DOTFILES_DIR/m2/settings.xml" "$HOME/.m2/settings.xml"
 
 link_path "$DOTFILES_DIR/ideavimrc" "$HOME/.ideavimrc"
 link_path "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
-
-if [ "$(uname)" = "Darwin" ]; then
-    if [[ ! -f "$HOME/.mac" ]]; then
-        touch "$HOME/.mac"
-    fi
-fi
 
 link_path "$DOTFILES_DIR/bin" "$HOME/.local/bin/solid"
 
@@ -67,16 +65,13 @@ if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
 fi
 link_path "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
 
-# wezterm
-# if [[ ! -d ~/.config/wezterm ]]; then
-#     ln -s ~/.dotfiles/wezterm ~/.config/wezterm
-# fi
-
 # kitty
 link_path "$DOTFILES_DIR/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
 
 # alacritty
-link_path "$DOTFILES_DIR/alacritty/mac/alacritty.yml" "$HOME/.config/alacritty/alacritty.yml"
+if [ "$(uname)" = "Darwin" ]; then
+    link_path "$DOTFILES_DIR/alacritty/mac/alacritty.yml" "$HOME/.config/alacritty/alacritty.yml"
+fi
 
 link_path "$DOTFILES_DIR/aria2/aria2.conf" "$HOME/.aria2/aria2.conf"
 
