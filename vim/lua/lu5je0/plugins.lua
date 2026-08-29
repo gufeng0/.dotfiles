@@ -82,6 +82,40 @@ require("lazy").setup({
     {
       'nvim-treesitter/nvim-treesitter',
       build = ':TSUpdate',
+      init = function()
+        -- nvim>=0.12 passes captures to query handlers as TSNode[] lists, but
+        -- the archived nvim-treesitter master handlers expect a bare TSNode
+        -- (all=false). Wrap only handlers registered from nvim-treesitter
+        -- source trees so legacy directives keep working.
+        local ok, query = pcall(require, 'vim.treesitter.query')
+        if not ok then
+          return
+        end
+        local function first_node(nodes)
+          return type(nodes) == 'table' and nodes[1] or nodes
+        end
+        local function wrap_add(orig)
+          return function(name, handler, opts)
+            local src = debug.getinfo(2, 'S').source or ''
+            if src:find('nvim-treesitter', 1, true) then
+              local all = type(opts) == 'table' and opts.all or false
+              if not all then
+                local legacy = handler
+                handler = function(match, ...)
+                  local norm = {}
+                  for id, nodes in pairs(match) do
+                    norm[id] = first_node(nodes)
+                  end
+                  return legacy(norm, ...)
+                end
+              end
+            end
+            return orig(name, handler, opts)
+          end
+        end
+        query.add_predicate = wrap_add(query.add_predicate)
+        query.add_directive = wrap_add(query.add_directive)
+      end,
       config = function()
         require("nvim-treesitter.install").prefer_git = true
         require('lu5je0.ext.treesiter')
