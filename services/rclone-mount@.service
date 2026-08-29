@@ -16,6 +16,15 @@
 # To disable mount on boot use:
 # systemctl disable rclone-mount@<rclone-remote>.service
 
+# REQUIRED deployment configuration: the service intentionally has NO default
+# user/group. Replace CHANGE_ME below with an existing Linux user/group (the one
+# whose $HOME contains the rclone config you want to mount with), for example via:
+#   sudo systemctl edit rclone-mount@<rclone-remote>.service
+#     [Service]
+#     User=rclone
+#     Group=rclone
+# Until User=/Group= point at an existing user, the service fails to start instead
+# of silently running as a hardcoded account.
 
 [Unit]
 Description=rclone FUSE mount for %i
@@ -28,9 +37,9 @@ After=docker.service
 
 [Service]
 #Type=forking
-# This example use a linux user named rclone. Create it or adapt it to your needs. Rclone will get config from that user's home folder
-User=lu5je0
-Group=lu5je0
+# Required: set to an existing user/group before starting the service.
+User=CHANGE_ME
+Group=CHANGE_ME
 # This example uses /cloud/ folder as origin to mount all remotes, change it to your needs
 # --vfs-cache-mode full activates cache for writting and reading. Check RClone documentation
 ExecStart=/usr/bin/rclone mount %i: /mnt/%i --vfs-cache-mode full -v --allow-non-empty --allow-other

@@ -4,6 +4,32 @@ local mux = wezterm.mux
 local is_win = string.find(wezterm.target_triple, 'windows')
 local is_mac = string.find(wezterm.target_triple, 'apple')
 
+-- Windows 用户目录不硬编码用户名,统一从 USERPROFILE 读取(Windows 系统保证存在)。
+-- 缺失时显式报错,避免静默拼接出错误的用户路径。
+local userprofile = os.getenv('USERPROFILE')
+if is_win and (userprofile == nil or userprofile == '') then
+  error('wezterm.lua: USERPROFILE is required on Windows, set it before launching WezTerm')
+end
+
+-- 将 Windows 路径(C:\Users\xxx\...)转换为 WSL 风格路径(/mnt/c/Users/xxx/...)
+local function wsl_path(win_path)
+  if not win_path then
+    return win_path
+  end
+
+  -- 将反斜杠替换为斜杠
+  local path = win_path:gsub("\\", "/")
+
+  -- 提取驱动器号并转换为小写
+  local drive, rest_of_path = path:match("^(%a):[/\\](.*)")
+  if not drive then
+    return win_path
+  end
+
+  -- 构建 WSL 路径
+  return "/mnt/" .. drive:lower() .. "/" .. rest_of_path
+end
+
 -- "Thin"
 -- "ExtraLight"
 -- "Light"
@@ -240,7 +266,8 @@ local tssh = (function()
   if is_mac then
     return 'tssh'
   elseif is_win then
-    return '/mnt/c/Users/lu5je0/scoop/shims/tssh.exe'
+    -- scoop 安装在 Windows 用户目录下,路径从 USERPROFILE 推导
+    return wsl_path(userprofile) .. '/scoop/shims/tssh.exe'
   end
 end)()
 config.launch_menu = {}
@@ -273,8 +300,6 @@ for _, launch in ipairs(launch_menu) do
     table.insert(config.launch_menu, launch)
   elseif launch.type == 'win' and is_win then
     table.insert(config.launch_menu, launch)
-  elseif launch.type == 'mac' and is_win then
-    table.insert(config.launch_menu, launch)
   end
   launch.type = nil
 end
@@ -296,28 +321,14 @@ config.window_close_confirmation = 'NeverPrompt'
 
 wezterm.on('gui-startup', function(cmd)
   if is_win then
-    local function wsl_path(win_path)
-      if not win_path then
-        return win_path
-      end
-
-      -- 将反斜杠替换为斜杠
-      local path = win_path:gsub("\\", "/")
-
-      -- 提取驱动器号并转换为小写
-      local drive, rest_of_path = path:match("^(%a):[/\\](.*)")
-      if not drive then
-        return win_path
-      end
-
-      -- 构建 WSL 路径
-      return "/mnt/" .. drive:lower() .. "/" .. rest_of_path
-    end
-    
     local cwd = cmd and cmd.cwd or nil
     mux.spawn_window { width = 119, height = 43, cwd = wsl_path(cwd) }
     wezterm.sleep_ms(400)
-    wezterm.run_child_process { "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe", "C:\\Users\\lu5je0\\.dotfiles\\win\\ahk\\wezterm\\resize.ahk" }
+    wezterm.run_child_process {
+      "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe",
+      -- AHK 脚本随仓库分发,路径从 USERPROFILE 推导,不硬编码用户名
+      userprofile .. '\\.dotfiles\\win\\ahk\\wezterm\\resize.ahk',
+    }
   elseif is_mac then
     mux.spawn_window { width = 120, height = 42 }
   end

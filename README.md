@@ -601,6 +601,22 @@ kitty 在这个项目里不是“另一个独立终端”，更像是 tmux 工�
 
 因此，这个项目更像“终端生态配置集合”，而不是单一终端主题仓库。
 
+### 13.5 Windows / WSL 协作脚本的配置契约
+
+`wezterm/` 与 `win/` 下的脚本面向 Windows / WSL 协作场景。仓库内不再硬编码某个具体 Windows 用户名，统一从运行环境读取：
+
+- `wezterm/wezterm.lua`：Windows 上从 `USERPROFILE` 读取用户目录（例如 `C:\Users\<user>` 及对应的 `/mnt/c/Users/<user>`），不再写死用户名；`USERPROFILE` 缺失时显式报错，不做静默回退。
+- `win/setup.sh`：在 WSL 中运行，通过 `USERPROFILE`（WSL 会继承 Windows 环境变量）定位 Windows 用户目录；文件符号链接使用 `mklink`（不带 `/d`，`/d` 只用于目录）。
+- `win/powershell/setup.ps1`：用 `$PSScriptRoot` 定位仓库内的 `profile.ps1`，不依赖 `$Home\.dotfiles` 这类固定路径。
+- `win/wsl2/ssh-copy-id`：从 `USERPROFILE` 推导 Windows 侧的 `.ssh/id_rsa.pub`。
+- `submodule/fetch-subs/fetch_subs.py`：shebang 为 `#!/usr/bin/env python3`，不再指向某台机器上的虚拟环境。
+
+这些脚本按“缺了就明确失败”的方式工作，而不是悄悄回退到旧配置：
+
+- 运行 `win/setup.sh` 或 `win/wsl2/ssh-copy-id` 前，需要处于 WSL 环境且 `USERPROFILE` 已设置。
+- `services/wsl-mount.service` 从 `credentials=/etc/smbcredentials` 读取 SMB 凭据（该文件应为 root 所有、权限 `600`），单元文件内不再出现明文密码。
+- `services/rclone-mount@.service` 的 `User=` / `Group=` 是部署时必须设置的配置（需替换模板中的占位值），未设置会导致服务启动失败，不会默认使用某个固定账号。
+
 ---
 
 ## 14. JetBrains 支持：让 IDE 尽量继承同一套编辑习惯
@@ -661,6 +677,8 @@ kitty 在这个项目里不是“另一个独立终端”，更像是 tmux 工�
 例如这里可以看到：
 - rclone 挂载相关服务
 - WSL / SMB 挂载相关服务
+
+其中 `wsl-mount.service` 不再在单元文件中保存明文密码，改为从 `credentials=/etc/smbcredentials` 读取 SMB 凭据；`rclone-mount@.service` 的 `User=` / `Group=` 需要部署时显式设置（无默认账号）。
 
 这进一步说明该仓库是“完整工作环境仓库”，而不是单纯的 shell/vim 仓库。
 

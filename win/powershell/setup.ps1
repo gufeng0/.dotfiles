@@ -13,4 +13,5 @@ if (-not (Test-Path $targetDir)) {
 }
 
 # 创建软链接
-New-Item -ItemType SymbolicLink -Path "$targetDir\profile.ps1" -Target "$Home\.dotfiles\win\powershell\profile.ps1"
+# 用 $PSScriptRoot 定位仓库内文件,不硬编码 $Home\.dotfiles 用户路径
+New-Item -ItemType SymbolicLink -Path "$targetDir\profile.ps1" -Target "$PSScriptRoot\profile.ps1"

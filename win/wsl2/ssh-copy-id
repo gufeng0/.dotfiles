@@ -1,9 +1,19 @@
 #!/bin/bash
+# 在 WSL 内使用:把 Windows 侧的 SSH 公钥复制到远程主机。
+# 公钥路径从 USERPROFILE(WSL 继承的 Windows 环境变量)推导,不硬编码用户名。
 
 function ssh_copy_id {
     local userAtMachine=$1
     local port=${2:-22}
-    local publicKey="/mnt/c/Users/lu5je0/.ssh/id_rsa.pub"
+
+    if [ -z "${USERPROFILE-}" ]; then
+        echo "ERROR: USERPROFILE is not set; please run this script inside WSL." >&2
+        return 1
+    fi
+
+    local win_home
+    win_home="$(wslpath -u "$USERPROFILE")"
+    local publicKey="$win_home/.ssh/id_rsa.pub"
 
     if [ ! -f "$publicKey" ]; then
         echo "ERROR: failed to open ID file '$publicKey': No such file"

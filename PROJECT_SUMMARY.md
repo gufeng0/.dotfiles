@@ -44,11 +44,14 @@ bash ~/.dotfiles/scripts/setup.sh
 - WSL
 - Linux
 - Termux（Android）
+- Windows 协作场景（`wezterm/` 配置与 `win/` 下的 WSL / PowerShell 脚本）
+
+> Windows 协作脚本不硬编码 Windows 用户名：路径统一从 `USERPROFILE`（或 PowerShell 的 `$PSScriptRoot`）推导；SMB 挂载凭据从 `credentials=/etc/smbcredentials` 读取；rclone 服务的 `User=` / `Group=` 需要部署时显式设置。
 
 这个仓库本质上是一个**长期沉淀的工作流闭环配置**，不是单纯的配置合集，而是作者完整开发环境的工程化管理。
 
 ---
 
-**更新时间**：2026-08-05
+**更新时间**：2026-08-29
 
 如果需要更详细的模块说明或某部分功能的深入说明，请告诉我！
