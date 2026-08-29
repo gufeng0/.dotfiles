@@ -1,5 +1,10 @@
 local M = {}
 
+local win32yank = vim.env.WIN32YANK_PATH
+if win32yank == nil or win32yank == '' then
+  error('[lu5je0.misc.clipboard.wsl] WIN32YANK_PATH is not set. Export WIN32YANK_PATH=<path to win32yank.exe>')
+end
+
 local augroup = vim.api.nvim_create_augroup("deferClip", {})
 
 local entries = {
@@ -23,7 +28,7 @@ local function pop_entry()
 end
 
 local function sync_from()
-  vim.fn.jobstart({ "/mnt/d/bin/win32yank.exe", "-o", "--lf" }, {
+  vim.fn.jobstart({ win32yank, "-o", "--lf" }, {
     stdout_buffered = true,
     on_stdout = function(_, data)
       -- 避免切换窗口后regtype丢失
@@ -39,7 +44,7 @@ local sync_to
 do
   local cur_sync_job
   local function sync_next(entry)
-    local chan = vim.fn.jobstart({ "/mnt/d/bin/win32yank.exe", "-i" }, {
+    local chan = vim.fn.jobstart({ win32yank, "-i" }, {
       on_exit = function(_)
         local next_entry = pop_entry()
         if next_entry then

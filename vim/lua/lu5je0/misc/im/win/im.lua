@@ -11,8 +11,13 @@ local timer = require('lu5je0.lang.timer')
 -- local ENABLE_IME = STD_PATH .. '/lib/toEnableIME.exe'
 
 -- 这样比较快 40ms左右
-local DISABLE_IME = '/mnt/d/bin/toDisableIME.exe'
-local ENABLE_IME = '/mnt/d/bin/toEnableIME.exe'
+local ime_tools_dir = vim.env.WINDOWS_IME_TOOLS_DIR
+if ime_tools_dir == nil or ime_tools_dir == '' then
+  error('[lu5je0.misc.im.win.im] WINDOWS_IME_TOOLS_DIR is not set. Export WINDOWS_IME_TOOLS_DIR=<dir containing toDisableIME.exe/toEnableIME.exe>')
+end
+
+local DISABLE_IME = ime_tools_dir .. '/toDisableIME.exe'
+local ENABLE_IME = ime_tools_dir .. '/toEnableIME.exe'
 
 M.disable_ime = rate_limiter:wrap(function()
   -- local handle = vim.uv.spawn(DISABLE_IME, { args = { '2>&1', '1>/dev/null' }})

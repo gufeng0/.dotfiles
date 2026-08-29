@@ -1,5 +1,10 @@
 local keys_helper = require('lu5je0.core.keys')
 
+local dotfiles_dir = vim.env.DOTFILES_DIR
+if dotfiles_dir == nil or dotfiles_dir == '' then
+  error('[lu5je0.mappings] DOTFILES_DIR is not set. Export DOTFILES_DIR=<path to dotfiles repo> before starting nvim')
+end
+
 vim.g.mapleader = ','
 
 -- option toggle
@@ -92,7 +97,7 @@ vim.schedule(function()
 
   -- dir
   -- set_n_map('<leader>fp', function() cmd_and_print('cd ~/.local/share/nvim/lazy') end)
-  set_n_map('<leader>fs', function() cmd_and_print('cd ~/.dotfiles') end)
+  set_n_map('<leader>fs', function() cmd_and_print('cd ' .. dotfiles_dir) end)
   set_n_map('<leader>ft', function() cmd_and_print('cd ~/test') end)
   
   -- selection search

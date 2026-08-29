@@ -1,5 +1,10 @@
 ---@diagnostic disable: unused-local
 
+local dotfiles_dir = vim.env.DOTFILES_DIR
+if dotfiles_dir == nil or dotfiles_dir == '' then
+  error('[lu5je0.filetype] DOTFILES_DIR is not set. Export DOTFILES_DIR=<path to dotfiles repo> before starting nvim')
+end
+
 vim.filetype.add {
   extension = {
     -- zsh = 'zsh',
@@ -24,6 +29,6 @@ vim.filetype.add {
     ['.*.tmux.conf'] = 'tmux',
     ['.*.zsh'] = 'bash',
     ['.*/ssh/config'] = 'sshconfig',
-    ['.*/.dotfiles/services/.*'] = 'systemd',
+    ['.*/' .. dotfiles_dir .. '/services/.*'] = 'systemd',
   },
 }

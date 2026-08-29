@@ -1,6 +1,11 @@
 local M = {}
 
 function M.setup()
+  local dotfiles_dir = vim.env.DOTFILES_DIR
+  if dotfiles_dir == nil or dotfiles_dir == '' then
+    error('[lu5je0.ext.whichkey] DOTFILES_DIR is not set. Export DOTFILES_DIR=<path to dotfiles repo> before starting nvim')
+  end
+
   local setup = {
     plugins = {
       marks = true,     -- shows a list of your marks on ' and `
@@ -175,9 +180,7 @@ function M.setup()
     },
     v = {
       name = '+vim',
-      v = { '<cmd>edit ' ..
-      vim.api.nvim_eval('$HOME') ..
-      '/.dotfiles/vim/init.lua | cd ' .. vim.api.nvim_eval('$HOME') .. '/.dotfiles/vim <cr>', 'edit init.lua' },
+      v = { '<cmd>edit ' .. dotfiles_dir .. '/vim/init.lua | cd ' .. dotfiles_dir .. '/vim <cr>', 'edit init.lua' },
       s = 'toggle signcolumn',
       S = { '<cmd>set signcolumn=yes | echo "set signcolumn=yes"<cr>', 'set signcolumn=yes' },
       c = 'toggle case insensitive',

@@ -9,7 +9,7 @@ local function init_log()
   if init then
     return
   end
-  log = io.open('/tmp/neovim.lu5je0.log', 'a')
+  log = io.open('/tmp/neovim.log', 'a')
   init = true
 end
 

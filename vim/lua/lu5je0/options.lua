@@ -133,10 +133,6 @@ o.termguicolors = true
 o.bg = 'dark'
 o.statusline = " "
 
-if has('mac') then
-  vim.g.python3_host_prog = '/usr/local/bin/python3'
-end
-
 local defer_options = {
   function()
     -- ~/.local/share/nvim/shada/main.shada
