@@ -726,19 +726,7 @@ require("lazy").setup({
           --   end }
           -- },
           {
-            text = { function(args)
-              if not vim.wo[args.win].number then
-                return builtin.lnumfunc(args)
-              end
-
-              local num = ''
-              if args.lnum < 10 then
-                num = ' ' .. builtin.lnumfunc(args)
-              else
-                num = builtin.lnumfunc(args)
-              end
-              return num .. ' '
-            end },
+            text = { builtin.lnumfunc, " " },
             condition = { true, builtin.not_empty },
             click = "v:lua.ScLa",
           }
