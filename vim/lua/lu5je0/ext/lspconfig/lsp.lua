@@ -123,12 +123,6 @@ local function config()
     server.setup(opts)
   end
 
-  vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
-    vim.lsp.handlers.signature_help, {
-    border = 'rounded',
-    close_events = { 'InsertLeave' },
-    focusable = false
-  })
 end
 
 local function semantic_token_highlight()
