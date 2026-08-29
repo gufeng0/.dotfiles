@@ -211,7 +211,6 @@ Neovim 的入口是 `vim/init.lua`。
 
 这里对应的是“把第三方插件接进工作流”，比如：
 - `toggleterm.nvim`
-- `gitsigns.nvim`
 - `telescope.nvim`
 - `nvim-tree`
 - `blink.cmp`

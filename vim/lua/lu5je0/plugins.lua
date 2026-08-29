@@ -726,14 +726,6 @@ require("lazy").setup({
           --   end }
           -- },
           {
-            sign = { namespace = { "gitsigns" }, maxwidth = 1, colwidth = 1, auto = false, wrap = true },
-            click = "v:lua.ScSa",
-            condition = { function(args)
-              return vim.wo[args.win].number
-              -- return vim.wo[args.win].signcolumn ~= 'no'
-            end }
-          },
-          {
             text = { function(args)
               if not vim.wo[args.win].number then
                 return builtin.lnumfunc(args)
