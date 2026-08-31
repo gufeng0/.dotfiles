@@ -103,7 +103,12 @@ M.setup = function()
     -- elsewhere in your config, without redefining it, due to `opts_extend`
     sources = {
       default = { 'lsp', 'snippets', 'path', 'buffer' },
-      cmdline = {}
+    },
+    -- 禁用 cmdline 补全：blink 懒加载于 InsertEnter，首次按 `:` 时会
+    -- 同步冷加载整个 blink.cmp（实测 ~283ms），导致输入命令首字符卡顿。
+    -- 关闭后 cmdline 用 Neovim 原生补全，彻底消除该卡顿。
+    cmdline = {
+      enabled = false,
     },
     snippets = {
       preset = 'luasnip'

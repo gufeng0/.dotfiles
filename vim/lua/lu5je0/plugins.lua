@@ -414,7 +414,9 @@ require("lazy").setup({
     },
 
     -- use a release tag to download pre-built binaries
-    version = '*',
+    -- 锁定 1.x：v1.10 是 1.x 最终版，v2 含破坏性变更（需 blink.lib），
+    -- 避免将来 Lazy update 自动跳到 v2 导致配置报错
+    version = '1.*',
     -- AND/OR build from source, requires nightly: https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
     -- build = 'cargo build --release',
     -- If you use nix, you can build from source using latest nightly rust with:

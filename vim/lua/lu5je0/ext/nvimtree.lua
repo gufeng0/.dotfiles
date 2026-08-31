@@ -400,10 +400,15 @@ function M.setup()
   
   vim.keymap.set('n', '<leader>fe', require('lu5je0.ext.nvimtree').locate_file, opts)
 
-  local view = require('nvim-tree.view')
-  view.View.winopts.signcolumn = 'no'
-  view.View.winopts.foldcolumn = '1'
-  view.View.winopts.statuscolumn = ''
+  -- 新版 nvim-tree 移除了 view.View.winopts(改为 view-state 内部管理),
+  -- signcolumn/foldcolumn 通过下方 setup 的 view 配置;statuscolumn 用 FileType autocmd 设置
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'NvimTree',
+    callback = function()
+      vim.wo.statuscolumn = ''
+      vim.wo.foldcolumn = '1'
+    end,
+  })
 
   require('nvim-tree').setup {
     disable_netrw = true,
@@ -412,6 +417,9 @@ function M.setup()
     hijack_cursor = false,
     update_cwd = true,
     on_attach = on_attach,
+    view = {
+      signcolumn = 'no',
+    },
     notify = {
       threshold = vim.log.levels.WARN,
     },
@@ -458,10 +466,6 @@ function M.setup()
       enable = true,
       ignore = false,
       timeout = 500,
-    },
-    system_open = {
-      cmd = nil,
-      args = {},
     },
     filters = {
       dotfiles = true,
