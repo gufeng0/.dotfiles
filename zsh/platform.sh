@@ -1,8 +1,10 @@
 # mac
 if [[ $UNAME_INFO =~ "Darwin" ]]; then
-  # arm
-  export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
-  export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
+  # gnubin: intel(/usr/local) 与 arm(/opt/homebrew) 按实际存在添加
+  for _gnu_dir in /usr/local/opt/coreutils/libexec/gnubin /opt/homebrew/opt/coreutils/libexec/gnubin /usr/local/opt/grep/libexec/gnubin /opt/homebrew/opt/grep/libexec/gnubin; do
+    [[ -d $_gnu_dir ]] && export PATH="$_gnu_dir:$PATH"
+  done
+  unset _gnu_dir
   
   alias ls='ls -F --show-control-chars --color=auto'
   # eval $(gdircolors -b $HOME/.dir_colors)
