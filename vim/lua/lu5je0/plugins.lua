@@ -188,6 +188,27 @@ require("lazy").setup({
     end
   },
   {
+    'CoreyKaylor/diffbandit.nvim',
+    cmd = { 'DiffBandit', 'DiffBanditBuffers', 'DiffBanditFolderDiff', 'DiffBanditGit', 'DiffBanditGitCurrent', 'DiffBanditCommitPanel', 'DiffBanditMerge', 'DiffBanditGitCompare' },
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+    },
+    -- 主题色：默认取 colorscheme 的 Diff* 组（edge 下偏淡），这里直接指定更醒目的背景色。
+    -- change_emphasis 是行内变更 token 的加强色；theme.highlights 可覆盖任意 DiffBandit* 高亮组。
+    opts = {
+      ui = {
+        theme = {
+          colors = {
+            add = '#1E5C38',           -- 新增行背景（默认暗色 ~#123D2B）
+            delete = '#7A2E35',        -- 删除行背景（默认 ~#4A2426）
+            change = '#34517E',        -- 变更行背景（默认 ~#253344）
+            change_emphasis = '#46649B' -- 行内变更加强
+          },
+        },
+      },
+    },
+  },
+  {
     'nvim-tree/nvim-web-devicons',
     -- config = function()
     --   require('nvim-web-devicons').setup {
