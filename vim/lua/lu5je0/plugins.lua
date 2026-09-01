@@ -170,6 +170,51 @@ require("lazy").setup({
     end
   },
   {
+    -- git 状态实时标记：signcolumn='no' 下用 numhl 着色行号表达增删改，零布局侵入
+    'lewis6991/gitsigns.nvim',
+    event = { 'BufReadPre', 'BufNewFile' },
+    config = function()
+      require('gitsigns').setup {
+        signcolumn = false,
+        numhl = true,
+        current_line_blame = true,
+        current_line_blame_opts = {
+          virt_text = true,
+          delay = 500,
+          virt_text_pos = 'eol',
+          ignore_blank_line = true,
+        },
+        on_attach = function(bufnr)
+          local gs = package.loaded.gitsigns
+          local map = function(mode, lhs, rhs, desc, extra)
+            local o = { buffer = bufnr, silent = true, desc = 'gitsigns: ' .. desc }
+            if extra then
+              for k, v in pairs(extra) do o[k] = v end
+            end
+            vim.keymap.set(mode, lhs, rhs, o)
+          end
+          map('n', ']g', function()
+            if vim.wo.diff then return ']c' end
+            vim.schedule(function() gs.next_hunk() end)
+            return '<Ignore>'
+          end, 'next hunk', { expr = true })
+          map('n', '[g', function()
+            if vim.wo.diff then return '[c' end
+            vim.schedule(function() gs.prev_hunk() end)
+            return '<Ignore>'
+          end, 'prev hunk', { expr = true })
+          map('n', '<leader>gS', gs.stage_hunk, 'stage hunk')
+          map('n', '<leader>gU', gs.undo_stage_hunk, 'undo stage hunk')
+          map('n', '<leader>gR', gs.reset_hunk, 'reset hunk')
+          map('v', '<leader>gS', function() gs.stage_hunk { vim.fn.line('.'), vim.fn.line('v') } end, 'stage hunk')
+          map('v', '<leader>gR', function() gs.reset_hunk { vim.fn.line('.'), vim.fn.line('v') } end, 'reset hunk')
+          map('n', '<leader>gP', gs.preview_hunk, 'preview hunk')
+          map({ 'o', 'x' }, 'ig', ':<C-U>Gitsigns select_hunk<CR>', 'hunk textobj')
+        end,
+      }
+    end
+  },
+  {
     'rbong/vim-flog',
     cmd = { 'Flogsplit', 'Floggit', 'Flog' },
     keys = { { mode = 'n', '<leader>gL' }, { mode = 'x', '<leader>gl' } },
@@ -552,10 +597,8 @@ require("lazy").setup({
     config = function()
       require('lu5je0.ext.nvim-ufo')
     end,
-    lazy = true
-    -- event = 'VeryLazy'
-    -- cmd = 'FoldTextToggle',
-    -- keys = { 'zf', 'zo', 'za', 'zc', 'zM', 'zR' }
+    -- 打开文件即加载（BufWinEnter 时 ufo attach，foldmethod=manual 会被窗口局部 expr 覆盖）
+    event = 'BufReadPost'
   },
 
   {
@@ -634,14 +677,14 @@ require("lazy").setup({
   -- lsp
   {
     {
-      'williamboman/mason.nvim',
+      'mason-org/mason.nvim',
       config = function()
         require("mason").setup()
       end,
       event = 'VeryLazy'
     },
     {
-      'williamboman/mason-lspconfig.nvim',
+      'mason-org/mason-lspconfig.nvim',
       config = function()
         require('mason-lspconfig').setup {
           ensure_installed = {}
@@ -649,7 +692,7 @@ require("lazy").setup({
       end,
       event = 'VeryLazy',
       dependencies = {
-        'williamboman/mason.nvim',
+        'mason-org/mason.nvim',
         {
           'neovim/nvim-lspconfig',
           config = function()
@@ -751,6 +794,17 @@ require("lazy").setup({
         })
       end
     },
+    -- 诊断/引用/符号的统一列表视图（替代逐个 [d ]d 跳转）
+    {
+      'folke/trouble.nvim',
+      cmd = 'Trouble',
+      opts = {},
+      keys = {
+        { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Diagnostics (Trouble)' },
+        { '<leader>xX', '<cmd>Trouble diagnostics toggle filter.buf=0<cr>', desc = 'Buffer Diagnostics (Trouble)' },
+        { '<leader>xl', '<cmd>Trouble lsp_references toggle<cr>', desc = 'LSP References (Trouble)' },
+      },
+    },
   },
 
   {
@@ -758,7 +812,7 @@ require("lazy").setup({
     config = function()
       require('nvim-autopairs').setup()
     end,
-    cmd = 'InsertEnter'
+    event = 'InsertEnter'
   },
   {
     'NvChad/nvim-colorizer.lua',
