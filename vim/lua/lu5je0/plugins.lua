@@ -188,25 +188,88 @@ require("lazy").setup({
     end
   },
   {
-    'CoreyKaylor/diffbandit.nvim',
-    cmd = { 'DiffBandit', 'DiffBanditBuffers', 'DiffBanditFolderDiff', 'DiffBanditGit', 'DiffBanditGitCurrent', 'DiffBanditCommitPanel', 'DiffBanditMerge', 'DiffBanditGitCompare' },
+    -- sindrets 原版 2024-06 起停更，用活跃维护的 fork（新增 diff1_inline 单窗口布局等）
+    'dlyongemallo/diffview.nvim',
+    cmd = { 'DiffviewOpen', 'DiffviewFileHistory', 'DiffviewClose', 'DiffviewToggleFiles', 'DiffviewFocusFiles', 'DiffviewRefresh' },
     dependencies = {
       'nvim-tree/nvim-web-devicons',
     },
-    -- 主题色：默认取 colorscheme 的 Diff* 组（edge 下偏淡），这里直接指定更醒目的背景色。
-    -- change_emphasis 是行内变更 token 的加强色；theme.highlights 可覆盖任意 DiffBandit* 高亮组。
     opts = {
-      ui = {
-        theme = {
-          colors = {
-            add = '#1E5C38',           -- 新增行背景（默认暗色 ~#123D2B）
-            delete = '#7A2E35',        -- 删除行背景（默认 ~#4A2426）
-            change = '#34517E',        -- 变更行背景（默认 ~#253344）
-            change_emphasis = '#46649B' -- 行内变更加强
-          },
-        },
+      enhanced_diff_hl = true,
+      view = {
+        default = { layout = 'diff2_horizontal' }, -- 左右并排
+        merge_tool = { layout = 'diff3_horizontal' },
+        file_history = { layout = 'diff2_horizontal' },
+      },
+      file_panel = {
+        win_config = { position = 'left', width = 35 },
       },
     },
+    config = function(_, opts)
+      local lib = require('diffview.lib')
+      local diffview = require('diffview')
+
+      -- fork@43e60bca 的 actions.close 是 emit 存根、按了没反应，统一走 :DiffviewClose 同款路径；
+      -- 并兜底清理 teardown 漏掉的 diffview:// 占位缓冲、摘除临时挂的 q 映射
+      local q_armed = {} -- [bufnr]=true：我们临时挂过 q 的真实文件 buffer
+      local function disarm_q()
+        for b in pairs(q_armed) do
+          if vim.api.nvim_buf_is_valid(b) then
+            pcall(vim.keymap.del, 'n', 'q', { buffer = b })
+          end
+          q_armed[b] = nil
+        end
+      end
+      local function close_view()
+        diffview.close(nil, { force = false })
+        for _, b in ipairs(vim.api.nvim_list_bufs()) do
+          if vim.api.nvim_buf_is_valid(b) and vim.fn.bufname(b):match('^diffview://') then
+            pcall(vim.api.nvim_buf_delete, b, { force = true })
+          end
+        end
+        disarm_q()
+      end
+
+      -- 追加到默认 keymaps 尾部。不能用 opts.keymaps：lazy 列表按索引合并，会顶掉默认第一项
+      local q_entry = { 'n', 'q', close_view, { desc = 'Close Diffview' } }
+      local defaults_keymaps = require('diffview.config').defaults.keymaps
+      for _, ctx in ipairs({ 'view', 'file_panel', 'file_history_panel' }) do
+        if defaults_keymaps[ctx] then
+          table.insert(defaults_keymaps[ctx], q_entry)
+        end
+      end
+
+      -- diff 右栏对工作区文件直接用真实文件 buffer，keymaps.view 绑不到它；
+      -- 视图打开期间用 WinEnter 给这类窗口临时挂 q，视图关闭时统一摘除
+      local aug = vim.api.nvim_create_augroup('lu5je0_diffview_q', { clear = true })
+      vim.api.nvim_create_autocmd('WinEnter', {
+        group = aug,
+        callback = function()
+          if not lib.get_current_view() then
+            return
+          end
+          local bufnr = vim.api.nvim_win_get_buf(0)
+          if vim.fn.bufname(bufnr):match('^diffview://') then
+            return -- diffview 自有 buffer 已有 view 上下文绑定
+          end
+          if not q_armed[bufnr] then
+            q_armed[bufnr] = true
+            vim.keymap.set('n', 'q', close_view, { buffer = bufnr, desc = 'Close Diffview', nowait = true })
+          end
+        end,
+      })
+      -- 用 :DiffviewClose 等其他方式退出时也要摘除临时映射
+      opts.hooks = opts.hooks or {}
+      local user_view_closed = opts.hooks.view_closed
+      opts.hooks.view_closed = function(...)
+        disarm_q()
+        if user_view_closed then
+          user_view_closed(...)
+        end
+      end
+
+      diffview.setup(opts)
+    end,
   },
   {
     'nvim-tree/nvim-web-devicons',

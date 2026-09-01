@@ -8,7 +8,7 @@
   "blink.cmp": { "branch": "main", "commit": "78336bc89ee5365633bcf754d93df01678b5c08f" },
   "boole.nvim": { "branch": "main", "commit": "7b4a3dae28e3b2497747aa840439e9493cabdc49" },
   "bufferline.nvim": { "branch": "main", "commit": "655133c3b4c3e5e05ec549b9f8cc2894ac6f51b3" },
-  "diffbandit.nvim": { "branch": "main", "commit": "546505d6b33a8e973440a0af943be0c105480a05" },
+  "diffview.nvim": { "branch": "main", "commit": "43e60bca414e4991ed10118e59f809fb03bbeddd" },
   "edge": { "branch": "master", "commit": "7ec78c21bd8f0b2b0b47043bb1e730c561647c72" },
   "edgy.nvim": { "branch": "main", "commit": "8bfd2808994a988c975694122f68624b8a219f5f" },
   "flash.nvim": { "branch": "main", "commit": "5f0f270fdc7c5b0c21d903ee85b9cb06f2ac636a" },
