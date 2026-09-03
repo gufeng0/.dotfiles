@@ -147,6 +147,22 @@ local function exit_vim_with_dialog()
 end
 
 function M.close_buffer()
+  -- diffview 视图里的真实文件窗口走 bp+bd! 会把 diffview 的布局窗口换成
+  -- 空 [No Name]，diffview 不会自动重建布局，视图变成僵尸：之后普通 q
+  -- 没有映射、:q 也关不掉，表现为“diffview 不能全部退出”。
+  -- 在 diffview tab 里直接走 diffview 的关闭路径（数据安全：非 force，
+  -- 有未保存 stage buffer 时 diffview 自己会拒绝并提示）。
+  if vim.g.diffview_nvim_loaded then
+    local ok, lib = pcall(require, 'diffview.lib')
+    if ok and lib and lib.get_current_view() then
+      local ok_close, diffview = pcall(require, 'diffview')
+      if ok_close and diffview then
+        pcall(diffview.close, lib.get_current_view().tabpage, { force = false })
+        return
+      end
+    end
+  end
+
   local valid_buffers = require('lu5je0.core.buffers').valid_buffers()
   local cur_buf_nr = vim.api.nvim_get_current_buf()
 

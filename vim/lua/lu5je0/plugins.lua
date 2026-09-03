@@ -256,27 +256,89 @@ require("lazy").setup({
 
       -- fork@43e60bca 的 actions.close 是 emit 存根、按了没反应，统一走 :DiffviewClose 同款路径；
       -- 并兜底清理 teardown 漏掉的 diffview:// 占位缓冲、摘除临时挂的 q 映射
-      local q_armed = {} -- [bufnr]=true：我们临时挂过 q 的真实文件 buffer
-      local function disarm_q()
-        for b in pairs(q_armed) do
+      local q_armed = {} -- [bufnr]=挂载前备份的 q 映射（无则为 false）：我们临时挂过 q 的真实文件 buffer
+      -- 两个函数互相引用，需先声明 local 再赋值，否则会退化成全局查找（nil）
+      local disarm_q
+      local close_all_views
+
+      disarm_q = function()
+        for b, backup in pairs(q_armed) do
           if vim.api.nvim_buf_is_valid(b) then
-            pcall(vim.keymap.del, 'n', 'q', { buffer = b })
+            -- 只摘我们挂的 q（按回调身份识别），用户原有的 buffer-local q 保留
+            for _, km in ipairs(vim.api.nvim_buf_get_keymap(b, 'n')) do
+              if km.lhs == 'q' and km.callback == close_all_views then
+                pcall(vim.keymap.del, 'n', 'q', { buffer = b })
+                break
+              end
+            end
+            -- 挂载前若覆盖了用户自己的 q，这里恢复
+            if backup then
+              local rhs = backup.callback or backup.rhs
+              if rhs then
+                pcall(vim.keymap.set, backup.mode, backup.lhs, rhs, backup.opts)
+              end
+            end
           end
           q_armed[b] = nil
         end
       end
-      local function close_view()
-        diffview.close(nil, { force = false })
-        for _, b in ipairs(vim.api.nvim_list_bufs()) do
-          if vim.api.nvim_buf_is_valid(b) and vim.fn.bufname(b):match('^diffview://') then
-            pcall(vim.api.nvim_buf_delete, b, { force = true })
+
+      close_all_views = function()
+        -- close() 会从 lib.views 删除元素，所以先复制 view 列表，避免遍历时漏项；
+        -- 逐个 pcall：单个 view 关闭过程中的异常（如用户 autocmd 报错）不能中断其余 view
+        local views = {}
+        for _, view in ipairs(lib.views) do
+          views[#views + 1] = view
+        end
+        for _, view in ipairs(views) do
+          local tabpage = view.tabpage
+          if tabpage and vim.api.nvim_tabpage_is_valid(tabpage) then
+            -- 僵尸布局兜底：外部代码（如 close_buffer 的 bp+bd!）杀掉布局窗口
+            -- 显示的 buffer 后，窗口会残留一个空 [No Name]，布局不再完整但
+            -- tabpage 还在。先让 view 重建/校验布局，再走正常关闭，否则
+            -- tabclose 可能因布局窗口状态异常失败，view 永远留在 lib.views。
+            pcall(function()
+              if view.ensure_layout then
+                view:ensure_layout()
+              end
+            end)
+            local ok, closed = pcall(diffview.close, tabpage, { force = false })
+            if ok and closed == false then
+              -- 有未保存的 stage buffer：拒绝关闭。整批中止、保留其余 view，
+              -- 保存后再次按 q 即可全部退出（不 force，避免丢数据）
+              return
+            end
+          else
+            -- teardown 漏掉的僵尸 view（tabpage 已死/nil）：close() 对无效 tabpage
+            -- 是 no-op 且不会摘除，这里手动摘除，否则 lib.views 永远清不干净
+            lib.dispose_view(view)
           end
         end
-        disarm_q()
+
+        -- 关闭过程中可能残留 tabpage 已失效的 view（close 中途异常等），统一摘除
+        local stale = {}
+        for _, view in ipairs(lib.views) do
+          if not view.tabpage or not vim.api.nvim_tabpage_is_valid(view.tabpage) then
+            stale[#stale + 1] = view
+          end
+        end
+        for _, view in ipairs(stale) do
+          lib.dispose_view(view)
+        end
+
+        -- 有未保存的 stage buffer 时 close() 会拒绝退出，不要误删仍在使用的 buffer
+        if #lib.views == 0 then
+          for _, b in ipairs(vim.api.nvim_list_bufs()) do
+            if vim.api.nvim_buf_is_valid(b) and vim.fn.bufname(b):match('^diffview://') then
+              pcall(vim.api.nvim_buf_delete, b, { force = true })
+            end
+          end
+          disarm_q()
+        end
       end
 
       -- 追加到默认 keymaps 尾部。不能用 opts.keymaps：lazy 列表按索引合并，会顶掉默认第一项
-      local q_entry = { 'n', 'q', close_view, { desc = 'Close Diffview' } }
+      local q_entry = { 'n', 'q', close_all_views, { desc = 'Close all Diffviews' } }
       local defaults_keymaps = require('diffview.config').defaults.keymaps
       for _, ctx in ipairs({ 'view', 'file_panel', 'file_history_panel' }) do
         if defaults_keymaps[ctx] then
@@ -298,8 +360,30 @@ require("lazy").setup({
             return -- diffview 自有 buffer 已有 view 上下文绑定
           end
           if not q_armed[bufnr] then
-            q_armed[bufnr] = true
-            vim.keymap.set('n', 'q', close_view, { buffer = bufnr, desc = 'Close Diffview', nowait = true })
+            -- 挂载前若有用户自己的 buffer-local q（如 :tab split 后新 tab 的初始
+            -- buffer 就是用户的文件），先备份；摘除时恢复，避免覆盖后丢映射
+            local backup
+            for _, km in ipairs(vim.api.nvim_buf_get_keymap(bufnr, 'n')) do
+              if km.lhs == 'q' and km.callback ~= close_all_views then
+                backup = {
+                  mode = 'n',
+                  lhs = 'q',
+                  rhs = km.rhs or '',
+                  callback = km.callback,
+                  opts = {
+                    buffer = bufnr,
+                    desc = km.desc,
+                    silent = km.silent == 1 or km.silent == true,
+                    noremap = km.noremap == 1 or km.noremap == true,
+                    nowait = km.nowait == 1 or km.nowait == true,
+                    expr = km.expr == 1 or km.expr == true,
+                  },
+                }
+                break
+              end
+            end
+            q_armed[bufnr] = backup or false -- 注意：存 nil 会删掉键，摘除时就会漏掉这个 buffer
+            vim.keymap.set('n', 'q', close_all_views, { buffer = bufnr, desc = 'Close all Diffviews', nowait = true })
           end
         end,
       })
@@ -307,7 +391,12 @@ require("lazy").setup({
       opts.hooks = opts.hooks or {}
       local user_view_closed = opts.hooks.view_closed
       opts.hooks.view_closed = function(...)
-        disarm_q()
+        -- view_closed 触发时 lib.views 尚未摘除当前 view，延迟到 close() 完成后判断
+        vim.schedule(function()
+          if #lib.views == 0 then
+            disarm_q()
+          end
+        end)
         if user_view_closed then
           user_view_closed(...)
         end
