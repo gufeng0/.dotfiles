@@ -318,6 +318,8 @@ if [[ -x /usr/local/bin/fnm ]]; then
 elif [[ -x "$HOME/.fnm/fnm" ]]; then
   eval "$("$HOME/.fnm/fnm" env --use-on-cd)"
 fi
+# 清理 fnm 残留的 multishell 链接（保留 7 天内的，毫秒级开销）
+find ~/.local/state/fnm_multishells -type l -mtime +7 -delete 2>/dev/null
 
 
 # >>> grok installer >>>
